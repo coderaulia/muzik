@@ -24,6 +24,7 @@ import io.github.coderaulia.muzikplayer.data.toLibrary
 import io.github.coderaulia.muzikplayer.ui.*
 import io.github.coderaulia.muzikplayer.utils.Preferences
 import io.github.coderaulia.muzikplayer.utils.loadDbusCollection
+import com.tagtraum.ffsampledsp.FFNativeLibraryLoader
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -49,6 +50,7 @@ fun main(args: Array<String>) {
     val filesFromArgs = args.map { Path.of(it) }
     runBlocking {
         preloadUiEnvironment()
+        initializeAudioDecoder()
         preloadDbus()
 
         // Start loading ASAP
@@ -171,6 +173,19 @@ fun main(args: Array<String>) {
             }
         }
         exitProcess(0)
+    }
+}
+
+private fun initializeAudioDecoder() {
+    try {
+        val loaded = FFNativeLibraryLoader.loadLibrary()
+        if (loaded) {
+            logger.info { "FFSampledSP audio decoder initialized" }
+        } else {
+            logger.error { "FFSampledSP audio decoder could not load its native library" }
+        }
+    } catch (error: Throwable) {
+        logger.error(error) { "FFSampledSP audio decoder initialization failed" }
     }
 }
 
