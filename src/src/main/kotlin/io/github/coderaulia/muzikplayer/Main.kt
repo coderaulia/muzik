@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.window.WindowScope
+import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.awaitApplication
 import io.github.mmarco94.klibportal.portals.Settings
 import io.github.coderaulia.muzikplayer.audio.PlayerController
@@ -135,7 +136,7 @@ fun main(args: Array<String>) {
                                 { libraryTab = it })
                         },
                         alwaysOnTop = bringToTop.also { bringToTop = false },
-                    ) {
+                    ) { windowState ->
                         val fontResolver = LocalFontFamilyResolver.current
                         remember { cs.launch(Dispatchers.Default) { preloadFonts(fontResolver) } }
                         CompositionLocalProvider(mainWindowScope provides this@MainWindow) {
@@ -146,6 +147,15 @@ fun main(args: Array<String>) {
                                 selectPanel = { selectedPanel = it },
                                 openSettings = { openSettings = true },
                                 closeApp = ::exitApplication,
+                                minimizeWindow = { windowState.isMinimized = true },
+                                toggleMaximizeWindow = {
+                                    windowState.placement = if (windowState.placement == WindowPlacement.Maximized) {
+                                        WindowPlacement.Floating
+                                    } else {
+                                        WindowPlacement.Maximized
+                                    }
+                                },
+                                isWindowMaximized = windowState.placement == WindowPlacement.Maximized,
                                 libraryTab = libraryTab,
                                 selectLibraryTab = { libraryTab = it },
                             )

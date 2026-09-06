@@ -8,6 +8,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.WindowState
 import io.github.coderaulia.muzikplayer.utils.Preferences
 import io.github.coderaulia.muzikplayer.utils.Preferences.save
 import kotlinx.coroutines.delay
@@ -26,7 +28,7 @@ fun MainWindow(
     alwaysOnTop: Boolean = false,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     onKeyEvent: (KeyEvent) -> Boolean = { false },
-    content: @Composable FrameWindowScope.() -> Unit
+    content: @Composable FrameWindowScope.(WindowState) -> Unit
 
 ) {
     val useSystemDecorations by Preferences.useSystemDecorations.state
@@ -52,9 +54,7 @@ fun MainWindow(
                 delay(100.milliseconds)
                 save(state, window.insets, density)
             }
-            Scaled {
-                content()
-            }
+            Scaled { content(state) }
         }
     }
 }

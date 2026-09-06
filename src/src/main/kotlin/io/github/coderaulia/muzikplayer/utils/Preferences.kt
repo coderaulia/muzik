@@ -67,8 +67,8 @@ object Preferences {
         val positionY = prefs.get("main_window_position_y", null)?.toFloatOrNull()
         val state = rememberWindowState(
             size = DpSize(
-                prefs.getFloat("main_window_width", 1080f).dp,
-                prefs.getFloat("main_window_height", 960f).dp,
+                prefs.getFloat("main_window_width", 980f).dp,
+                prefs.getFloat("main_window_height", 680f).dp,
             ),
             placement = WindowPlacement.valueOf(prefs.get("main_window_placement", WindowPlacement.Floating.name)),
             position = if (positionX != null && positionY != null) {

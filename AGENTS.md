@@ -72,3 +72,44 @@ Flatpak packaging: `./flatpak/build.sh` (requires flatpak-builder + freedesktop
 5. ~~Design view integration and playback navigation~~ ✅ Home/Playlists views
    integrated with shell navigation; library row playback wired to the shared
    queue and verified with `./gradlew test`.
+
+## Current functional work
+
+The next implementation work is split into verified phases. Keep these changes
+separate from unrelated UI redesign work already in progress.
+
+### Phase 1 — Window and playback foundations
+
+- Wire the custom minimize, maximize/restore, and close controls to the native
+  Compose Desktop window.
+- Open the app in a usable floating window by default; preserve valid saved
+  size, position, and placement without forcing fullscreen.
+- Keep playback actions on the shared `PlayerController`/`SongQueue`, including
+  play/pause, previous, next, shuffle, repeat, seek, queue, and volume.
+- Guard controls when no queue exists and verify queue boundary and shuffle
+  behavior with tests.
+
+### Phase 2 — Playlist functionality
+
+- Implement playlist creation through the existing M3U/live-library flow.
+- Make adding selected songs write to the active playlist and refresh library
+  state.
+- Validate playlist names, avoid duplicate entries, report filesystem errors,
+  and test persistence/update behavior.
+
+### Phase 3 — Responsive shell
+
+- Verify compact, medium, and wide layouts; remove transport and playlist
+  overflow caused by fixed desktop widths.
+- Collapse navigation and settings into usable compact layouts.
+
+### Phase 4 — Settings redesign
+
+- Redesign `AppSettingsWindow` against `design/settings-page/settings.html`
+  with category navigation, library/storage, audio, appearance, integration,
+  and about panes.
+- Every visible control must be backed by a real preference/backend capability
+  or be explicitly presented as status-only.
+
+Commit each meaningful, verified phase or sub-phase separately. Do not push
+without explicit user approval.

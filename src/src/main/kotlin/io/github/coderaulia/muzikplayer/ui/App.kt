@@ -60,6 +60,9 @@ fun App(
     selectPanel: (Panel) -> Unit,
     openSettings: () -> Unit,
     closeApp: () -> Unit,
+    minimizeWindow: () -> Unit,
+    toggleMaximizeWindow: () -> Unit,
+    isWindowMaximized: Boolean,
     libraryTab: LibraryHeaderTab?,
     selectLibraryTab: (LibraryHeaderTab?) -> Unit,
 ) {
@@ -93,6 +96,9 @@ fun App(
                     selectPanel = selectPanel,
                     openSettings = openSettings,
                     closeApp = closeApp,
+                    minimizeWindow = minimizeWindow,
+                    toggleMaximizeWindow = toggleMaximizeWindow,
+                    isWindowMaximized = isWindowMaximized,
                     openPlaylists = {
                         selectPanel(PLAYLISTS)
                     },

@@ -60,6 +60,9 @@ fun MuzikPlayerShell(
     selectPanel: (Panel) -> Unit,
     openSettings: () -> Unit,
     closeApp: () -> Unit,
+    minimizeWindow: () -> Unit,
+    toggleMaximizeWindow: () -> Unit,
+    isWindowMaximized: Boolean,
     openPlaylists: () -> Unit,
     onSelectLibraryTab: ((LibraryHeaderTab?) -> Unit)? = null,
     content: @Composable () -> Unit,
@@ -70,6 +73,9 @@ fun MuzikPlayerShell(
         Column(Modifier.fillMaxSize()) {
             MuzikHeader(
                 closeApp = closeApp,
+                minimizeWindow = minimizeWindow,
+                toggleMaximizeWindow = toggleMaximizeWindow,
+                isWindowMaximized = isWindowMaximized,
                 onHeaderTabClick = { tab ->
                     selectPanel(Panel.LIBRARY)
                     onSelectLibraryTab?.invoke(tab)
@@ -132,6 +138,9 @@ private fun MuzikBottomBar(
 @Composable
 private fun MuzikHeader(
     closeApp: () -> Unit,
+    minimizeWindow: () -> Unit,
+    toggleMaximizeWindow: () -> Unit,
+    isWindowMaximized: Boolean,
     onHeaderTabClick: ((LibraryHeaderTab) -> Unit)? = null,
 ) {
     BoxWithConstraints(Modifier.fillMaxWidth()) {
@@ -231,8 +240,12 @@ private fun MuzikHeader(
 
                 // Window control buttons
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    HeaderWindowButton(Icons.Default.Remove, "Minimize") {}
-                    HeaderWindowButton(Icons.Default.CropSquare, "Maximize") {}
+                    HeaderWindowButton(Icons.Default.Remove, "Minimize", onClick = minimizeWindow)
+                    HeaderWindowButton(
+                        if (isWindowMaximized) Icons.Default.FilterNone else Icons.Default.CropSquare,
+                        if (isWindowMaximized) "Restore" else "Maximize",
+                        onClick = toggleMaximizeWindow,
+                    )
                     HeaderWindowButton(Icons.Default.Close, "Close", isDestructive = true, onClick = closeApp)
                 }
             }
