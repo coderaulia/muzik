@@ -29,12 +29,12 @@ jobs:
         run: ./gradlew createReleaseDistributable
       - name: Package
         run: |
-          tar -czf build/tmp/tambourine-${{ matrix.arch }}.tar.gz \
-            -C build/compose/binaries/main-release/app tambourine
+          tar -czf build/tmp/MuzikPlayer-${{ matrix.arch }}.tar.gz \
+            -C build/compose/binaries/main-release/app MuzikPlayer
       - uses: actions/upload-artifact@v7
         with:
-          name: tambourine-${{ matrix.arch }}
-          path: build/tmp/tambourine-${{ matrix.arch }}.tar.gz
+          name: MuzikPlayer-${{ matrix.arch }}
+          path: build/tmp/MuzikPlayer-${{ matrix.arch }}.tar.gz
 
   release:
     name: "Release"

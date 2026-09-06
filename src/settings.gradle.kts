@@ -13,5 +13,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = "tambourine"
+rootProject.name = "MuzikPlayer"
 

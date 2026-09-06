@@ -1,6 +1,6 @@
 -dontwarn javax.annotation.**
 -dontwarn kotlinx.serialization.**
--keep public class io.github.mmarco94.tambourine.** { *; }
+-keep public class io.github.coderaulia.muzikplayer.** { *; }
 # Logs
 -dontwarn org.tinylog.**
 -dontwarn io.github.oshai.kotlinlogging.logback.**

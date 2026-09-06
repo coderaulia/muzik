@@ -18,7 +18,7 @@ enum class ClassSharingMode {
     AotTraining, AotProduction
 }
 
-group = "io.github.mmarco94"
+group = "io.github.coderaulia"
 version = "1.5.3"
 val debugBuild = false
 val runMode = ClassSharingMode.None
@@ -102,7 +102,7 @@ gradle.taskGraph.whenReady {
             doLast {
                 copy {
                     from(ffsampledsp.files.single())
-                    into(destinationDir.dir("tambourine/lib/app"))
+                    into(destinationDir.dir("MuzikPlayer/lib/app"))
                     rename {
                         System.mapLibraryName("ffsampledsp")
                     }
@@ -146,7 +146,7 @@ tasks.configureEach {
 
 compose.desktop {
     application {
-        mainClass = "io.github.mmarco94.tambourine.MainKt"
+        mainClass = "io.github.coderaulia.muzikplayer.MainKt"
         jvmArgs += listOf("--add-opens=java.desktop/sun.awt.X11=ALL-UNNAMED")
         jvmArgs += listOf("--enable-native-access=ALL-UNNAMED")
         // To find ffsampledsp.so
@@ -163,25 +163,25 @@ compose.desktop {
             ClassSharingMode.None -> {}
             ClassSharingMode.DumpLoadedClasses -> jvmArgs += listOf(
                 "-Xshare:off",
-                "-XX:DumpLoadedClassList=/tmp/tambourine.classlist"
+                "-XX:DumpLoadedClassList=/tmp/MuzikPlayer.classlist"
             )
 
             ClassSharingMode.CreateArchive -> jvmArgs += listOf(
                 "-Xshare:dump",
-                "-XX:SharedClassListFile=/tmp/tambourine.classlist",
-                "-XX:SharedArchiveFile=/tmp/tambourine.jsa"
+                "-XX:SharedClassListFile=/tmp/MuzikPlayer.classlist",
+                "-XX:SharedArchiveFile=/tmp/MuzikPlayer.jsa"
             )
 
-            ClassSharingMode.LoadArchive -> jvmArgs += listOf("-XX:SharedArchiveFile=/tmp/tambourine.jsa")
+            ClassSharingMode.LoadArchive -> jvmArgs += listOf("-XX:SharedArchiveFile=/tmp/MuzikPlayer.jsa")
             ClassSharingMode.AotTraining -> jvmArgs += listOf(
                 "-XX:AOTMode=record",
-                "-XX:AOTCacheOutput=/tmp/tambourine.aot"
+                "-XX:AOTCacheOutput=/tmp/MuzikPlayer.aot"
             )
 
-            ClassSharingMode.AotProduction -> jvmArgs += listOf("-XX:AOTMode=on", "-XX:AOTCache=/tmp/tambourine.aot")
+            ClassSharingMode.AotProduction -> jvmArgs += listOf("-XX:AOTMode=on", "-XX:AOTCache=/tmp/MuzikPlayer.aot")
         }
         nativeDistributions {
-            packageName = "tambourine"
+            packageName = "MuzikPlayer"
             packageVersion = version.toString()
 
             modules("java.naming", "java.management", "jdk.security.auth", "jdk.unsupported")

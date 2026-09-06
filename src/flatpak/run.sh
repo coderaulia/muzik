@@ -13,6 +13,6 @@ export JAVA_TOOL_OPTIONS="-Djava.io.tmpdir=$XDG_CACHE_HOME/tmp -Djava.util.prefs
 #export MALLOC_ARENA_MAX=8
 export MALLOC_TRIM_THRESHOLD_=131072 # 128k. See https://www.man7.org/linux/man-pages/man3/mallopt.3.html
 # Printing the JAR's stat for debugging
-stat /app/tambourine/lib/app/tambourine-*.jar
+stat /app/MuzikPlayer/lib/app/MuzikPlayer-*.jar
 
-LD_LIBRARY_PATH=/app/tambourine/lib/os exec /app/tambourine/bin/tambourine "$@"
+LD_LIBRARY_PATH=/app/MuzikPlayer/lib/os exec /app/MuzikPlayer/bin/MuzikPlayer "$@"

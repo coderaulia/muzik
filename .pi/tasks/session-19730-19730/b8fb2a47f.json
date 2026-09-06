@@ -1,0 +1,21 @@
+{
+  "id": "b8fb2a47f",
+  "name": "Compile MuzikPlayer",
+  "command": "cd /home/asw/Dev/muzikplayer/src && ./gradlew compileKotlin compileTestKotlin --no-daemon -q 2>&1; echo \"EXIT:$?\"",
+  "description": "Compile MuzikPlayer after package rename (downloads Gradle deps on first run)",
+  "status": "failed",
+  "outputPath": ".pi/tasks/session-19730-19730/b8fb2a47f.output",
+  "cwd": "/home/asw/Dev/muzikplayer",
+  "startTime": 1788655805581,
+  "endTime": 1788655805649,
+  "exitCode": 127,
+  "signal": null,
+  "pid": 24569,
+  "bytesWritten": 289,
+  "isAgent": false,
+  "error": "Exited with code 127",
+  "notified": true,
+  "notifyOnCompletion": true,
+  "triggerOnCompletion": true,
+  "timeoutSeconds": 1500
+}

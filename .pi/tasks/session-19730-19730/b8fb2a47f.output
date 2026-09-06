@@ -1,0 +1,3 @@
+fish: $? is not the exit status. In fish, please use $status.
+cd /home/asw/Dev/muzikplayer/src && ./gradlew compileKotlin compileTestKotlin --no-daemon -q 2>&1; echo "EXIT:$?"
+                                                                                                               ^

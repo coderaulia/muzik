@@ -14,7 +14,7 @@ If you want to override the language, you can use `-Duser.country` and `-Duser.l
 
 ## Packaging
 
-Tambourine uses Flatpak as the main packaging system.
+MuzikPlayer uses Flatpak as the main packaging system.
 
 Make sure you have the following installed:
 
@@ -33,6 +33,6 @@ To build and install:
 To run:
 
 ```
-flatpak run io.github.mmarco94.tambourine
+flatpak run io.github.coderaulia.MuzikPlayer
 ```
 

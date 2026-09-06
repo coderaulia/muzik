@@ -1,0 +1,57 @@
+app-id: io.github.coderaulia.MuzikPlayer
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+command: run.sh
+finish-args:
+  - --filesystem=xdg-music:ro
+  - --socket=x11
+  # See https://youtrack.jetbrains.com/issue/SKIKO-28 for Wayland support :(
+  #  - --socket=wayland
+  #  - --socket=fallback-x11
+  - --socket=pulseaudio
+  - --share=ipc
+  - --device=dri
+modules:
+  - name: MuzikPlayer
+    buildsystem: simple
+    build-commands:
+      # Installing the actual app
+      - mv MuzikPlayer /app/
+      - install -D run.sh /app/bin/run.sh
+      # ffsampledsp requires libbz2.so.1.0, however Flatpak only provides libbz2.so.1.0.8
+      - mkdir -p /app/lib/ffmpeg
+      - mkdir -p /app/MuzikPlayer/lib/os
+      - ln -s /usr/lib/x86_64-linux-gnu/libbz2.so.1.0.8 /app/MuzikPlayer/lib/os/libbz2.so.1.0
+      # running the app to create the SharedArchiveFile
+      - touch -d "1970-01-01T00:00:00Z" /app/MuzikPlayer/lib/app/MuzikPlayer-*.jar # setting a stable timestamp on the JAR
+      - cp /app/MuzikPlayer/lib/app/MuzikPlayer.cfg /app/MuzikPlayer/lib/app/MuzikPlayer.cfg.bkp
+      - echo "java-options=-Xshare:dump" >> /app/MuzikPlayer/lib/app/MuzikPlayer.cfg
+      - echo "java-options=-XX:SharedClassListFile=/app/MuzikPlayer/lib/app/resources/MuzikPlayer.classlist" >> /app/MuzikPlayer/lib/app/MuzikPlayer.cfg
+      - echo "java-options=-XX:SharedArchiveFile=/app/MuzikPlayer/lib/app/resources/MuzikPlayer.jsa" >> /app/MuzikPlayer/lib/app/MuzikPlayer.cfg
+      - /app/MuzikPlayer/bin/MuzikPlayer
+      # restoring original config and add class archive
+      - mv /app/MuzikPlayer/lib/app/MuzikPlayer.cfg.bkp /app/MuzikPlayer/lib/app/MuzikPlayer.cfg
+      - echo "java-options=-XX:SharedArchiveFile=/app/MuzikPlayer/lib/app/resources/MuzikPlayer.jsa" >> /app/MuzikPlayer/lib/app/MuzikPlayer.cfg
+      # Cleanup
+      - rm /app/MuzikPlayer/lib/app/resources/MuzikPlayer.classlist
+      - stat /app/MuzikPlayer/lib/app/MuzikPlayer-*.jar # printing the jar stats' for debugging
+    sources:
+      - type: dir
+        # Use main-release for release builds
+        path: ../build/compose/binaries/main-release/app
+      - type: file
+        path: run.sh
+  - name: extras
+    buildsystem: simple
+    build-commands:
+      - install -D io.github.coderaulia.MuzikPlayer.desktop /app/share/applications/io.github.coderaulia.MuzikPlayer.desktop
+      - install -D icon.svg /app/share/icons/hicolor/scalable/apps/io.github.coderaulia.MuzikPlayer.svg
+      - install -D icon-symbolic.svg /app/share/icons/hicolor/scalable/apps/io.github.coderaulia.MuzikPlayer-symbolic.svg
+    sources:
+      - type: file
+        path: io.github.coderaulia.MuzikPlayer.desktop
+      - type: file
+        path: icon.svg
+      - type: file
+        path: icon-symbolic.svg
