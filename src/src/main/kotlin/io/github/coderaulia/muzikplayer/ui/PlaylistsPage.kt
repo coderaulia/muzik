@@ -30,6 +30,7 @@ import io.github.coderaulia.muzikplayer.audio.Position
 import io.github.coderaulia.muzikplayer.data.*
 import io.github.coderaulia.muzikplayer.playerController
 import io.github.coderaulia.muzikplayer.utils.format
+import io.github.coderaulia.muzikplayer.utils.Preferences
 import kotlinx.coroutines.launch
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.extension
@@ -72,6 +73,9 @@ fun PlaylistsPage(
     var selectedSongsToAdd by remember { mutableStateOf(setOf<SongKey>()) }
     var searchQuery by remember { mutableStateOf("") }
     var selectedGenre by remember { mutableStateOf("All") }
+    var showCreateDialog by remember { mutableStateOf(false) }
+    var newPlaylistName by remember { mutableStateOf("") }
+    var playlistError by remember { mutableStateOf<String?>(null) }
 
     // Collect songs in the active playlist
     val activePlaylistSongs = remember(activePlaylist, library) {
@@ -207,7 +211,7 @@ fun PlaylistsPage(
                         }
 
                         Button(
-                            onClick = {},
+                            onClick = { showCreateDialog = true; playlistError = null },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
@@ -813,9 +817,21 @@ fun PlaylistsPage(
                                     }
                                     Button(
                                         onClick = {
-                                            // Append selected tracks to active playlist
-                                            selectedSongsToAdd = emptySet()
-                                            isDrawerOpen = false
+                                            val playlist = activePlaylist
+                                            val selected = library?.songs.orEmpty().filter { it.uniqueKey in selectedSongsToAdd }
+                                            if (playlist == null || selected.isEmpty()) {
+                                                playlistError = "Choose a playlist and at least one track."
+                                            } else {
+                                                scope.launch {
+                                                    runCatching { PlaylistStore.append(playlist, selected) }
+                                                        .onSuccess {
+                                                            selectedSongsToAdd = emptySet()
+                                                            isDrawerOpen = false
+                                                            playlistError = null
+                                                        }
+                                                        .onFailure { playlistError = it.message ?: "Could not update playlist" }
+                                                }
+                                            }
                                         },
                                         modifier = Modifier.weight(1.5f),
                                         shape = RoundedCornerShape(6.dp),
@@ -833,5 +849,37 @@ fun PlaylistsPage(
                 }
             }
         }
+    }
+
+    if (showCreateDialog) {
+        AlertDialog(
+            onDismissRequest = { showCreateDialog = false },
+            title = { Text("New Playlist") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = newPlaylistName,
+                        onValueChange = { newPlaylistName = it; playlistError = null },
+                        label = { Text("Playlist name") },
+                        singleLine = true,
+                    )
+                    playlistError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    scope.launch {
+                        runCatching { PlaylistStore.create(Preferences.libraryFolder.get(), newPlaylistName) }
+                            .onSuccess {
+                                newPlaylistName = ""
+                                showCreateDialog = false
+                                playlistError = null
+                            }
+                            .onFailure { playlistError = it.message ?: "Could not create playlist" }
+                    }
+                }) { Text("Create") }
+            },
+            dismissButton = { TextButton(onClick = { showCreateDialog = false }) { Text("Cancel") } },
+        )
     }
 }
