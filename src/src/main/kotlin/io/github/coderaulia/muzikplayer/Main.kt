@@ -93,6 +93,7 @@ fun main(args: Array<String>) {
             }
             var selectedPanel by remember { mutableStateOf(Panel.LIBRARY) }
             var libraryTab: LibraryHeaderTab? by remember { mutableStateOf(null) }
+            var searchFocusRequest by remember { mutableStateOf(0) }
             val library by remember {
                 val ms = mutableStateOf<Library?>(null)
                 var done = false
@@ -133,7 +134,8 @@ fun main(args: Array<String>) {
                                 player,
                                 libraryTab,
                                 { selectedPanel = it },
-                                { libraryTab = it })
+                                { libraryTab = it },
+                                { searchFocusRequest++ })
                         },
                         alwaysOnTop = bringToTop.also { bringToTop = false },
                     ) { windowState ->
@@ -158,6 +160,7 @@ fun main(args: Array<String>) {
                                 isWindowMaximized = windowState.placement == WindowPlacement.Maximized,
                                 libraryTab = libraryTab,
                                 selectLibraryTab = { libraryTab = it },
+                                searchFocusRequest = searchFocusRequest,
                             )
                         }
                     }
@@ -243,6 +246,7 @@ private fun handleKeypress(
     libraryTab: LibraryHeaderTab?,
     selectedPanel: (Panel) -> Unit,
     selectLibraryTab: (LibraryHeaderTab?) -> Unit,
+    focusSearch: () -> Unit,
 ): Boolean {
     if (event.type == KeyEventType.KeyDown) {
         if (event.isCtrlPressed) {
@@ -286,6 +290,13 @@ private fun handleKeypress(
                 Key.F -> {
                     selectedPanel(Panel.LIBRARY)
                     selectLibraryTab(LibraryHeaderTab.SEARCH)
+                    return true
+                }
+
+                Key.K -> {
+                    selectedPanel(Panel.LIBRARY)
+                    selectLibraryTab(LibraryHeaderTab.SEARCH)
+                    focusSearch()
                     return true
                 }
             }

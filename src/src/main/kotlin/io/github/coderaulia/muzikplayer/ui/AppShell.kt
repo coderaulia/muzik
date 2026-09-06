@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.window.WindowDraggableArea
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
@@ -26,6 +27,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.requestFocus
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -65,6 +69,9 @@ fun MuzikPlayerShell(
     isWindowMaximized: Boolean,
     openPlaylists: () -> Unit,
     onSelectLibraryTab: ((LibraryHeaderTab?) -> Unit)? = null,
+    searchQuery: String = "",
+    onSearchQueryChange: (String) -> Unit = {},
+    searchFocusRequest: Int = 0,
     content: @Composable () -> Unit,
 ) {
     BoxWithConstraints(Modifier.fillMaxSize().background(shellCanvas)) {
@@ -76,6 +83,9 @@ fun MuzikPlayerShell(
                 minimizeWindow = minimizeWindow,
                 toggleMaximizeWindow = toggleMaximizeWindow,
                 isWindowMaximized = isWindowMaximized,
+                searchQuery = searchQuery,
+                onSearchQueryChange = onSearchQueryChange,
+                searchFocusRequest = searchFocusRequest,
                 onHeaderTabClick = { tab ->
                     selectPanel(Panel.LIBRARY)
                     onSelectLibraryTab?.invoke(tab)
@@ -141,8 +151,15 @@ private fun MuzikHeader(
     minimizeWindow: () -> Unit,
     toggleMaximizeWindow: () -> Unit,
     isWindowMaximized: Boolean,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    searchFocusRequest: Int,
     onHeaderTabClick: ((LibraryHeaderTab) -> Unit)? = null,
 ) {
+    val searchFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(searchFocusRequest) {
+        if (searchFocusRequest > 0) searchFocusRequester.requestFocus()
+    }
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val compact = maxWidth < 760.dp
         WindowDraggableArea {
@@ -201,11 +218,16 @@ private fun MuzikHeader(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(Icons.Default.Search, null, Modifier.size(17.dp), tint = Color(0xFFC1C6D4))
-                            Text(
-                                "Search local library...",
-                                Modifier.padding(start = 8.dp).weight(1f),
-                                color = Color(0xFF8B919E),
-                                style = MaterialTheme.typography.bodySmall,
+                            BasicTextField(
+                                value = searchQuery,
+                                onValueChange = onSearchQueryChange,
+                                modifier = Modifier.padding(start = 8.dp).weight(1f).focusRequester(searchFocusRequester),
+                                singleLine = true,
+                                textStyle = MaterialTheme.typography.bodySmall.copy(color = Color(0xFFE4E2E1)),
+                                decorationBox = { field ->
+                                    if (searchQuery.isEmpty()) Text("Search local library...", color = Color(0xFF8B919E), style = MaterialTheme.typography.bodySmall)
+                                    field()
+                                },
                             )
                             Surface(
                                 shape = RoundedCornerShape(4.dp),

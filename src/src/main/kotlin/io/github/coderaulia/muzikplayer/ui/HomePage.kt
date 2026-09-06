@@ -242,7 +242,7 @@ private fun SystemStatusAnchorBar(library: Library?) {
                 color = surfaceContainerHigh,
             ) {
                 Text(
-                    "inotify active",
+                    if (songCount == 0) "Library empty" else "Library ready",
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                     style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
                     color = tertiaryGreen,
@@ -256,7 +256,7 @@ private fun SystemStatusAnchorBar(library: Library?) {
                 ) {
                     Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        "ALSA: hw:0,0",
+                        "96 kHz PCM",
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
                             .clickable {}

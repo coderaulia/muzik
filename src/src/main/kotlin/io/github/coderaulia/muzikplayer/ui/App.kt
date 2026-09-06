@@ -65,6 +65,7 @@ fun App(
     isWindowMaximized: Boolean,
     libraryTab: LibraryHeaderTab?,
     selectLibraryTab: (LibraryHeaderTab?) -> Unit,
+    searchFocusRequest: Int = 0,
 ) {
     var rawListOptions by remember { mutableStateOf(SongListOptions()) }
     val listOptions = rawListOptions.adjust(library)
@@ -103,6 +104,9 @@ fun App(
                         selectPanel(PLAYLISTS)
                     },
                     onSelectLibraryTab = selectLibraryTab,
+                    searchQuery = rawListOptions.queryFilter,
+                    onSearchQueryChange = { rawListOptions = rawListOptions.copy(queryFilter = it) },
+                    searchFocusRequest = searchFocusRequest,
                 ) {
                     AlbumCoverBackground(mainImage, Modifier.fillMaxSize())
                     val libUIState by derivedStateOf {
