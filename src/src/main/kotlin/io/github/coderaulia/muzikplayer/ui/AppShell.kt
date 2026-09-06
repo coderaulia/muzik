@@ -39,6 +39,7 @@ fun MuzikPlayerShell(
     selectPanel: (Panel) -> Unit,
     openSettings: () -> Unit,
     closeApp: () -> Unit,
+    openPlaylists: () -> Unit,
     content: @Composable () -> Unit,
 ) {
     Column(Modifier.fillMaxSize().background(shellCanvas)) {
@@ -48,6 +49,7 @@ fun MuzikPlayerShell(
                 selectedPanel = selectedPanel,
                 selectPanel = selectPanel,
                 openSettings = openSettings,
+                openPlaylists = openPlaylists,
             )
             Box(Modifier.weight(1f).fillMaxHeight()) { content() }
         }
@@ -121,6 +123,7 @@ private fun MuzikSidebar(
     selectedPanel: Panel,
     selectPanel: (Panel) -> Unit,
     openSettings: () -> Unit,
+    openPlaylists: () -> Unit,
 ) {
     Column(
         Modifier.width(240.dp).fillMaxHeight().background(sidebarSurface).padding(horizontal = 10.dp, vertical = 16.dp),
@@ -135,7 +138,7 @@ private fun MuzikSidebar(
         SidebarItem("Home", Icons.Default.Home, selectedPanel == Panel.PLAYER) { selectPanel(Panel.PLAYER) }
         SidebarItem("Library", Icons.Default.LibraryMusic, selectedPanel == Panel.LIBRARY) { selectPanel(Panel.LIBRARY) }
         SidebarItem("Queue", Icons.AutoMirrored.Filled.QueueMusic, selectedPanel == Panel.QUEUE) { selectPanel(Panel.QUEUE) }
-        SidebarItem("Playlists", Icons.Default.PlaylistPlay, false) {}
+        SidebarItem("Playlists", Icons.Default.PlaylistPlay, false, openPlaylists)
         Spacer(Modifier.weight(1f))
         SidebarItem("Settings", Icons.Default.Settings, false, openSettings)
         Surface(

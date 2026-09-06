@@ -92,6 +92,10 @@ fun App(
                     selectPanel = selectPanel,
                     openSettings = openSettings,
                     closeApp = closeApp,
+                    openPlaylists = {
+                        selectPanel(LIBRARY)
+                        selectLibraryTab(LibraryHeaderTab.PLAYLIST)
+                    },
                 ) {
                     AlbumCoverBackground(mainImage, Modifier.fillMaxSize())
                     val libUIState by derivedStateOf {
