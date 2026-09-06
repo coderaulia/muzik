@@ -373,7 +373,7 @@ class PlayerController(
                         removeLast()
                         add(TransformQueue { initialQueue ->
                             val (queue, position) = last.transformation(initialQueue)
-                            val (queue2, position2) = last.transformation(queue)
+                            val (queue2, position2) = command.transformation(queue)
                             queue2 to when (position2) {
                                 Position.Current -> position
                                 else -> position2
