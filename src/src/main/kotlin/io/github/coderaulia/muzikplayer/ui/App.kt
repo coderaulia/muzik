@@ -87,17 +87,23 @@ fun App(
             LocalContextMenuRepresentation provides MenuContextRepresentation,
         ) {
             Surface(color = MaterialTheme.colorScheme.background) {
-                AlbumCoverBackground(mainImage, Modifier.fillMaxSize())
-                val libUIState by derivedStateOf {
-                    if (player.queue != null) NORMAL else library.toUIState()
-                }
-                LibraryContainer(
-                    state = libUIState,
-                    library = library,
+                MuzikPlayerShell(
+                    selectedPanel = selectedPanel,
+                    selectPanel = selectPanel,
                     openSettings = openSettings,
                     closeApp = closeApp,
-                ) { lib ->
-                    BoxWithConstraints {
+                ) {
+                    AlbumCoverBackground(mainImage, Modifier.fillMaxSize())
+                    val libUIState by derivedStateOf {
+                        if (player.queue != null) NORMAL else library.toUIState()
+                    }
+                    LibraryContainer(
+                        state = libUIState,
+                        library = library,
+                        openSettings = openSettings,
+                        closeApp = closeApp,
+                    ) { lib ->
+                        BoxWithConstraints {
                         val w = constraints.maxWidth
                         val large = w >= (BIG_SONG_ROW_DESIRED_WIDTH * 2).toPxApprox()
                         val visiblePanels = if (large) {
@@ -105,10 +111,9 @@ fun App(
                         } else {
                             listOf(selectedPanel)
                         }
-                        Column {
-                            BoxWithConstraints(
-                                modifier = Modifier.fillMaxWidth().weight(1f),
-                            ) {
+                        BoxWithConstraints(
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
                                 MainContent(
                                     modifier = Modifier.fillMaxSize(),
                                     large = large,
@@ -124,10 +129,6 @@ fun App(
                                     libraryTab = libraryTab,
                                     selectLibraryTab = selectLibraryTab,
                                 )
-                            }
-                            if (!large) {
-                                HorizontalDivider()
-                                BottomBar(selectedPanel, selectPanel)
                             }
                         }
                     }
@@ -205,7 +206,8 @@ private fun MainContent(
 
     var showLyrics by remember { mutableStateOf(true) }
     PanelContainer(modifier, Panel.entriesSet, visiblePanels) { panel ->
-        val showToolbar = !large || panel == PLAYER
+        // Chrome is owned by MuzikPlayerShell; panel content stays focused on its data.
+        val showToolbar = false
         when (panel) {
             LIBRARY -> LibraryContainer(
                 library = libraryExtended,
