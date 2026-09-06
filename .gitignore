@@ -1,5 +1,8 @@
 .gradle/
 build/
+.pi/
+src/.gradle/
+src/build/
 .kotlin/
 local.properties
 *.log
