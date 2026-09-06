@@ -205,13 +205,20 @@ class PlayerController(
             val newCp = if (currentlyPlaying?.queue?.currentSongKey != new.uniqueKey) {
                 currentlyPlaying?.jobsScope?.cancel()
                 val preparations = logger.debugElapsed("Preparing song ${new.title}") {
-                    prepareSong(
-                        song = new,
-                        position = position,
-                        oldPlayer = currentlyPlaying?.player,
-                        level = level,
-                        keepBufferedContent = keepBufferedContent,
-                    )
+                    try {
+                        prepareSong(
+                            song = new,
+                            position = position,
+                            oldPlayer = currentlyPlaying?.player,
+                            level = level,
+                            keepBufferedContent = keepBufferedContent,
+                        )
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        logger.error(e) { "Cannot prepare ${new.title} for playback" }
+                        null
+                    }
                 }
                 if (preparations == null) {
                     return clearQueue()
@@ -493,8 +500,11 @@ private suspend fun prepareSong(
     val stream = logger.debugElapsed("Opening song ${song.title}") {
         try {
             song.audioStream()
-        } catch (e: IOException) {
+    } catch (e: IOException) {
             logger.error(e) { "Cannot open audio stream for ${song.title}" }
+            return null
+        } catch (e: Exception) {
+            logger.error(e) { "Cannot decode audio stream for ${song.title}" }
             return null
         }
     }

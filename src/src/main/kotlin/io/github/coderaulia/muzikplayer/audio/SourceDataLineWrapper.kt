@@ -34,6 +34,8 @@ class SourceDataLineWrapper(
         return buffered.toLong() / format.frameSize
     }
 
+    private val supportsMasterGain = line.isControlSupported(FloatControl.Type.MASTER_GAIN)
+
     private fun refreshPendingFrames(
         now: ValueTimeMark = TimeSource.Monotonic.markNow(),
         available: Int = line.available(),
@@ -61,7 +63,11 @@ class SourceDataLineWrapper(
 
 
     fun setLevel(level: Float) {
-        line.setLevel(level)
+        if (supportsMasterGain) {
+            line.setLevel(level)
+        } else {
+            logger.debug { "Audio mixer does not expose MASTER_GAIN; leaving system volume unchanged" }
+        }
     }
 
     fun start() {
@@ -119,7 +125,7 @@ class SourceDataLineWrapper(
 }
 
 private fun SourceDataLine.setLevel(level: Float) {
-    val masterGain = getControl(FloatControl.Type.MASTER_GAIN) as FloatControl
+    val masterGain = getControl(FloatControl.Type.MASTER_GAIN) as? FloatControl ?: return
     val progress = (masterGain.minimum..masterGain.maximum.coerceAtMost(0f)).progress(level.coerceIn(0f, 1f))
     masterGain.value = progress
 }
