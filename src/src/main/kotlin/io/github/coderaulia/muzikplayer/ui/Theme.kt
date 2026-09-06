@@ -5,7 +5,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.mmarco94.klibportal.portals.Settings
 import io.github.coderaulia.muzikplayer.LocalAppearanceSettings
 import io.github.coderaulia.muzikplayer.generated.resources.Res
@@ -62,12 +66,56 @@ object MuzikTheme {
         }
     }
 
+    private val slateDark = darkColorScheme(
+        primary = Color(0xFFA7C8FF),
+        onPrimary = Color(0xFF003061),
+        primaryContainer = Color(0xFF4691F2),
+        onPrimaryContainer = Color(0xFF002A55),
+        secondary = Color(0xFFCABEFF),
+        onSecondary = Color(0xFF31009A),
+        secondaryContainer = Color(0xFF4A16D1),
+        onSecondaryContainer = Color(0xFFBCAEFF),
+        tertiary = Color(0xFF48E087),
+        onTertiary = Color(0xFF00391B),
+        tertiaryContainer = Color(0xFF00A65B),
+        onTertiaryContainer = Color(0xFF003117),
+        background = Color(0xFF131313),
+        onBackground = Color(0xFFE4E2E1),
+        surface = Color(0xFF131313),
+        onSurface = Color(0xFFE4E2E1),
+        surfaceVariant = Color(0xFF353535),
+        onSurfaceVariant = Color(0xFFC1C6D4),
+        outline = Color(0xFF8B919E),
+        outlineVariant = Color(0xFF414752),
+        inverseSurface = Color(0xFFE4E2E1),
+        inverseOnSurface = Color(0xFF303030),
+        inversePrimary = Color(0xFF005EB2),
+        error = Color(0xFFFFB4AB),
+        onError = Color(0xFF690005),
+        errorContainer = Color(0xFF93000A),
+        onErrorContainer = Color(0xFFFFDAD6),
+    )
+
+    private val slateLight = lightColorScheme(
+        primary = Color(0xFF005EB2),
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFD5E3FF),
+        onPrimaryContainer = Color(0xFF001B3C),
+        background = Color(0xFFF9F9F9),
+        onBackground = Color(0xFF1A1B1E),
+        surface = Color(0xFFF9F9F9),
+        onSurface = Color(0xFF1A1B1E),
+        surfaceVariant = Color(0xFFE1E2EC),
+        onSurfaceVariant = Color(0xFF414752),
+        outline = Color(0xFF717782),
+        outlineVariant = Color(0xFFC1C6D4),
+    )
+
     @Composable
     fun getDefaultScheme(): ColorScheme {
-        val palette = LocalAppearanceSettings.current.accentColor?.let {
-            listOf(HSLColor.fromRgb(it))
-        } ?: defaultPalette
-        return colorScheme(palette).auto()
+        // The app shell uses a stable neutral palette. Album artwork can still provide
+        // a contextual scheme through colorScheme(palette) where appropriate.
+        return ColorSchemeContainer(light = slateLight, dark = slateDark).auto()
     }
 
     fun colorScheme(palette: List<HSLColor>): ColorSchemeContainer {
@@ -125,6 +173,64 @@ object MuzikTheme {
         )
     }
 
-    val typography
-        get() = Typography()
+    val typography = Typography(
+        displayLarge = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontSize = 32.sp,
+            lineHeight = 40.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = (-0.02).sp,
+        ),
+        displayMedium = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontSize = 24.sp,
+            lineHeight = 32.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = (-0.01).sp,
+        ),
+        headlineMedium = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontSize = 22.sp,
+            lineHeight = 28.sp,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = (-0.01).sp,
+        ),
+        headlineSmall = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontSize = 18.sp,
+            lineHeight = 24.sp,
+            fontWeight = FontWeight.SemiBold,
+        ),
+        titleMedium = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontSize = 15.sp,
+            lineHeight = 20.sp,
+            fontWeight = FontWeight.SemiBold,
+        ),
+        bodyLarge = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontSize = 14.sp,
+            lineHeight = 20.sp,
+        ),
+        bodyMedium = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontSize = 13.sp,
+            lineHeight = 18.sp,
+            letterSpacing = 0.01.sp,
+        ),
+        labelMedium = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontSize = 12.sp,
+            lineHeight = 16.sp,
+            fontWeight = FontWeight.Medium,
+            letterSpacing = 0.02.sp,
+        ),
+        labelSmall = TextStyle(
+            fontFamily = FontFamily.Monospace,
+            fontSize = 11.sp,
+            lineHeight = 14.sp,
+            fontWeight = FontWeight.Medium,
+            letterSpacing = 0.04.sp,
+        ),
+    )
 }
