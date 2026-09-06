@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.Window
 import io.github.coderaulia.muzikplayer.utils.Preferences
@@ -57,7 +58,6 @@ fun MainWindow(
         }
     }
 }
-
 @Composable
 fun Scaled(content: @Composable () -> Unit) {
     val fontScale by Preferences.fontScale.state

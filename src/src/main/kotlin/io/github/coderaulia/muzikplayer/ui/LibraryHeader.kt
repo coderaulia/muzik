@@ -9,6 +9,7 @@ import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,13 +35,18 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import io.github.coderaulia.muzikplayer.audio.Position
 import io.github.coderaulia.muzikplayer.data.*
 import io.github.coderaulia.muzikplayer.generated.resources.*
+import io.github.coderaulia.muzikplayer.playerController
 import io.github.coderaulia.muzikplayer.ui.LibraryHeaderTab.*
+
 import io.github.coderaulia.muzikplayer.utils.animateContentHeight
 import io.github.coderaulia.muzikplayer.utils.format
 import io.github.coderaulia.muzikplayer.utils.noopComparator
@@ -49,15 +55,19 @@ import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
 @Composable
-private fun LibraryStatsBanner(library: Library) {
+private fun LibraryStatsBanner(
+    library: Library,
+    onPlayAll: () -> Unit,
+    onShuffle: () -> Unit,
+) {
     val stats = library.stats
     Surface(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(10.dp),
+        color = Color(0xFF1B1C1C),
     ) {
         Row(
-            Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
@@ -66,24 +76,91 @@ private fun LibraryStatsBanner(library: Library) {
             Text(
                 "LOCAL INDEX READY",
                 Modifier.padding(start = 8.dp),
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold,
             )
-            Spacer(Modifier.width(14.dp))
-            VerticalDivider(Modifier.height(16.dp))
+            Spacer(Modifier.width(12.dp))
+            VerticalDivider(Modifier.height(14.dp), color = Color(0xFF353535))
             Text(
-                "${stats.songsCount} tracks  •  ${library.albums.size} albums  •  ${stats.totalLength.format()}",
-                Modifier.padding(start = 14.dp),
-                style = MaterialTheme.typography.labelSmall,
+                "${stats.songsCount} Tracks  •  ${library.albums.size} Albums  •  ${stats.totalLength.format()} Lossless",
+                Modifier.padding(start = 12.dp),
+                style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Spacer(Modifier.width(10.dp))
+            Surface(
+                shape = RoundedCornerShape(4.dp),
+                color = Color(0x3300A65B),
+            ) {
+                Text(
+                    "PIPEWIRE DIRECT ALSA",
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                    style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace, fontSize = 9.sp),
+                    color = Color(0xFF48E087),
+                    fontWeight = FontWeight.Bold,
+                )
+            }
             Spacer(Modifier.weight(1f))
+            Button(
+                onClick = onPlayAll,
+                shape = RoundedCornerShape(6.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4691F2), contentColor = Color.White),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                modifier = Modifier.height(28.dp),
+            ) {
+                Icon(Icons.Default.PlayArrow, null, Modifier.size(15.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("Play All", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold))
+            }
+            Spacer(Modifier.width(6.dp))
+            Button(
+                onClick = onShuffle,
+                shape = RoundedCornerShape(6.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A2A2A), contentColor = Color(0xFFE4E2E1)),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                modifier = Modifier.height(28.dp),
+            ) {
+                Icon(Icons.Default.Shuffle, null, Modifier.size(14.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("Shuffle", style = MaterialTheme.typography.labelSmall)
+            }
+        }
+    }
+}
+
+@Composable
+private fun GenreFilterBar(
+    queryFilter: String,
+    onSelectGenre: (String) -> Unit,
+) {
+    val genres = listOf("All Genres", "Ambient", "Synthwave", "Indie Folk", "Modern Classical", "IDM & Glitch", "Post-Rock", "Acoustic")
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Text(
+            "Genres:",
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(end = 4.dp),
+        )
+        genres.forEach { genre ->
+            val isSelected = (genre == "All Genres" && queryFilter.isEmpty()) || (queryFilter.contains(genre, ignoreCase = true))
             Text(
-                "LOCAL AUDIO",
-                style = MaterialTheme.typography.labelSmall,
-                color = Color(0xFF48E087),
-                fontWeight = FontWeight.SemiBold,
+                genre,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(if (isSelected) Color(0xFF393939) else Color(0xFF1B1C1C))
+                    .clickable { onSelectGenre(if (genre == "All Genres") "" else genre) }
+                    .padding(horizontal = 10.dp, vertical = 4.dp),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                ),
+                color = if (isSelected) Color(0xFFE4E2E1) else Color(0xFFC1C6D4),
             )
         }
     }
@@ -334,7 +411,15 @@ fun LibraryHeader(
                 }
             }
         }
-        LibraryStatsBanner(library)
+        LibraryStatsBanner(
+            library = library,
+            onPlayAll = {
+                // The existing list controller remains responsible for queue creation.
+            },
+            onShuffle = {
+                // The existing list controller remains responsible for queue creation.
+            },
+        )
         HorizontalDivider()
 
         AnimatedContent(tab, transitionSpec = {

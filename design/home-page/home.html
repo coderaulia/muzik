@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "error": "#ffb4ab", "surface-container-lowest": "#0e0e0e", "inverse-surface": "#e4e2e1", "on-surface": "#e4e2e1", "on-tertiary-fixed-variant": "#00522a", "secondary-fixed-dim": "#cabeff", "on-secondary-fixed-variant": "#480fcf", "surface-bright": "#393939", "on-secondary-fixed": "#1c0062", "surface-container-highest": "#353535", "on-primary-container": "#002a55", "on-error": "#690005", "tertiary": "#48e087", "tertiary-container": "#00a65b", "surface-tint": "#a7c8ff", "on-tertiary-container": "#003117", "primary-fixed-dim": "#a7c8ff", "primary-container": "#4691f2", "secondary-fixed": "#e6deff", "inverse-primary": "#005eb2", "on-secondary-container": "#bcaeff", "outline-variant": "#414752", "on-tertiary-fixed": "#00210d", "surface-container": "#1f2020", "secondary-container": "#4a16d1", "on-background": "#e4e2e1", "tertiary-fixed-dim": "#48e087", "on-error-container": "#ffdad6", "surface": "#131313", "background": "#131313", "surface-container-low": "#1b1c1c", "surface-container-high": "#2a2a2a", "secondary": "#cabeff", "error-container": "#93000a", "surface-variant": "#353535", "primary": "#a7c8ff", "on-primary-fixed": "#001b3c", "primary-fixed": "#d5e3ff", "on-tertiary": "#00391b", "on-secondary": "#31009a", "on-primary": "#003061", "on-primary-fixed-variant": "#004788", "on-surface-variant": "#c1c6d4", "inverse-on-surface": "#303030", "surface-dim": "#131313", "outline": "#8b919e", "tertiary-fixed": "#69fea1" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "header-height": "3rem", "space-lg": "1rem", "space-md": "0.75rem", "space-xl": "1.5rem", "sidebar-width": "15rem", "space-xs": "0.25rem", "transport-height": "4.5rem", "space-sm": "0.5rem", "space-3xl": "3rem", "space-2xl": "2rem", "space-2xs": "0.125rem" }, "fontFamily": { "display-lg-mobile": [ "Inter" ], "headline-md": [ "Inter" ], "title-md": [ "Inter" ], "headline-sm": [ "Inter" ], "body-subtle": [ "Inter" ], "label-mono": [ "JetBrains Mono" ], "display-lg": [ "Inter" ], "label-ui": [ "Inter" ], "body-default": [ "Inter" ] }, "fontSize": { "display-lg-mobile": [ "24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" } ], "headline-md": [ "22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "title-md": [ "15px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "600" } ], "headline-sm": [ "18px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" } ], "body-subtle": [ "13px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "400" } ], "label-mono": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" } ], "display-lg": [ "32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" } ], "label-ui": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" } ], "body-default": [ "14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" } ] } } } };</script></head><body class="bg-surface font-body-default text-body-default text-on-surface select-none"><header class="fixed top-0 left-0 right-0 h-header-height z-50 bg-surface-container-high px-space-md flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.25)]"><div class="flex items-center gap-space-sm"><img alt="MuzikPlayer M Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VeZYEET1QlkpS5u0phfAxhgTe9CS8Qwy15mnIv27asvcC5XfelwGRg4gd31KL3dg5yoPlxcUVZ90QSBMfBs29vTzhhhbDHDh2AFO_BJKJv9tjcNkdXZIcNFQ7e-GO6GBQ_gAsWNUUN_NFqU9iqhgmCZCQUJhcKs0jKawC6CovcOVeB-koakY5tjzk3p8ptoPKulVOP2guKiZYs8BVCPLI1O-x_EyAIS3BqJpXMYrxyFJ8-KJ_qHOU7rKs"/><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight ml-space-xs">MuzikPlayer</span><div class="hidden md:flex items-center bg-surface-container-low rounded-lg p-space-2xs ml-space-md"><a class="px-space-md py-space-2xs rounded-lg font-label-ui text-label-ui text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" href="#">Albums</a><a class="px-space-md py-space-2xs rounded-lg font-label-ui text-label-ui text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" href="#">Artists</a><a class="px-space-md py-space-2xs rounded-lg font-label-ui text-label-ui text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" href="#">Tracks</a><a class="px-space-md py-space-2xs rounded-lg font-label-ui text-label-ui text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" href="#">Genres</a></div></div><div class="flex-1 max-w-md mx-space-lg"><div class="relative flex items-center w-full"><span class="material-symbols-outlined absolute left-space-sm text-on-surface-variant text-[18px]">search</span><input class="w-full h-8 pl-9 pr-space-md rounded-lg bg-surface-container-lowest font-body-subtle text-body-subtle text-on-surface placeholder-on-surface-variant outline-none focus:bg-surface-container focus:text-on-surface transition-all" placeholder="Search local library..." type="text"/></div></div><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex items-center gap-space-xs ml-space-xs"><button aria-label="Minimize" class="w-6 h-6 rounded-full bg-surface-container hover:bg-surface-container-highest flex items-center justify-center text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-[14px]">remove</span></button><button aria-label="Maximize" class="w-6 h-6 rounded-full bg-surface-container hover:bg-surface-container-highest flex items-center justify-center text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-[14px]">crop_square</span></button><button aria-label="Close" class="w-6 h-6 rounded-full bg-surface-container hover:bg-error hover:text-on-error flex items-center justify-center text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-[14px]">close</span></button></div></div></header><aside class="fixed left-0 top-header-height bottom-transport-height w-sidebar-width bg-surface-container-low z-40 flex flex-col justify-between py-space-md px-space-sm"><div class="flex flex-col gap-space-lg"><div class="px-space-sm"><span class="font-label-ui text-label-ui text-on-surface-variant uppercase tracking-wider">Library</span></div><nav class="flex flex-col gap-space-2xs" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-lg"><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm transition-all bg-primary-container text-on-primary-container font-semibold rounded-lg" data-path="home" href="#"><span class="material-symbols-outlined text-[20px]">home</span>Home</a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-body-default text-body-default text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="library" href="#"><span class="material-symbols-outlined text-[20px]">library_music</span>Library</a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-body-default text-body-default text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="playlists" href="#"><span class="material-symbols-outlined text-[20px]">queue_music</span>Playlists</a></nav></div><div class="flex flex-col gap-space-2xs"><nav class="flex flex-col" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-lg"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg font-body-default text-body-default text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span>Settings</a></nav><div class="px-space-md py-space-xs mt-space-xs flex items-center justify-between"><span class="font-label-mono text-label-mono text-on-surface-variant">Fedora GNOME</span><span class="h-2 w-2 rounded-full bg-tertiary"></span></div></div></aside><div class="pl-sidebar-width"><main class="w-full min-h-screen pt-header-height pb-transport-height px-space-xl bg-surface"><div class="flex flex-col w-full gap-space-lg py-space-sm">
+<!-- System / Library Status Anchor Bar -->
+<div class="w-full flex flex-wrap items-center justify-between gap-space-sm bg-surface-container px-space-md py-space-xs rounded-lg shadow-sm">
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="font-label-mono text-label-mono text-on-surface">PipeWire Direct: 96,000 Hz / 24-bit PCM</span>
+</div>
+<span class="text-outline-variant font-label-mono text-label-mono">/</span>
+<div class="flex items-center gap-space-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">folder_open</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant">/home/asw/Music</span>
+</div>
+<span class="hidden sm:inline-block font-label-mono text-label-mono text-outline-variant">42.8 GB • 1,482 tracks</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-mono text-label-mono text-tertiary bg-surface-container-high px-space-xs py-space-2xs rounded">inotify active</span>
+<div class="flex items-center bg-surface-container-highest rounded-lg p-space-2xs">
+<button class="px-space-sm py-space-2xs rounded font-label-mono text-label-mono text-on-surface bg-surface-container hover:text-on-surface transition-all" type="button">ALSA: hw:0,0</button>
+<button class="px-space-sm py-space-2xs rounded font-label-mono text-label-mono text-primary bg-surface-container-low font-semibold transition-all" type="button">PipeWire Default</button>
+</div>
+</div>
+</div>
+<!-- Focused Studio Split Screen -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg w-full items-start">
+<!-- Left/Center Main Column: Studio Presentation -->
+<div class="xl:col-span-8 flex flex-col gap-space-lg">
+<!-- Studio Player Stage Card -->
+<div class="bg-surface-container-low rounded-xl p-space-xl relative overflow-hidden flex flex-col gap-space-lg shadow-md">
+<!-- Ambient Blur Canvas Behind Hero -->
+<div class="absolute -top-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute -bottom-24 -right-24 w-80 h-80 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="flex flex-col md:flex-row gap-space-xl relative z-10 items-center md:items-start">
+<!-- Album Art with Vinyl / Sleeve Elevation -->
+<div class="relative group flex-shrink-0">
+<div class="w-64 h-64 sm:w-72 sm:h-72 rounded-lg overflow-hidden shadow-xl bg-surface-container-highest relative">
+<img class="w-full h-full object-cover select-none" data-alt="Album cover artwork for The Mist and The Sun by Owen Hawthorne. Dramatic cinematic mountain valley wrapped in low morning fog and dramatic sunrays hitting jagged Scottish peaks, a lone wanderer walking in silhouette on an alpine trail." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2jiB7gTLmSjLpmqqwJDKxdVrhFznCySAdgeo1MeK4f20ZdfcbAODFwnvLuwkpVv0HoGbw3T5crU37aGPFs67BIOplQ82axRtOLhxYN9_82ra71R9f9NMQ57izuk4NIt-YX2CiUNJkCXjMImi8mRjqF1XSCQD_2HZL136rx1G3ASVYaOBJSvWEhwpOj-7L1jqm6i1r2_nf7iWakFkFoS1DP7RykVzIJnwUh83Ff5q-_9T5qEyA97_i"/>
+<!-- Overlay Gloss and Play Trigger -->
+<div class="absolute inset-0 bg-surface-container-lowest/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-xs">
+<button class="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-lg hover:scale-105 transition-transform" type="button">
+<span class="material-symbols-outlined text-[32px]">pause</span>
+</button>
+</div>
+</div>
+<!-- Vinyl Edge Visual Extension -->
+<div class="hidden sm:block absolute top-2 -right-4 w-68 h-68 rounded-full bg-surface-container-lowest -z-10 shadow-lg opacity-40 group-hover:translate-x-2 transition-transform"></div>
+</div>
+<!-- Master Metadata & Specs -->
+<div class="flex flex-col justify-between flex-1 w-full h-full min-w-0 py-space-xs">
+<div class="flex flex-col gap-space-xs">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="font-label-mono text-label-mono px-space-xs py-space-2xs rounded bg-secondary-container text-on-secondary-container">FLAC MASTER</span>
+<span class="font-label-mono text-label-mono px-space-xs py-space-2xs rounded bg-surface-container-high text-tertiary">96 kHz / 24-bit</span>
+<span class="font-label-mono text-label-mono px-space-xs py-space-2xs rounded bg-surface-container-high text-on-surface-variant">2,842 kbps</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant ml-auto">Track 03/11</span>
+</div>
+<div class="mt-space-sm">
+<span class="font-headline-sm text-headline-sm md:font-display-lg md:text-display-lg text-on-surface tracking-tight block truncate">The Mist &amp; The Sun</span>
+<span class="font-title-md text-title-md text-primary block truncate mt-space-2xs">Owen Hawthorne</span>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant block mt-space-2xs">Acoustic Sessions (2024) • Folk / Ambient Acoustic</span>
+</div>
+</div>
+<!-- Dynamic Waveform Visualizer Module -->
+<div class="mt-space-lg flex flex-col gap-space-xs">
+<div class="flex justify-between items-end">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">graphic_eq</span>
+<span class="font-label-mono text-label-mono text-on-surface">Peak Waveform / Local Cache</span>
+</div>
+<div class="flex items-center gap-space-xs font-label-mono text-label-mono text-outline">
+<span class="text-primary font-semibold">02:44</span>
+<span>/</span>
+<span>05:18</span>
+</div>
+</div>
+<!-- Interactive Waveform SVG Bars -->
+<div class="w-full h-20 bg-surface-container rounded-lg p-space-xs flex items-center justify-between gap-[2px] cursor-pointer hover:bg-surface-container-high transition-colors overflow-hidden" id="waveform-container">
+<!-- Dynamically populated or SVG waveform bars -->
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 400 64">
+<g class="fill-primary-container">
+<rect height="16" rx="1" width="2" x="0" y="24"></rect>
+<rect height="24" rx="1" width="2" x="4" y="20"></rect>
+<rect height="32" rx="1" width="2" x="8" y="16"></rect>
+<rect height="20" rx="1" width="2" x="12" y="22"></rect>
+<rect height="40" rx="1" width="2" x="16" y="12"></rect>
+<rect height="48" rx="1" width="2" x="20" y="8"></rect>
+<rect height="36" rx="1" width="2" x="24" y="14"></rect>
+<rect height="28" rx="1" width="2" x="28" y="18"></rect>
+<rect height="20" rx="1" width="2" x="32" y="22"></rect>
+<rect height="44" rx="1" width="2" x="36" y="10"></rect>
+<rect height="52" rx="1" width="2" x="40" y="6"></rect>
+<rect height="40" rx="1" width="2" x="44" y="12"></rect>
+<rect height="32" rx="1" width="2" x="48" y="16"></rect>
+<rect height="24" rx="1" width="2" x="52" y="20"></rect>
+<rect height="16" rx="1" width="2" x="56" y="24"></rect>
+<rect height="36" rx="1" width="2" x="60" y="14"></rect>
+<rect height="56" rx="1" width="2" x="64" y="4"></rect>
+<rect height="48" rx="1" width="2" x="68" y="8"></rect>
+<rect height="32" rx="1" width="2" x="72" y="16"></rect>
+<rect height="24" rx="1" width="2" x="76" y="20"></rect>
+<rect height="44" rx="1" width="2" x="80" y="10"></rect>
+<rect height="36" rx="1" width="2" x="84" y="14"></rect>
+<rect height="28" rx="1" width="2" x="88" y="18"></rect>
+<rect height="48" rx="1" width="2" x="92" y="8"></rect>
+<rect height="40" rx="1" width="2" x="96" y="12"></rect>
+<rect height="52" rx="1" width="2" x="100" y="6"></rect>
+<rect height="36" rx="1" width="2" x="104" y="14"></rect>
+<rect height="20" rx="1" width="2" x="108" y="22"></rect>
+<rect height="28" rx="1" width="2" x="112" y="18"></rect>
+<rect height="44" rx="1" width="2" x="116" y="10"></rect>
+<rect height="56" rx="1" width="2" x="120" y="4"></rect>
+<rect height="40" rx="1" width="2" x="124" y="12"></rect>
+<rect height="32" rx="1" width="2" x="128" y="16"></rect>
+<rect height="24" rx="1" width="2" x="132" y="20"></rect>
+<rect height="36" rx="1" width="2" x="136" y="14"></rect>
+<rect height="48" rx="1" width="2" x="140" y="8"></rect>
+<rect height="40" rx="1" width="2" x="144" y="12"></rect>
+<rect height="28" rx="1" width="2" x="148" y="18"></rect>
+<rect height="44" rx="1" width="2" x="152" y="10"></rect>
+<rect height="52" rx="1" width="2" x="156" y="6"></rect>
+<rect height="40" rx="1" width="2" x="160" y="12"></rect>
+<rect height="32" rx="1" width="2" x="164" y="16"></rect>
+<rect height="20" rx="1" width="2" x="168" y="22"></rect>
+<rect height="36" rx="1" width="2" x="172" y="14"></rect>
+<rect height="48" rx="1" width="2" x="176" y="8"></rect>
+<rect height="40" rx="1" width="2" x="180" y="12"></rect>
+<rect height="28" rx="1" width="2" x="184" y="18"></rect>
+<rect height="20" rx="1" width="2" x="188" y="22"></rect>
+<rect height="44" rx="1" width="2" x="192" y="10"></rect>
+<rect height="36" rx="1" width="2" x="196" y="14"></rect>
+<rect height="60" rx="1" width="2" x="200" y="2"></rect>
+</g>
+<g class="fill-surface-container-highest">
+<rect height="44" rx="1" width="2" x="204" y="10"></rect>
+<rect height="32" rx="1" width="2" x="208" y="16"></rect>
+<rect height="20" rx="1" width="2" x="212" y="22"></rect>
+<rect height="36" rx="1" width="2" x="216" y="14"></rect>
+<rect height="48" rx="1" width="2" x="220" y="8"></rect>
+<rect height="28" rx="1" width="2" x="224" y="18"></rect>
+<rect height="16" rx="1" width="2" x="228" y="24"></rect>
+<rect height="40" rx="1" width="2" x="232" y="12"></rect>
+<rect height="52" rx="1" width="2" x="236" y="6"></rect>
+<rect height="36" rx="1" width="2" x="240" y="14"></rect>
+<rect height="28" rx="1" width="2" x="244" y="18"></rect>
+<rect height="44" rx="1" width="2" x="248" y="10"></rect>
+<rect height="56" rx="1" width="2" x="252" y="4"></rect>
+<rect height="32" rx="1" width="2" x="256" y="16"></rect>
+<rect height="20" rx="1" width="2" x="260" y="22"></rect>
+<rect height="40" rx="1" width="2" x="264" y="12"></rect>
+<rect height="28" rx="1" width="2" x="268" y="18"></rect>
+<rect height="48" rx="1" width="2" x="272" y="8"></rect>
+<rect height="36" rx="1" width="2" x="276" y="14"></rect>
+<rect height="24" rx="1" width="2" x="280" y="20"></rect>
+<rect height="44" rx="1" width="2" x="284" y="10"></rect>
+<rect height="52" rx="1" width="2" x="288" y="6"></rect>
+<rect height="40" rx="1" width="2" x="292" y="12"></rect>
+<rect height="32" rx="1" width="2" x="296" y="16"></rect>
+<rect height="20" rx="1" width="2" x="300" y="22"></rect>
+<rect height="36" rx="1" width="2" x="304" y="14"></rect>
+<rect height="48" rx="1" width="2" x="308" y="8"></rect>
+<rect height="40" rx="1" width="2" x="312" y="12"></rect>
+<rect height="28" rx="1" width="2" x="316" y="18"></rect>
+<rect height="16" rx="1" width="2" x="320" y="24"></rect>
+<rect height="44" rx="1" width="2" x="324" y="10"></rect>
+<rect height="56" rx="1" width="2" x="328" y="4"></rect>
+<rect height="32" rx="1" width="2" x="332" y="16"></rect>
+<rect height="24" rx="1" width="2" x="336" y="20"></rect>
+<rect height="40" rx="1" width="2" x="340" y="12"></rect>
+<rect height="28" rx="1" width="2" x="344" y="18"></rect>
+<rect height="48" rx="1" width="2" x="348" y="8"></rect>
+<rect height="36" rx="1" width="2" x="352" y="14"></rect>
+<rect height="20" rx="1" width="2" x="356" y="22"></rect>
+<rect height="32" rx="1" width="2" x="360" y="16"></rect>
+<rect height="44" rx="1" width="2" x="364" y="10"></rect>
+<rect height="52" rx="1" width="2" x="368" y="6"></rect>
+<rect height="36" rx="1" width="2" x="372" y="14"></rect>
+<rect height="28" rx="1" width="2" x="376" y="18"></rect>
+<rect height="40" rx="1" width="2" x="380" y="12"></rect>
+<rect height="24" rx="1" width="2" x="384" y="20"></rect>
+<rect height="16" rx="1" width="2" x="388" y="24"></rect>
+<rect height="28" rx="1" width="2" x="392" y="18"></rect>
+<rect height="36" rx="1" width="2" x="396" y="14"></rect>
+</g>
+</svg>
+</div>
+<!-- Transport Shortcut Actions -->
+<div class="flex items-center justify-between mt-space-sm pt-space-xs">
+<div class="flex items-center gap-space-xs">
+<button class="px-space-md py-space-xs bg-surface-container hover:bg-surface-container-high rounded-lg text-on-surface font-label-ui text-label-ui flex items-center gap-space-xs transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">bookmark_add</span>
+                    Mark A-B Loop
+                  </button>
+<button class="px-space-md py-space-xs bg-surface-container hover:bg-surface-container-high rounded-lg text-on-surface font-label-ui text-label-ui flex items-center gap-space-xs transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary">tune</span>
+                    Parametric EQ
+                  </button>
+</div>
+<div class="flex items-center gap-space-xs">
+<button aria-label="Favorite Track" class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+<button aria-label="Audio Properties" class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">info</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Integrated Tabbed Inspector Deck: Lyrics / Metadata / Audio Stats -->
+<div class="w-full bg-surface-container rounded-lg p-space-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs bg-surface-container-low p-space-2xs rounded-lg">
+<button class="px-space-md py-space-2xs rounded-lg font-label-ui text-label-ui bg-surface-container-high text-on-surface font-semibold transition-all" id="tab-lyrics-btn" type="button">Synced Lyrics</button>
+<button class="px-space-md py-space-2xs rounded-lg font-label-ui text-label-ui text-on-surface-variant hover:text-on-surface transition-all" id="tab-meta-btn" type="button">Tags &amp; Precision Data</button>
+<button class="px-space-md py-space-2xs rounded-lg font-label-ui text-label-ui text-on-surface-variant hover:text-on-surface transition-all" id="tab-specs-btn" type="button">DSP Pipeline</button>
+</div>
+<span class="font-label-mono text-label-mono text-on-surface-variant hidden sm:inline-block">LRC Verified • UTF-8</span>
+</div>
+<!-- Lyrics Display Section -->
+<div class="flex flex-col gap-space-sm font-body-default text-body-default max-h-36 overflow-y-auto px-space-xs" id="lyrics-panel">
+<p class="text-on-surface-variant/60">Shadows crawling down the ridge line slow</p>
+<p class="text-on-surface-variant">Cold heather waking up to the dawn glow</p>
+<p class="text-primary font-semibold text-title-md font-title-md flex items-center gap-space-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+              The mist recedes where the stone stands tall
+            </p>
+<p class="text-on-surface-variant/80">And the golden ray breaks over us all</p>
+<p class="text-on-surface-variant/50">Footsteps echo through the heather deep...</p>
+</div>
+</div>
+</div>
+<!-- Quick Contextual Album Tracks Strip -->
+<div class="bg-surface-container-low rounded-xl p-space-lg shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-title-md text-title-md text-on-surface">Owen Hawthorne — Acoustic Sessions</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant">(11 tracks)</span>
+</div>
+<a class="font-label-ui text-label-ui text-primary hover:underline" href="#">View Album in Library</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-xs mt-space-xs">
+<div class="flex items-center justify-between p-space-xs bg-surface-container rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="font-label-mono text-label-mono text-on-surface-variant w-4 text-center">01</span>
+<span class="font-body-subtle text-body-subtle text-on-surface truncate">Highland Whispers</span>
+</div>
+<span class="font-label-mono text-label-mono text-outline">04:12</span>
+</div>
+<div class="flex items-center justify-between p-space-xs bg-surface-container rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="font-label-mono text-label-mono text-on-surface-variant w-4 text-center">02</span>
+<span class="font-body-subtle text-body-subtle text-on-surface truncate">Cairn at Twilight</span>
+</div>
+<span class="font-label-mono text-label-mono text-outline">03:48</span>
+</div>
+<div class="flex items-center justify-between p-space-xs bg-primary/10 rounded-lg transition-colors cursor-pointer">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="material-symbols-outlined text-primary text-[14px]">volume_up</span>
+<span class="font-body-subtle text-body-subtle text-primary font-semibold truncate">The Mist &amp; The Sun</span>
+</div>
+<span class="font-label-mono text-label-mono text-primary">05:18</span>
+</div>
+<div class="flex items-center justify-between p-space-xs bg-surface-container rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="font-label-mono text-label-mono text-on-surface-variant w-4 text-center">04</span>
+<span class="font-body-subtle text-body-subtle text-on-surface truncate">Glencoe Fires</span>
+</div>
+<span class="font-label-mono text-label-mono text-outline">04:45</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Drawer Column: Up Next / Active Queue Module -->
+<div class="xl:col-span-4 flex flex-col gap-space-md">
+<div class="bg-surface-container-low rounded-xl p-space-lg shadow-md flex flex-col gap-space-md">
+<!-- Queue Header Actions -->
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Play Queue</span>
+<span class="font-label-mono text-label-mono bg-surface-container-high text-on-surface-variant px-space-xs py-space-2xs rounded-full">6 tracks</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="w-7 h-7 rounded bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" title="Add track to queue" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+<button class="px-space-xs py-space-2xs rounded bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-error font-label-mono text-label-mono transition-colors" title="Clear non-playing queue" type="button">
+              Clear
+            </button>
+</div>
+</div>
+<!-- Interactive Queue List with Reorder Handles -->
+<div class="flex flex-col gap-space-xs" id="queue-container">
+<!-- Queue Track Item: Currently Active Pointer -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-highest shadow-sm relative overflow-hidden group">
+<div class="w-1 h-8 rounded-full bg-primary absolute left-1"></div>
+<span class="material-symbols-outlined text-primary text-[18px] ml-space-xs">equalizer</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-body-subtle text-body-subtle text-on-surface font-semibold truncate">The Mist &amp; The Sun</span>
+<span class="font-label-mono text-label-mono text-primary truncate">Owen Hawthorne • Now Playing</span>
+</div>
+<span class="font-label-mono text-label-mono text-primary flex-shrink-0">05:18</span>
+</div>
+<!-- Queue Track 2 -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors group cursor-grab active:cursor-grabbing">
+<span class="material-symbols-outlined text-outline-variant text-[16px] group-hover:text-on-surface transition-colors">drag_indicator</span>
+<div class="w-8 h-8 rounded bg-surface-container-highest flex-shrink-0 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Album art for contemporary solo acoustic guitar album, close-up on cedar wood grain and nylon strings in amber evening light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5UeIl4TEMK28IsebTdozZEZcRSNrxEFBiegJK0-2yr1gWSvvwElfA-buVPvCh5Q9Wvz8nxNHVFdVG0KGGuzApC39FrdJ2oQlBGu46JIxiMMI-WST6gCFpxQDIV5pFQJ_pdD2K59mTn7tYjK7h8aGqOpvskZ8WQaX2xgXXAc7IYMD2Gf5lsY2AhG318R_sCYHf9d6zeDb6Abd9UGWcVGBjMa9N8DcnIOsI7OB6fa4DfEWNRPqcyi-D"/>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-body-subtle text-body-subtle text-on-surface truncate">Skye Coastline Wander</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant truncate">Eilidh Shaw</span>
+</div>
+<span class="font-label-mono text-label-mono text-outline flex-shrink-0">03:52</span>
+<button aria-label="Remove from queue" class="opacity-0 group-hover:opacity-100 w-6 h-6 rounded flex items-center justify-center text-outline hover:text-error hover:bg-surface-container-highest transition-all" type="button">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+<!-- Queue Track 3 -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors group cursor-grab active:cursor-grabbing">
+<span class="material-symbols-outlined text-outline-variant text-[16px] group-hover:text-on-surface transition-colors">drag_indicator</span>
+<div class="w-8 h-8 rounded bg-surface-container-highest flex-shrink-0 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Minimalist ambient music album cover featuring foggy loch surrounded by deep dark evergreen pines at dusk." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_Dy2vWhwylNyOrg-HqtpMxaLbVPg05zx7JSArq-xQ4QkWZTsMwuipG4mG3QhaqjRNzRLjpCexCZTAJ4iqtbUnH0Fqhf5r1l28E15KxLBRyDsU5WvVvmXpfeqpct09XtUG5v3TJIBdZzVjXAAhrY8CO9mAck37MdQ4TXy-9vFafgKLLqdFou0rNtNRj6t-PYelkyimtEzS8CYGjfkx0_-NHwl1A3RQR_xQkl4AusvfGzT-_DETQqSW"/>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-body-subtle text-body-subtle text-on-surface truncate">Echoes in the Pine</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant truncate">North Sea Ensemble</span>
+</div>
+<span class="font-label-mono text-label-mono text-outline flex-shrink-0">06:04</span>
+<button aria-label="Remove from queue" class="opacity-0 group-hover:opacity-100 w-6 h-6 rounded flex items-center justify-center text-outline hover:text-error hover:bg-surface-container-highest transition-all" type="button">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+<!-- Queue Track 4 -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors group cursor-grab active:cursor-grabbing">
+<span class="material-symbols-outlined text-outline-variant text-[16px] group-hover:text-on-surface transition-colors">drag_indicator</span>
+<div class="w-8 h-8 rounded bg-surface-container-highest flex-shrink-0 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Album artwork of an ancient stone bridge arching over a turbulent mountain stream during stormy Scottish autumn." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCu2gprEIPFHzsZkzEeh9xg_HZlBjRdC1EWOJ2ZSHQbf8tcudUoZvT0unsbxdmuPvsLJdUJiYcpnSXlnodQSaxqJDt4fb-aaopZ4dqD_AO2_ZSmfKcYKezEEvj2jv4dekOuqu6xmxX9Y9zNrkgG_LzMBl-Dnwgpk8_4Np14shn0Ivi5lH99TmIP70L-UpI1r3K2_b80pVVooOk8p1J6W7NQWthR3gzduooYMgH9ywtnaDbwEGKWnkSw"/>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-body-subtle text-body-subtle text-on-surface truncate">Stone Bridge Crossing</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant truncate">Alastair Finch</span>
+</div>
+<span class="font-label-mono text-label-mono text-outline flex-shrink-0">04:21</span>
+<button aria-label="Remove from queue" class="opacity-0 group-hover:opacity-100 w-6 h-6 rounded flex items-center justify-center text-outline hover:text-error hover:bg-surface-container-highest transition-all" type="button">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+<!-- Queue Track 5 -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors group cursor-grab active:cursor-grabbing">
+<span class="material-symbols-outlined text-outline-variant text-[16px] group-hover:text-on-surface transition-colors">drag_indicator</span>
+<div class="w-8 h-8 rounded bg-surface-container-highest flex-shrink-0 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Warm studio photo of an acoustic cello and violin resting side by side against dark charcoal studio walls." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8veRJXv6XA_DSytvkrxHmU0OqCf3wVgPxyxCRT5lQoAY0rJgR8zXLYOYdZVuzil8ukda4pMYVNVolXX2UY5sDAyaF8OiPlnw7MrUzNfVdpMKhKGmp6Pll0RIhMfMpzC105s_d47w-s7dGarLuETXuP1h1XFgrpr4vkPFLQIBu2KhWhkB-P0SgzATuXzyqS2D1k-NZtT-jp9vvMHXBqRt_qjK5I8Mqp6gmrrBkQTVFRGXRGmQsVfZN"/>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-body-subtle text-body-subtle text-on-surface truncate">Cello Suite No. 1 in G</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant truncate">Fiona MacLeod</span>
+</div>
+<span class="font-label-mono text-label-mono text-outline flex-shrink-0">02:37</span>
+<button aria-label="Remove from queue" class="opacity-0 group-hover:opacity-100 w-6 h-6 rounded flex items-center justify-center text-outline hover:text-error hover:bg-surface-container-highest transition-all" type="button">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+<!-- Queue Track 6 -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors group cursor-grab active:cursor-grabbing">
+<span class="material-symbols-outlined text-outline-variant text-[16px] group-hover:text-on-surface transition-colors">drag_indicator</span>
+<div class="w-8 h-8 rounded bg-surface-container-highest flex-shrink-0 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Album art depicting moody atmospheric sunset over desolate open moorland with purple bell heather and distant granite hills." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDF8wmYkzdzo8VnVS5Z_JtA_W1vcjtUkvWwsWaLpaaDAeScvHSpAPOEFod3hBok7Nk5LmqELlTPQ7t9tZQL4eSem_Inp3YJsRAug3yrKR8Mlht1d6r51Z-RCHE4jWDES86E_tPzarjNdy1W70CXSfyFiuxfsHIYfPJcaPzDy-5BgT_rwpXXgN9fj54BTxo9Lpo72J_zDYKydq5usoJH2EMCWixqY-6dde8uDiFf_6Fq5Cw2dd2QMs8r"/>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-body-subtle text-body-subtle text-on-surface truncate">Rannoch Sunset</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant truncate">Owen Hawthorne</span>
+</div>
+<span class="font-label-mono text-label-mono text-outline flex-shrink-0">05:54</span>
+<button aria-label="Remove from queue" class="opacity-0 group-hover:opacity-100 w-6 h-6 rounded flex items-center justify-center text-outline hover:text-error hover:bg-surface-container-highest transition-all" type="button">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+</div>
+<!-- End of Queue Actions -->
+<div class="pt-space-xs flex items-center justify-between">
+<label class="flex items-center gap-space-xs cursor-pointer">
+<input checked="" class="rounded bg-surface-container-highest text-primary focus:ring-0 focus:outline-none" type="checkbox"/>
+<span class="font-label-ui text-label-ui text-on-surface-variant select-none">Auto-queue similar local tracks</span>
+</label>
+<span class="font-label-mono text-label-mono text-outline">Total: 27m 16s</span>
+</div>
+</div>
+<!-- DSP & Output Device Diagnostic Pill Card -->
+<div class="bg-surface-container-low rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-ui text-label-ui text-on-surface font-semibold flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary">memory</span>
+            Audio Backend Monitor
+          </span>
+<span class="font-label-mono text-label-mono text-tertiary">PipeWire 1.0.5</span>
+</div>
+<div class="grid grid-cols-2 gap-space-xs font-label-mono text-label-mono">
+<div class="bg-surface-container p-space-xs rounded flex flex-col">
+<span class="text-on-surface-variant">Buffer Latency</span>
+<span class="text-on-surface font-semibold">5.33 ms (512 spl)</span>
+</div>
+<div class="bg-surface-container p-space-xs rounded flex flex-col">
+<span class="text-on-surface-variant">ReplayGain</span>
+<span class="text-on-surface font-semibold">-1.4 dB (Album)</span>
+</div>
+<div class="bg-surface-container p-space-xs rounded flex flex-col">
+<span class="text-on-surface-variant">Resampling</span>
+<span class="text-on-surface font-semibold">Bit-Perfect 1:1</span>
+</div>
+<div class="bg-surface-container p-space-xs rounded flex flex-col">
+<span class="text-on-surface-variant">DSP State</span>
+<span class="text-tertiary font-semibold">No clipping (0.0dB)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple micro-interactions for waveform click and tabs
+  const waveformContainer = document.getElementById('waveform-container');
+  if (waveformContainer) {
+    waveformContainer.addEventListener('click', (e) => {
+      const rect = waveformContainer.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+      const totalSec = 318; // 5:18
+      const currentSec = Math.floor(totalSec * ratio);
+      const m = Math.floor(currentSec / 60);
+      const s = currentSec % 60;
+      const timeStr = `0${m}:${s < 10 ? '0' : ''}${s}`;
+      const timeDisplay = waveformContainer.parentElement.querySelector('span.text-primary.font-semibold');
+      if (timeDisplay) timeDisplay.textContent = timeStr;
+    });
+  }
+
+  // Synced lyrics toggle simulation
+  const tabLyrics = document.getElementById('tab-lyrics-btn');
+  const tabMeta = document.getElementById('tab-meta-btn');
+  const tabSpecs = document.getElementById('tab-specs-btn');
+  const lyricsPanel = document.getElementById('lyrics-panel');
+
+  if (tabLyrics && tabMeta && lyricsPanel) {
+    const tabs = [tabLyrics, tabMeta, tabSpecs].filter(Boolean);
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => {
+          t.classList.remove('bg-surface-container-high', 'text-on-surface', 'font-semibold');
+          t.classList.add('text-on-surface-variant');
+        });
+        tab.classList.remove('text-on-surface-variant');
+        tab.classList.add('bg-surface-container-high', 'text-on-surface', 'font-semibold');
+      });
+    });
+  }
+</script></main></div><footer class="fixed bottom-0 left-0 right-0 h-transport-height z-50 bg-surface-container-high px-space-lg flex items-center justify-between shadow-[0_-1px_8px_rgba(0,0,0,0.3)]"><div class="flex items-center gap-space-md min-w-[220px]"><div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden flex-shrink-0"><span class="material-symbols-outlined text-on-surface-variant text-[28px]">album</span></div><div class="flex flex-col min-w-0"><span class="font-title-md text-title-md text-on-surface truncate">No Track Playing</span><span class="font-body-subtle text-body-subtle text-on-surface-variant truncate">MuzikPlayer Desktop Engine</span></div><span class="hidden lg:inline-flex items-center px-space-xs py-space-2xs rounded bg-secondary-container text-on-secondary-container font-label-mono text-label-mono">FLAC</span></div><div class="flex flex-col items-center gap-space-2xs flex-1 max-w-xl px-space-lg"><div class="flex items-center gap-space-md"><button aria-label="Shuffle" class="text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">shuffle</span></button><button aria-label="Previous Track" class="text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[24px]">skip_previous</span></button><button aria-label="Play or Pause" class="w-9 h-9 rounded-full bg-primary-container text-on-primary flex items-center justify-center hover:bg-primary transition-all shadow-md" type="button"><span class="material-symbols-outlined text-[24px]">play_arrow</span></button><button aria-label="Next Track" class="text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[24px]">skip_next</span></button><button aria-label="Repeat" class="text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">repeat</span></button></div><div class="w-full flex items-center gap-space-sm"><span class="font-label-mono text-label-mono text-on-surface-variant w-10 text-right">0:00</span><div class="flex-1 h-1 bg-surface-container-highest rounded-full overflow-hidden relative group cursor-pointer"><div class="w-1/3 h-full bg-primary-container rounded-full"></div></div><span class="font-label-mono text-label-mono text-on-surface-variant w-10 text-left">0:00</span></div></div><div class="flex items-center gap-space-md min-w-[200px] justify-end"><button aria-label="Play Queue" class="text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">queue_music</span></button><div class="flex items-center gap-space-xs"><button aria-label="Mute" class="text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">volume_up</span></button><div class="w-20 h-1 bg-surface-container-highest rounded-full cursor-pointer relative"><div class="w-3/4 h-full bg-on-surface-variant rounded-full"></div></div></div></div></footer></body></html>

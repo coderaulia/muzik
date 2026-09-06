@@ -44,6 +44,7 @@ enum class Panel(
     LIBRARY(Icons.Filled.Home, Res.string.main_menu_library),
     QUEUE(Icons.AutoMirrored.Default.QueueMusic, Res.string.main_menu_queue),
     PLAYER(Icons.Filled.PlayCircleFilled, Res.string.main_menu_player),
+    PLAYLISTS(Icons.AutoMirrored.Default.QueueMusic, Res.string.main_menu_playlists),
     ;
 
     companion object {
@@ -93,9 +94,9 @@ fun App(
                     openSettings = openSettings,
                     closeApp = closeApp,
                     openPlaylists = {
-                        selectPanel(LIBRARY)
-                        selectLibraryTab(LibraryHeaderTab.PLAYLIST)
+                        selectPanel(PLAYLISTS)
                     },
+                    onSelectLibraryTab = selectLibraryTab,
                 ) {
                     AlbumCoverBackground(mainImage, Modifier.fillMaxSize())
                     val libUIState by derivedStateOf {
@@ -110,11 +111,7 @@ fun App(
                         BoxWithConstraints {
                         val w = constraints.maxWidth
                         val large = w >= (BIG_SONG_ROW_DESIRED_WIDTH * 2).toPxApprox()
-                        val visiblePanels = if (large) {
-                            listOf(selectedPanel, PLAYER).distinct()
-                        } else {
-                            listOf(selectedPanel)
-                        }
+                        val visiblePanels = listOf(selectedPanel)
                         BoxWithConstraints(
                             modifier = Modifier.fillMaxSize(),
                         ) {
@@ -269,18 +266,21 @@ private fun MainContent(
                 }
 
             PLAYER -> {
-                WindowDraggableArea {
-                    PlayerUI(
-                        showToolbar = showToolbar,
-                        showLyrics = showLyrics,
-                        openSettings = openSettings,
-                        setShowLyrics = { showLyrics = it },
-                        closeApp = closeApp,
-                    )
-                    if (large) {
-                        RailBar(selectedPanel, selectPanel)
-                    }
-                }
+                HomePage(
+                    library = library,
+                    modifier = Modifier.fillMaxSize(),
+                    onViewAlbumInLibrary = { albumTitle ->
+                        selectPanel(LIBRARY)
+                        setListOptions(listOptions.copy(queryFilter = albumTitle))
+                    },
+                )
+            }
+
+            PLAYLISTS -> {
+                PlaylistsPage(
+                    library = library,
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
     }

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-low": "#1b1c1c", "on-tertiary-fixed": "#00210d", "secondary-fixed-dim": "#cabeff", "on-primary-container": "#002a55", "inverse-surface": "#e4e2e1", "inverse-primary": "#005eb2", "on-secondary-fixed": "#1c0062", "tertiary-fixed-dim": "#48e087", "secondary-fixed": "#e6deff", "surface-bright": "#393939", "on-tertiary": "#00391b", "on-error-container": "#ffdad6", "tertiary-container": "#00a65b", "primary-container": "#4691f2", "tertiary": "#48e087", "on-secondary-fixed-variant": "#480fcf", "on-secondary-container": "#bcaeff", "primary-fixed-dim": "#a7c8ff", "on-primary-fixed-variant": "#004788", "secondary": "#cabeff", "surface": "#131313", "on-tertiary-fixed-variant": "#00522a", "on-primary": "#003061", "outline-variant": "#414752", "surface-container-lowest": "#0e0e0e", "surface-tint": "#a7c8ff", "surface-container-high": "#2a2a2a", "surface-dim": "#131313", "on-surface": "#e4e2e1", "on-secondary": "#31009a", "surface-container": "#1f2020", "inverse-on-surface": "#303030", "on-error": "#690005", "secondary-container": "#4a16d1", "surface-variant": "#353535", "on-primary-fixed": "#001b3c", "on-background": "#e4e2e1", "primary": "#a7c8ff", "on-surface-variant": "#c1c6d4", "background": "#131313", "tertiary-fixed": "#69fea1", "surface-container-highest": "#353535", "error": "#ffb4ab", "outline": "#8b919e", "error-container": "#93000a", "on-tertiary-container": "#003117", "primary-fixed": "#d5e3ff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-3xl": "3rem", "space-md": "0.75rem", "sidebar-width": "15rem", "space-lg": "1rem", "space-2xs": "0.125rem", "space-xs": "0.25rem", "header-height": "3rem", "space-2xl": "2rem", "transport-height": "4.5rem", "space-sm": "0.5rem", "space-xl": "1.5rem" }, "fontFamily": { "headline-md": [ "Inter" ], "title-md": [ "Inter" ], "body-subtle": [ "Inter" ], "body-default": [ "Inter" ], "display-lg-mobile": [ "Inter" ], "label-mono": [ "JetBrains Mono" ], "display-lg": [ "Inter" ], "headline-sm": [ "Inter" ], "label-ui": [ "Inter" ] }, "fontSize": { "headline-md": [ "22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "title-md": [ "15px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "600" } ], "body-subtle": [ "13px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "400" } ], "body-default": [ "14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" } ], "display-lg-mobile": [ "24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" } ], "label-mono": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" } ], "display-lg": [ "32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" } ], "headline-sm": [ "18px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" } ], "label-ui": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" } ] } } } };</script></head><body class="bg-surface font-body-default text-body-default text-on-surface select-none"><header class="fixed top-0 left-0 right-0 h-header-height z-50 bg-surface-container-high px-space-md flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.25)]"><div class="flex items-center gap-space-sm"><img alt="MuzikPlayer M Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VeZYEET1QlkpS5u0phfAxhgTe9CS8Qwy15mnIv27asvcC5XfelwGRg4gd31KL3dg5yoPlxcUVZ90QSBMfBs29vTzhhhbDHDh2AFO_BJKJv9tjcNkdXZIcNFQ7e-GO6GBQ_gAsWNUUN_NFqU9iqhgmCZCQUJhcKs0jKawC6CovcOVeB-koakY5tjzk3p8ptoPKulVOP2guKiZYs8BVCPLI1O-x_EyAIS3BqJpXMYrxyFJ8-KJ_qHOU7rKs"/><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight ml-space-xs">MuzikPlayer</span><nav class="hidden lg:flex items-center bg-surface-container-low rounded-lg p-space-2xs ml-space-md" data-active-classes="bg-surface-bright text-on-surface font-semibold"><a class="px-space-md py-space-2xs rounded font-label-ui text-label-ui text-on-surface-variant hover:text-on-surface transition-all" data-path="albums" href="#">Albums</a><a class="px-space-md py-space-2xs rounded font-label-ui text-label-ui text-on-surface-variant hover:text-on-surface transition-all" data-path="artists" href="#">Artists</a><a class="px-space-md py-space-2xs rounded font-label-ui text-label-ui text-on-surface-variant hover:text-on-surface transition-all" data-path="tracks" href="#">Tracks</a><a class="px-space-md py-space-2xs rounded font-label-ui text-label-ui text-on-surface-variant hover:text-on-surface transition-all" data-path="genres" href="#">Genres</a></nav></div><div class="flex-1 max-w-md mx-space-lg"><div class="relative flex items-center w-full"><span class="material-symbols-outlined absolute left-space-sm text-on-surface-variant text-[18px]">search</span><input class="w-full h-8 pl-9 pr-14 rounded-lg bg-surface-container-lowest font-body-subtle text-body-subtle text-on-surface placeholder-on-surface-variant outline-none focus:bg-surface-container focus:text-on-surface transition-all" placeholder="Search local library..." type="text"/><div class="absolute right-space-sm flex items-center pointer-events-none"><kbd class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-mono text-label-mono border border-outline-variant/40">Ctrl K</kbd></div></div></div><div class="flex items-center gap-space-sm"><button aria-label="User Profile" class="w-8 h-8 rounded-full bg-surface-container hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">person</span></button><div class="flex items-center gap-space-xs ml-space-xs"><button aria-label="Minimize" class="w-6 h-6 rounded-full bg-surface-container hover:bg-surface-container-highest flex items-center justify-center text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-[14px]">remove</span></button><button aria-label="Maximize" class="w-6 h-6 rounded-full bg-surface-container hover:bg-surface-container-highest flex items-center justify-center text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-[14px]">crop_square</span></button><button aria-label="Close" class="w-6 h-6 rounded-full bg-surface-container hover:bg-error hover:text-on-error flex items-center justify-center text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-[14px]">close</span></button></div></div></header><aside class="fixed left-0 top-header-height bottom-transport-height w-sidebar-width bg-surface-container-low z-40 flex flex-col justify-between py-space-md px-space-sm"><div class="flex flex-col gap-space-lg"><div class="px-space-sm"><span class="font-label-ui text-label-ui text-on-surface-variant uppercase tracking-wider">Library</span></div><nav class="flex flex-col gap-space-2xs" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-lg"><a class="px-space-md py-space-sm rounded-lg font-body-default text-body-default text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="home" href="#">Home</a><a aria-current="page" class="px-space-md py-space-sm transition-all bg-primary-container text-on-primary-container font-semibold rounded-lg" data-path="library" href="#">Library</a><a class="px-space-md py-space-sm rounded-lg font-body-default text-body-default text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="playlists" href="#">Playlists</a></nav></div><div class="flex flex-col gap-space-2xs"><nav class="flex flex-col" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-lg"><a class="px-space-md py-space-sm rounded-lg font-body-default text-body-default text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="settings" href="#">Settings</a></nav><div class="px-space-md py-space-xs mt-space-xs flex items-center justify-between rounded-lg bg-surface-container-lowest/60"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-tertiary text-[14px]">graphic_eq</span><span class="font-label-mono text-label-mono text-on-surface-variant">Fedora GNOME • PipeWire</span></div><span class="h-2 w-2 rounded-full bg-tertiary animate-pulse"></span></div></div></aside><div class="pl-sidebar-width"><main class="w-full min-h-screen pt-header-height pb-transport-height px-space-xl bg-surface"><div class="flex flex-col w-full max-w-6xl mx-auto py-space-md">
+<!-- Window Breadcrumb / Status Strip -->
+<div class="flex items-center justify-between mb-space-lg pb-space-sm bg-surface-container-low/40 px-space-md py-space-xs rounded-lg">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">settings</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Preferences</span>
+<span class="text-outline-variant font-label-mono text-label-mono">/</span>
+<span class="font-label-ui text-label-ui text-on-surface-variant font-medium" id="current-category-label">Library &amp; Storage</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-container-highest text-tertiary font-label-mono text-label-mono">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+        PipeWire Node #49: bit-perfect locked
+      </div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2 top-1.5 text-on-surface-variant text-[16px]">filter_list</span>
+<input class="w-48 h-7 pl-7 pr-2 rounded bg-surface-container font-body-subtle text-body-subtle text-on-surface placeholder-on-surface-variant/70 outline-none focus:bg-surface-container-high transition-all" placeholder="Filter settings..." type="text"/>
+</div>
+</div>
+</div>
+<!-- Main Preferences Grid: Libadwaita Two-Pane Pattern -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Navigation Sidebar Column (4 Cols) -->
+<nav aria-label="Settings Categories" class="lg:col-span-4 flex flex-col gap-space-xs bg-surface-container-low p-space-sm rounded-xl shadow-sm">
+<div class="px-space-md py-space-xs mb-space-2xs">
+<span class="font-label-ui text-label-ui uppercase tracking-wider text-outline">Configuration</span>
+</div>
+<!-- Item 1: Library & Storage (Active) -->
+<button class="settings-tab-btn w-full flex items-center justify-between px-space-md py-space-sm rounded-lg bg-primary text-on-primary font-title-md text-title-md transition-all text-left shadow-sm" data-target="section-library" type="button">
+<div class="flex items-center gap-space-md min-w-0">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">folder_special</span>
+<div class="flex flex-col min-w-0">
+<span class="truncate font-semibold">Library &amp; Storage</span>
+<span class="font-label-mono text-label-mono opacity-85 truncate">2 watched mounts</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+<!-- Item 2: Audio & Output Engine -->
+<button class="settings-tab-btn w-full flex items-center justify-between px-space-md py-space-sm rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-title-md text-title-md transition-all text-left" data-target="section-audio" type="button">
+<div class="flex items-center gap-space-md min-w-0">
+<span class="material-symbols-outlined text-[20px]">graphic_eq</span>
+<div class="flex flex-col min-w-0">
+<span class="truncate">Audio &amp; Output Engine</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant/80 truncate">PipeWire 24/96 ALSA</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[16px] opacity-40">chevron_right</span>
+</button>
+<!-- Item 3: Appearance & Typography -->
+<button class="settings-tab-btn w-full flex items-center justify-between px-space-md py-space-sm rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-title-md text-title-md transition-all text-left" data-target="section-appearance" type="button">
+<div class="flex items-center gap-space-md min-w-0">
+<span class="material-symbols-outlined text-[20px]">palette</span>
+<div class="flex flex-col min-w-0">
+<span class="truncate">Appearance &amp; Style</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant/80 truncate">Libadwaita Dark</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[16px] opacity-40">chevron_right</span>
+</button>
+<!-- Item 4: Integration & MPRIS -->
+<button class="settings-tab-btn w-full flex items-center justify-between px-space-md py-space-sm rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-title-md text-title-md transition-all text-left" data-target="section-integration" type="button">
+<div class="flex items-center gap-space-md min-w-0">
+<span class="material-symbols-outlined text-[20px]">hub</span>
+<div class="flex flex-col min-w-0">
+<span class="truncate">Integration &amp; MPRIS</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant/80 truncate">org.mpris.MediaPlayer2</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[16px] opacity-40">chevron_right</span>
+</button>
+<!-- Item 5: About MuzikPlayer -->
+<button class="settings-tab-btn w-full flex items-center justify-between px-space-md py-space-sm rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-title-md text-title-md transition-all text-left" data-target="section-about" type="button">
+<div class="flex items-center gap-space-md min-w-0">
+<span class="material-symbols-outlined text-[20px]">info</span>
+<div class="flex flex-col min-w-0">
+<span class="truncate">About MuzikPlayer</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant/80 truncate">v3.4.1 (x86_64)</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[16px] opacity-40">chevron_right</span>
+</button>
+<!-- Desktop Diagnostics Card -->
+<div class="mt-space-lg p-space-md bg-surface-container-lowest rounded-lg">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-mono text-label-mono text-tertiary uppercase">Storage Telemetry</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant">Indexed 99.8%</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden mb-2">
+<div class="bg-tertiary h-full rounded-full" style="width: 82%;"></div>
+</div>
+<p class="font-label-mono text-label-mono text-on-surface-variant/90 leading-tight">
+          Total: 1,794 Lossless Tracks (48.4 GB)<br/>Cache: In-memory RocksDB v8.1
+        </p>
+</div>
+</nav>
+<!-- Detail Pane: Libadwaita Preferences Page (8 Cols) -->
+<div class="lg:col-span-8 flex flex-col gap-space-xl">
+<!-- SECTION 1: LIBRARY & STORAGE -->
+<section class="flex flex-col gap-space-lg" id="section-library">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Library &amp; Storage</h2>
+<p class="font-body-subtle text-body-subtle text-on-surface-variant mt-space-2xs">
+            Manage your local media directories, file system monitoring, and non-destructive index modes.
+          </p>
+</div>
+<!-- Adwaita Preference Group: Monitored Folders -->
+<div class="flex flex-col">
+<span class="font-label-ui text-label-ui uppercase tracking-wider text-outline px-space-sm mb-space-xs font-semibold">Music Library Directories</span>
+<div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm flex flex-col">
+<!-- Folder Row 1: Primary -->
+<div class="p-space-md flex items-center justify-between hover:bg-surface-container-high/40 transition-colors bg-surface-container-low">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[24px]">folder</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate">/home/asw/Music</span>
+<span class="px-2 py-0.5 rounded bg-primary-container/30 text-primary font-label-mono text-label-mono uppercase font-semibold">Primary</span>
+</div>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">1,482 tracks • 42.8 GB • ext4</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-label-ui text-label-ui transition-colors" type="button">
+                  Rescan
+                </button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" title="Folder settings" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Divider Line with soft surface token -->
+<div class="h-px w-full bg-surface-container-highest/60"></div>
+<!-- Folder Row 2: Secondary Archival -->
+<div class="p-space-md flex items-center justify-between hover:bg-surface-container-high/40 transition-colors bg-surface-container-low">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-[24px]">hard_drive</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate">/mnt/storage/LosslessArchive</span>
+<span class="px-2 py-0.5 rounded bg-tertiary-container/30 text-tertiary font-label-mono text-label-mono flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Syncing
+                    </span>
+</div>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">312 tracks • Btrfs raid1 • 5.6 GB</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-label-ui text-label-ui transition-colors" type="button">
+                  Sync Now
+                </button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" title="Folder settings" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Divider Line -->
+<div class="h-px w-full bg-surface-container-highest/60"></div>
+<!-- Add Folder Row Action -->
+<button class="p-space-md flex items-center justify-center gap-space-sm bg-surface-container-low hover:bg-surface-container-high text-primary font-title-md text-title-md transition-colors w-full" type="button">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>Add Music Folder...</span>
+</button>
+</div>
+</div>
+<!-- Adwaita Preference Group: File Handling & Safety -->
+<div class="flex flex-col">
+<span class="font-label-ui text-label-ui uppercase tracking-wider text-outline px-space-sm mb-space-xs font-semibold">Integrity &amp; Inotify</span>
+<div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm flex flex-col">
+<!-- Toggle Row 1: Read-Only Mode -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col pr-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Read-only mode (Strict)</span>
+<span class="px-1.5 py-0.2 rounded bg-tertiary-container/30 text-tertiary font-label-mono text-label-mono">Default</span>
+</div>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">
+                  MuzikPlayer will never modify, rename, or write ID3/FLAC metadata tags back to source media files.
+                </span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<div class="h-px w-full bg-surface-container-highest/60"></div>
+<!-- Toggle Row 2: Inotify Live Monitoring -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col pr-space-md">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Watch for filesystem changes (inotify)</span>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">
+                  Automatically refresh index when albums or cue sheets are moved, added, or deleted via file manager.
+                </span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<div class="h-px w-full bg-surface-container-highest/60"></div>
+<!-- Toggle Row 3: Embedded Artwork Caching -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col pr-space-md">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Local Cover Art Cache</span>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">
+                  Store extracted high-resolution cover arts in <code class="font-label-mono text-label-mono text-primary">~/.cache/muzikplayer/covers</code> for instant layout rendering.
+                </span>
+</div>
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-label-ui text-label-ui transition-colors whitespace-nowrap" type="button">
+                Clear Cache (318 MB)
+              </button>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 2: AUDIO OUTPUT & PIPEWIRE -->
+<section class="flex flex-col gap-space-lg" id="section-audio">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Audio &amp; Output Engine</h2>
+<p class="font-body-subtle text-body-subtle text-on-surface-variant mt-space-2xs">
+            Direct hardware routing, sample rate synchronization, and native Linux PipeWire / WirePlumber audio nodes.
+          </p>
+</div>
+<!-- Preference Group: Device & Passthrough -->
+<div class="flex flex-col">
+<span class="font-label-ui text-label-ui uppercase tracking-wider text-outline px-space-sm mb-space-xs font-semibold">Audio Output &amp; PipeWire</span>
+<div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm flex flex-col">
+<!-- Output Selector Row -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col min-w-0 pr-space-md">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate">Output Device</span>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">Physical DAC or default PipeWire audio sink</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<div class="px-space-md py-1.5 rounded-lg bg-surface-container-high flex items-center gap-space-sm cursor-pointer hover:bg-surface-bright transition-colors">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-body-default text-body-default text-on-surface font-medium">PipeWire Direct ALSA (hw:0,0)</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+<div class="h-px w-full bg-surface-container-highest/60"></div>
+<!-- Bit-Perfect Stream Switch -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col pr-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Bit-Perfect Direct Stream</span>
+<span class="px-2 py-0.5 rounded bg-tertiary-container/30 text-tertiary font-label-mono text-label-mono uppercase font-semibold">Bit-Perfect 1:1</span>
+</div>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">
+                  Bypass system software mixer, avoid 48 kHz automatic resampler, match stream clock directly to DAC hardware.
+                </span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<div class="h-px w-full bg-surface-container-highest/60"></div>
+<!-- Buffer Latency Setting (Segmented Control) -->
+<div class="p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-sm bg-surface-container-low">
+<div class="flex flex-col">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Buffer Latency</span>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">
+                  Current: <strong class="text-tertiary font-label-mono text-label-mono">5.33 ms</strong> (512 frames @ 96.0 kHz)
+                </span>
+</div>
+<div class="inline-flex rounded-lg bg-surface-container-lowest p-0.5 border border-outline-variant/30">
+<button class="px-3 py-1 text-label-ui font-label-ui rounded bg-primary-container text-on-primary-container font-semibold" type="button">512 (5.3ms)</button>
+<button class="px-3 py-1 text-label-ui font-label-ui rounded text-on-surface-variant hover:text-on-surface transition-colors" type="button">1024 (10.6ms)</button>
+<button class="px-3 py-1 text-label-ui font-label-ui rounded text-on-surface-variant hover:text-on-surface transition-colors" type="button">2048 (Safe)</button>
+</div>
+</div>
+<div class="h-px w-full bg-surface-container-highest/60"></div>
+<!-- ReplayGain Dropdown Row -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col pr-space-md">
+<span class="font-title-md text-title-md text-on-surface font-semibold">ReplayGain Loudness Normalization</span>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">
+                  EBU R128 loudness matching without dynamic range distortion.
+                </span>
+</div>
+<div class="px-space-md py-1.5 rounded-lg bg-surface-container-high flex items-center gap-space-sm cursor-pointer hover:bg-surface-bright transition-colors">
+<span class="font-body-default text-body-default text-on-surface">Album Gain (-1.4 dB target)</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<div class="h-px w-full bg-surface-container-highest/60"></div>
+<!-- Peak Clipping Protection Switch -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col pr-space-md">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Prevent True-Peak Intersample Clipping</span>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">
+                  Automatically lower preamp gain if high sample-rate intersample peaks exceed 0.0 dBFS.
+                </span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 3: INTERFACE & TYPOGRAPHY -->
+<section class="flex flex-col gap-space-lg" id="section-appearance">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Interface &amp; Typography</h2>
+<p class="font-body-subtle text-body-subtle text-on-surface-variant mt-space-2xs">
+            GTK4/Libadwaita desktop theme alignment, system fonts, and player telemetry overlays.
+          </p>
+</div>
+<div class="flex flex-col">
+<span class="font-label-ui text-label-ui uppercase tracking-wider text-outline px-space-sm mb-space-xs font-semibold">Desktop Theme &amp; Fonts</span>
+<div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm flex flex-col">
+<!-- Theme Mode Segmented -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col pr-space-md">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Color Scheme</span>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">Adapt to GNOME dark style preference</span>
+</div>
+<div class="inline-flex rounded-lg bg-surface-container-lowest p-1">
+<button class="flex items-center gap-1 px-3 py-1.5 text-label-ui font-label-ui rounded text-on-surface-variant hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">brightness_auto</span>
+<span>System</span>
+</button>
+<button class="flex items-center gap-1 px-3 py-1.5 text-label-ui font-label-ui rounded bg-primary-container text-on-primary-container font-semibold shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px]">dark_mode</span>
+<span>Dark</span>
+</button>
+<button class="flex items-center gap-1 px-3 py-1.5 text-label-ui font-label-ui rounded text-on-surface-variant hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">light_mode</span>
+<span>Light</span>
+</button>
+</div>
+</div>
+<div class="h-px w-full bg-surface-container-highest/60"></div>
+<!-- UI Font Family Row -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col pr-space-md">
+<span class="font-title-md text-title-md text-on-surface font-semibold">UI Font Family</span>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">Native desktop typography with monospaced audio counters</span>
+</div>
+<div class="px-space-md py-1.5 rounded-lg bg-surface-container-high flex items-center gap-space-sm cursor-pointer hover:bg-surface-bright transition-colors">
+<span class="font-body-default text-body-default text-on-surface">Inter • JetBrains Mono</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<div class="h-px w-full bg-surface-container-highest/60"></div>
+<!-- Now Playing Bar Badges Toggle -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col pr-space-md">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Real-time Audio Format Telemetry</span>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">
+                  Display format pill (e.g. <span class="text-secondary font-label-mono text-label-mono">FLAC 24/96</span>) in bottom transport bar deck.
+                </span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<div class="h-px w-full bg-surface-container-highest/60"></div>
+<!-- Album Art in Tracklist -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col pr-space-md">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Album Miniatures in Table Rows</span>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">
+                  Render 28px album thumbnails in high-density tracklists.
+                </span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 4: INTEGRATION & MPRIS -->
+<section class="flex flex-col gap-space-lg" id="section-integration">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Desktop Integration &amp; MPRIS</h2>
+<p class="font-body-subtle text-body-subtle text-on-surface-variant mt-space-2xs">
+            Connect with Linux D-Bus services, hardware media keys, and external scrobblers.
+          </p>
+</div>
+<div class="flex flex-col">
+<span class="font-label-ui text-label-ui uppercase tracking-wider text-outline px-space-sm mb-space-xs font-semibold">D-Bus Session Bus</span>
+<div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm flex flex-col">
+<!-- MPRIS Toggle -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col pr-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="font-title-md text-title-md text-on-surface font-semibold">MPRIS v2 Media Player Interface</span>
+<span class="px-2 py-0.5 rounded bg-tertiary-container/30 text-tertiary font-label-mono text-label-mono uppercase">Registered</span>
+</div>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">
+                  Expose track status and transport controls to GNOME top notification tray, lock screen, and keyboard keys.
+                </span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<div class="h-px w-full bg-surface-container-highest/60"></div>
+<!-- Discord Rich Presence / Scrobbler -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col pr-space-md">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Discord Rich Presence (RPC)</span>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">
+                  Broadcast current track title, artist, and elapsed timeline to local Discord IPC socket.
+                </span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<div class="h-px w-full bg-surface-container-highest/60"></div>
+<!-- Local Scrobbler (ListenBrainz) -->
+<div class="p-space-md flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col pr-space-md">
+<span class="font-title-md text-title-md text-on-surface font-semibold">ListenBrainz Open Scrobbling</span>
+<span class="font-body-subtle text-body-subtle text-on-surface-variant mt-0.5">
+                  Submit listen history to community-owned MetaBrainz open registry.
+                </span>
+</div>
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-label-ui text-label-ui transition-colors" type="button">
+                Connect User Token
+              </button>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 5: ABOUT MUZIKPLAYER -->
+<section class="flex flex-col gap-space-md mb-space-3xl" id="section-about">
+<div class="bg-surface-container-low rounded-xl p-space-xl flex flex-col items-center text-center shadow-sm">
+<div class="w-16 h-16 rounded-2xl bg-surface-container-high flex items-center justify-center mb-space-md shadow-md">
+<span class="material-symbols-outlined text-primary text-[36px]" style="font-variation-settings: 'FILL' 1;">album</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold">MuzikPlayer Desktop</h3>
+<span class="font-label-mono text-label-mono text-on-surface-variant mt-1">Version 3.4.1 (Stable Flatpak / GNOME 46 Runtime)</span>
+<p class="font-body-default text-body-default text-on-surface-variant max-w-lg mt-space-sm">
+            High-fidelity local music environment designed in the spirit of Libadwaita. Native, telemetry-free, bit-perfect audio for Linux.
+          </p>
+<div class="flex items-center gap-space-sm mt-space-lg">
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-on-surface font-label-mono text-label-mono">PipeWire 1.0.5</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-on-surface font-label-mono text-label-mono">FLAC 1.4.3</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-on-surface font-label-mono text-label-mono">GStreamer 1.24</span>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+<script>
+  // Simple interaction script to sync sidebar active state with scroll/click
+  document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Update sidebar visual active styling
+      document.querySelectorAll('.settings-tab-btn').forEach(b => {
+        b.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+        b.classList.add('text-on-surface-variant', 'hover:bg-surface-container-high');
+        const chevron = b.querySelector('.material-symbols-outlined:last-child');
+        if (chevron) chevron.classList.add('opacity-40');
+      });
+
+      btn.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+      btn.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-high');
+      const activeChevron = btn.querySelector('.material-symbols-outlined:last-child');
+      if (activeChevron) activeChevron.classList.remove('opacity-40');
+
+      // Update breadcrumb label
+      const labelElem = document.getElementById('current-category-label');
+      const title = btn.querySelector('span.truncate')?.textContent;
+      if (labelElem && title) {
+        labelElem.textContent = title;
+      }
+
+      // Smooth scroll to the target group
+      const targetId = btn.getAttribute('data-target');
+      if (targetId) {
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
+  });
+</script></main></div><footer class="fixed bottom-0 left-0 right-0 h-transport-height z-50 bg-surface-container-high px-space-lg flex items-center justify-between shadow-[0_-1px_8px_rgba(0,0,0,0.3)]"><div class="flex items-center gap-space-md min-w-[240px]"><div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden flex-shrink-0 border border-outline-variant/30"><span class="material-symbols-outlined text-on-surface-variant text-[28px]">album</span></div><div class="flex flex-col min-w-0"><span class="font-title-md text-title-md text-on-surface truncate">Solar Echoes</span><span class="font-body-subtle text-body-subtle text-on-surface-variant truncate">Nigel Stanford</span></div><span class="hidden xl:inline-flex items-center px-space-xs py-space-2xs rounded bg-secondary-container/40 text-secondary border border-secondary/30 font-label-mono text-label-mono tracking-wide">FLAC 24/96</span></div><div class="flex flex-col items-center gap-space-2xs flex-1 max-w-xl px-space-lg"><div class="flex items-center gap-space-md"><button aria-label="Shuffle" class="text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">shuffle</span></button><button aria-label="Previous Track" class="text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[24px]">skip_previous</span></button><button aria-label="Play or Pause" class="w-9 h-9 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center hover:bg-primary transition-all shadow-md" type="button"><span class="material-symbols-outlined text-[24px]">play_arrow</span></button><button aria-label="Next Track" class="text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[24px]">skip_next</span></button><button aria-label="Repeat" class="text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">repeat</span></button></div><div class="w-full flex items-center gap-space-sm"><span class="font-label-mono text-label-mono text-on-surface-variant w-10 text-right">02:14</span><div class="flex-1 h-1 bg-surface-container-highest rounded-full overflow-hidden relative group cursor-pointer"><div class="w-2/5 h-full bg-primary-container rounded-full"></div></div><span class="font-label-mono text-label-mono text-on-surface-variant w-10 text-left">05:42</span></div></div><div class="flex items-center gap-space-md min-w-[220px] justify-end"><button aria-label="Play Queue" class="text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">queue_music</span></button><div class="flex items-center gap-space-xs"><button aria-label="Mute" class="text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">volume_up</span></button><div class="w-24 h-1 bg-surface-container-highest rounded-full cursor-pointer relative"><div class="w-3/4 h-full bg-primary-container rounded-full"></div></div></div></div></footer></body></html>

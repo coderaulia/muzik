@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.ExperimentalTextApi
 import io.github.mmarco94.klibportal.portals.Settings
 import io.github.coderaulia.muzikplayer.LocalAppearanceSettings
 import io.github.coderaulia.muzikplayer.generated.resources.Res
@@ -27,7 +28,14 @@ private const val TOO_DARK_THRESHOLD = 0.15
 private const val TOO_BRIGHT_THRESHOLD_LIGHT = 0.85
 private const val TOO_BRIGHT_THRESHOLD_SATURATION = 0.3
 
+@OptIn(ExperimentalTextApi::class)
 object MuzikTheme {
+
+    // Named families intentionally fall back on platforms where SF Pro is not
+    // installed. SF Pro is used by the design system but is not redistributed.
+    private val sfProText = FontFamily("SF Pro Text")
+    private val sfProDisplay = FontFamily("SF Pro Display")
+    private val sfMono = FontFamily("SF Mono")
 
     enum class UserPreference(val nameRes: StringResource) {
         AUTO(Res.string.theme_auto), LIGHT(Res.string.theme_light), DARK(Res.string.theme_dark),
@@ -175,58 +183,58 @@ object MuzikTheme {
 
     val typography = Typography(
         displayLarge = TextStyle(
-            fontFamily = FontFamily.Default,
+            fontFamily = sfProDisplay,
             fontSize = 32.sp,
             lineHeight = 40.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = (-0.02).sp,
         ),
         displayMedium = TextStyle(
-            fontFamily = FontFamily.Default,
+            fontFamily = sfProDisplay,
             fontSize = 24.sp,
             lineHeight = 32.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = (-0.01).sp,
         ),
         headlineMedium = TextStyle(
-            fontFamily = FontFamily.Default,
+            fontFamily = sfProDisplay,
             fontSize = 22.sp,
             lineHeight = 28.sp,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = (-0.01).sp,
         ),
         headlineSmall = TextStyle(
-            fontFamily = FontFamily.Default,
+            fontFamily = sfProDisplay,
             fontSize = 18.sp,
             lineHeight = 24.sp,
             fontWeight = FontWeight.SemiBold,
         ),
         titleMedium = TextStyle(
-            fontFamily = FontFamily.Default,
+            fontFamily = sfProText,
             fontSize = 15.sp,
             lineHeight = 20.sp,
             fontWeight = FontWeight.SemiBold,
         ),
         bodyLarge = TextStyle(
-            fontFamily = FontFamily.Default,
+            fontFamily = sfProText,
             fontSize = 14.sp,
             lineHeight = 20.sp,
         ),
         bodyMedium = TextStyle(
-            fontFamily = FontFamily.Default,
+            fontFamily = sfProText,
             fontSize = 13.sp,
             lineHeight = 18.sp,
             letterSpacing = 0.01.sp,
         ),
         labelMedium = TextStyle(
-            fontFamily = FontFamily.Default,
+            fontFamily = sfProText,
             fontSize = 12.sp,
             lineHeight = 16.sp,
             fontWeight = FontWeight.Medium,
             letterSpacing = 0.02.sp,
         ),
         labelSmall = TextStyle(
-            fontFamily = FontFamily.Monospace,
+            fontFamily = sfMono,
             fontSize = 11.sp,
             lineHeight = 14.sp,
             fontWeight = FontWeight.Medium,
