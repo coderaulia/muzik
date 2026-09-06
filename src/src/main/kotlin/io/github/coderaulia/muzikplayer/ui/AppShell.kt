@@ -429,17 +429,20 @@ private fun MuzikTransportBar(
     val formatTag = song?.file?.extension?.uppercase() ?: "FLAC"
 
     Surface(
-        modifier = Modifier.fillMaxWidth().height(72.dp),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),
         color = shellSurface,
         tonalElevation = 4.dp,
         border = androidx.compose.foundation.BorderStroke(1.dp, borderOutline),
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val compactTransport = maxWidth < 820.dp
+            Column(Modifier.fillMaxWidth().padding(horizontal = if (compactTransport) 10.dp else 20.dp, vertical = if (compactTransport) 6.dp else 0.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
             // Zone 1 (Left): Album thumb + Title + Artist + Lossless badge
-            Row(
+            if (!compactTransport) Row(
                 modifier = Modifier.widthIn(min = 200.dp, max = 280.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -490,11 +493,11 @@ private fun MuzikTransportBar(
                 }
             }
 
-            Spacer(Modifier.weight(1f))
+            if (!compactTransport) Spacer(Modifier.weight(1f))
 
             // Zone 2 (Center): Playback Controls + Interactive Scrubber
             Column(
-                modifier = Modifier.widthIn(min = 340.dp, max = 560.dp),
+                modifier = if (compactTransport) Modifier.fillMaxWidth() else Modifier.widthIn(min = 340.dp, max = 560.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
@@ -623,10 +626,10 @@ private fun MuzikTransportBar(
                 }
             }
 
-            Spacer(Modifier.weight(1f))
+            if (!compactTransport) Spacer(Modifier.weight(1f))
 
             // Zone 3 (Right): Queue toggle + Volume Slider
-            Row(
+            if (!compactTransport) Row(
                 modifier = Modifier.widthIn(min = 180.dp, max = 240.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End,
@@ -642,6 +645,8 @@ private fun MuzikTransportBar(
 
                 // Compact Volume Control
                 CompactVolumeControl()
+            }
+                }
             }
         }
     }
