@@ -8,6 +8,7 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +26,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
@@ -32,6 +34,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -39,10 +42,52 @@ import io.github.coderaulia.muzikplayer.data.*
 import io.github.coderaulia.muzikplayer.generated.resources.*
 import io.github.coderaulia.muzikplayer.ui.LibraryHeaderTab.*
 import io.github.coderaulia.muzikplayer.utils.animateContentHeight
+import io.github.coderaulia.muzikplayer.utils.format
 import io.github.coderaulia.muzikplayer.utils.noopComparator
 import io.github.coderaulia.muzikplayer.utils.orNoop
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
+
+@Composable
+private fun LibraryStatsBanner(library: Library) {
+    val stats = library.stats
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                Modifier.size(8.dp).clip(CircleShape).background(Color(0xFF48E087)),
+            )
+            Text(
+                "LOCAL INDEX READY",
+                Modifier.padding(start = 8.dp),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.width(14.dp))
+            VerticalDivider(Modifier.height(16.dp))
+            Text(
+                "${stats.songsCount} tracks  •  ${library.albums.size} albums  •  ${stats.totalLength.format()}",
+                Modifier.padding(start = 14.dp),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                "LOCAL AUDIO",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color(0xFF48E087),
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+    }
+}
 
 private sealed interface SortFilterOption {
     @Composable
@@ -289,6 +334,7 @@ fun LibraryHeader(
                 }
             }
         }
+        LibraryStatsBanner(library)
         HorizontalDivider()
 
         AnimatedContent(tab, transitionSpec = {
