@@ -1,5 +1,8 @@
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.gradle.api.tasks.JavaExec
+import java.nio.file.Files
+import java.nio.file.Path
 
 plugins {
     kotlin("jvm") version "2.3.20"
@@ -36,6 +39,36 @@ kotlin {
 
 val ffsampledsp by configurations.creating
 val ffsampledspVersion = "0.9.54"
+val ffsampledspRuntimeDir = layout.buildDirectory.dir("ffsampledsp-runtime")
+
+val prepareFfsampledspRuntime by tasks.registering {
+    outputs.dir(ffsampledspRuntimeDir)
+    doLast {
+        val runtimeDir = ffsampledspRuntimeDir.get().asFile.toPath()
+        Files.createDirectories(runtimeDir)
+        val expected = runtimeDir.resolve("libbz2.so.1.0")
+        if (!Files.exists(expected)) {
+            val candidates = listOf(
+                Path.of("/usr/lib64/libbz2.so.1.0.8"),
+                Path.of("/usr/lib/x86_64-linux-gnu/libbz2.so.1.0.8"),
+                Path.of("/lib64/libbz2.so.1.0.8"),
+            )
+            val source = candidates.firstOrNull { Files.exists(it) }
+            if (source != null) {
+                Files.createSymbolicLink(expected, source)
+            }
+        }
+    }
+}
+
+tasks.withType<JavaExec>().configureEach {
+    dependsOn(prepareFfsampledspRuntime)
+    doFirst {
+        val runtimeDir = ffsampledspRuntimeDir.get().asFile.absolutePath
+        val existing = environment["LD_LIBRARY_PATH"]?.toString()
+        environment["LD_LIBRARY_PATH"] = listOfNotNull(runtimeDir, existing).joinToString(":")
+    }
+}
 
 dependencies {
     implementation("org.jetbrains.compose.foundation:foundation:1.10.3")

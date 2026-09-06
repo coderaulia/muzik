@@ -5,6 +5,7 @@ import io.github.coderaulia.muzikplayer.utils.orNoop
 import io.github.coderaulia.muzikplayer.utils.pathSimilarity
 import io.github.coderaulia.muzikplayer.utils.withoutExtension
 import io.github.oshai.kotlinlogging.KotlinLogging
+import com.tagtraum.ffsampledsp.FFAudioFileReader
 import kotlinx.coroutines.Deferred
 import net.bjoernpetersen.m3u.model.M3uEntry
 import net.bjoernpetersen.m3u.model.MediaPath
@@ -13,6 +14,7 @@ import java.nio.file.Path
 import javax.sound.sampled.AudioFormat
 import javax.sound.sampled.AudioInputStream
 import javax.sound.sampled.AudioSystem
+import javax.sound.sampled.UnsupportedAudioFileException
 import kotlin.io.path.name
 import kotlin.io.path.nameWithoutExtension
 import kotlin.time.Duration
@@ -102,7 +104,19 @@ data class Song(
     }
 
     fun audioStream(): AudioInputStream {
-        val audioStream: AudioInputStream = AudioSystem.getAudioInputStream(file.toFile())
+        val audioStream: AudioInputStream = try {
+            AudioSystem.getAudioInputStream(file.toFile())
+        } catch (unsupported: UnsupportedAudioFileException) {
+            // Java Sound provider discovery can miss FFSampledSP in packaged/runtime
+            // environments. Invoke the bundled provider directly as a fallback.
+            logger.warn(unsupported) { "Java Sound did not recognize ${file.fileName}; trying FFSampledSP directly" }
+            try {
+                FFAudioFileReader().getAudioInputStream(file.toFile())
+            } catch (fallback: Exception) {
+                fallback.addSuppressed(unsupported)
+                throw fallback
+            }
+        }
         val format: AudioFormat = audioStream.format
         val pcmFormat = AudioFormat(
             AudioFormat.Encoding.PCM_SIGNED,
