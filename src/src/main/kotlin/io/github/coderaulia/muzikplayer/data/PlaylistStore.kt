@@ -29,6 +29,23 @@ object PlaylistStore {
         }
     }
 
+    suspend fun rename(playlist: Playlist, name: String): Path = withContext(Dispatchers.IO) {
+        val safeName = validateName(name)
+        val target = playlist.file.resolveSibling("$safeName.m3u").normalize()
+        require(target.parent == playlist.file.parent.normalize()) { "Playlist name must not contain path separators" }
+        require(target == playlist.file || !Files.exists(target)) { "A playlist with that name already exists" }
+        Files.move(playlist.file, target)
+        target
+    }
+
+    suspend fun export(playlist: Playlist, directory: Path): Path = withContext(Dispatchers.IO) {
+        Files.createDirectories(directory)
+        val target = directory.resolve(playlist.file.fileName).normalize()
+        require(target.parent == directory.normalize()) { "Invalid export directory" }
+        Files.copy(playlist.file, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        target
+    }
+
     private fun validateName(name: String): String {
         val value = name.trim()
         require(value.isNotEmpty()) { "Playlist name cannot be empty" }

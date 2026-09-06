@@ -76,6 +76,9 @@ fun PlaylistsPage(
     var showCreateDialog by remember { mutableStateOf(false) }
     var newPlaylistName by remember { mutableStateOf("") }
     var playlistError by remember { mutableStateOf<String?>(null) }
+    var showRenameDialog by remember { mutableStateOf(false) }
+    var renameValue by remember { mutableStateOf("") }
+    var exportMessage by remember { mutableStateOf<String?>(null) }
 
     // Collect songs in the active playlist
     val activePlaylistSongs = remember(activePlaylist, library) {
@@ -483,14 +486,29 @@ fun PlaylistsPage(
                                     }
 
                                     IconButton(
-                                        onClick = {},
+                                        onClick = {
+                                            renameValue = activePlaylist.name
+                                            playlistError = null
+                                            showRenameDialog = true
+                                        },
                                         modifier = Modifier.size(34.dp).clip(RoundedCornerShape(8.dp)).background(surfaceContainerHigh),
                                     ) {
                                         Icon(Icons.Default.Edit, "Edit", Modifier.size(16.dp), tint = textOnSurfaceVariant)
                                     }
 
                                     IconButton(
-                                        onClick = {},
+                                        onClick = {
+                                            scope.launch {
+                                                runCatching {
+                                                    val downloads = java.nio.file.Path.of(System.getProperty("user.home"), "Downloads")
+                                                    PlaylistStore.export(activePlaylist, downloads)
+                                                }.onSuccess {
+                                                    exportMessage = "Exported to $it"
+                                                }.onFailure {
+                                                    exportMessage = it.message ?: "Could not export playlist"
+                                                }
+                                            }
+                                        },
                                         modifier = Modifier.size(34.dp).clip(RoundedCornerShape(8.dp)).background(surfaceContainerHigh),
                                     ) {
                                         Icon(Icons.Default.FileDownload, "Export", Modifier.size(16.dp), tint = textOnSurfaceVariant)
@@ -880,6 +898,44 @@ fun PlaylistsPage(
                 }) { Text("Create") }
             },
             dismissButton = { TextButton(onClick = { showCreateDialog = false }) { Text("Cancel") } },
+        )
+    }
+    if (showRenameDialog && activePlaylist != null) {
+        AlertDialog(
+            onDismissRequest = { showRenameDialog = false },
+            title = { Text("Rename Playlist") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = renameValue,
+                        onValueChange = { renameValue = it; playlistError = null },
+                        label = { Text("Playlist name") },
+                        singleLine = true,
+                    )
+                    playlistError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    scope.launch {
+                        runCatching { PlaylistStore.rename(activePlaylist, renameValue) }
+                            .onSuccess {
+                                showRenameDialog = false
+                                playlistError = null
+                            }
+                            .onFailure { playlistError = it.message ?: "Could not rename playlist" }
+                    }
+                }) { Text("Rename") }
+            },
+            dismissButton = { TextButton(onClick = { showRenameDialog = false }) { Text("Cancel") } },
+        )
+    }
+    exportMessage?.let { message ->
+        AlertDialog(
+            onDismissRequest = { exportMessage = null },
+            title = { Text("Playlist Export") },
+            text = { Text(message) },
+            confirmButton = { TextButton(onClick = { exportMessage = null }) { Text("Close") } },
         )
     }
 }

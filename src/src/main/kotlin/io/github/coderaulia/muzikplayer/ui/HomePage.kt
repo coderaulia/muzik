@@ -77,9 +77,25 @@ fun HomePage(
     if (currentSong != null) {
         player.ObservePosition { position = it }
     }
-
     var selectedTab by remember { mutableStateOf(HomeInspectorTab.LYRICS) }
     var isFavorite by remember { mutableStateOf(false) }
+    var showTrackInfo by remember { mutableStateOf(false) }
+    var showEqualizer by remember { mutableStateOf(false) }
+    var loopStart by remember { mutableStateOf<Duration?>(null) }
+    var loopEnd by remember { mutableStateOf<Duration?>(null) }
+    var loopTriggered by remember { mutableStateOf(false) }
+    LaunchedEffect(loopStart, loopEnd, position, currentSong?.uniqueKey) {
+        val end = loopEnd
+        val start = loopStart
+        if (start != null && end != null && position < end) {
+            loopTriggered = false
+        } else if (start != null && end != null && position >= end && !loopTriggered) {
+            loopTriggered = true
+            player.startSeek()
+            player.transformQueue { q -> q to Position.Specific(start) }
+            player.endSeek()
+        }
+    }
 
     val scrollState = rememberScrollState()
 
@@ -125,6 +141,21 @@ fun HomePage(
                                 player.endSeek()
                             }
                         },
+                        loopStart = loopStart,
+                        loopEnd = loopEnd,
+                        onMarkLoop = {
+                            if (loopEnd != null) {
+                                loopStart = null
+                                loopEnd = null
+                            } else if (loopStart == null) {
+                                loopStart = position
+                                loopEnd = null
+                            } else {
+                                loopEnd = position.coerceAtLeast(loopStart ?: ZERO)
+                            }
+                        },
+                        onOpenEqualizer = { showEqualizer = true },
+                        onOpenTrackInfo = { showTrackInfo = true },
                     )
 
                     TabbedInspectorDeck(
@@ -194,6 +225,31 @@ fun HomePage(
                 }
             }
         }
+    }
+
+    if (showEqualizer) {
+        AlertDialog(
+            onDismissRequest = { showEqualizer = false },
+            title = { Text("Parametric EQ") },
+            text = { Text("Equalizer controls are not available in the current audio backend.") },
+            confirmButton = { TextButton(onClick = { showEqualizer = false }) { Text("Close") } },
+        )
+    }
+    if (showTrackInfo && currentSong != null) {
+        AlertDialog(
+            onDismissRequest = { showTrackInfo = false },
+            title = { Text(currentSong.title) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Artist: ${currentSong.artist.name}")
+                    Text("Album: ${currentSong.album.title}")
+                    Text("File: ${currentSong.file}", maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text("Format: ${currentSong.file.extension.uppercase()}")
+                    Text("Duration: ${currentSong.length.format()}")
+                }
+            },
+            confirmButton = { TextButton(onClick = { showTrackInfo = false }) { Text("Close") } },
+        )
     }
 }
 
@@ -292,6 +348,11 @@ private fun StudioPlayerStageCard(
     isFavorite: Boolean,
     onToggleFavorite: () -> Unit,
     onSeek: (Duration) -> Unit,
+    loopStart: Duration?,
+    loopEnd: Duration?,
+    onMarkLoop: () -> Unit,
+    onOpenEqualizer: () -> Unit,
+    onOpenTrackInfo: () -> Unit,
 ) {
     val player = playerController.current
     val scope = rememberCoroutineScope()
@@ -548,7 +609,7 @@ private fun StudioPlayerStageCard(
                 ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(
-                            onClick = {},
+                            onClick = onMarkLoop,
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = surfaceContainer,
@@ -558,10 +619,10 @@ private fun StudioPlayerStageCard(
                         ) {
                             Icon(Icons.Default.BookmarkBorder, null, Modifier.size(16.dp), tint = primaryBlue)
                             Spacer(Modifier.width(6.dp))
-                            Text("Mark A-B Loop", style = MaterialTheme.typography.labelMedium)
+                            Text(if (loopEnd != null) "Clear A-B Loop" else if (loopStart != null) "Mark Loop End" else "Mark A-B Loop", style = MaterialTheme.typography.labelMedium)
                         }
                         Button(
-                            onClick = {},
+                            onClick = onOpenEqualizer,
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = surfaceContainer,
@@ -591,7 +652,7 @@ private fun StudioPlayerStageCard(
                             )
                         }
                         IconButton(
-                            onClick = {},
+                            onClick = onOpenTrackInfo,
                             modifier = Modifier
                                 .size(34.dp)
                                 .clip(RoundedCornerShape(8.dp))
