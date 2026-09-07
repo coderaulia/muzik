@@ -21,9 +21,11 @@ object PlaylistStore {
 
     suspend fun append(playlist: Playlist, songs: Collection<Song>): Unit = withContext(Dispatchers.IO) {
         require(playlist.file.extension.equals("m3u", ignoreCase = true)) { "Unsupported playlist format" }
-        val existing = playlist.songs.toSet()
+        val existing = playlist.songs
+            .map { it.file.toAbsolutePath().normalize() }
+            .toMutableSet()
         val additions = songs.map { it.file.toAbsolutePath().normalize() }
-            .filterNot { it in existing.map { key -> key.file.toAbsolutePath().normalize() }.toSet() }
+            .filter { existing.add(it) }
         if (additions.isNotEmpty()) {
             Files.write(playlist.file, additions.map(Path::toString), Charsets.UTF_8, java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND)
         }
