@@ -1,6 +1,7 @@
 package io.github.coderaulia.muzikplayer.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -9,6 +10,9 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Tab
 import androidx.compose.material.icons.filled.ZoomIn
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,6 +48,7 @@ fun AppSettingsWindow(close: () -> Unit) {
     val useSystemDecorations by Preferences.useSystemDecorations.state
     var maintainOnTop by remember { mutableStateOf(0) }
     val cs = rememberCoroutineScope()
+    var selectedCategory by remember { mutableStateOf(SettingsCategory.LIBRARY) }
 
     Window(
         onCloseRequest = close,
@@ -79,48 +84,40 @@ fun AppSettingsWindow(close: () -> Unit) {
         }
 
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                LibraryDirectorySetting(
-                    onSelectingFolder = { maintainOnTop = 0 },
-                )
-
-                ThemeSetting()
-
-                PreferenceItem(
-                    title = stringResource(Res.string.use_system_decorations),
-                    value = stringResource(if (useSystemDecorations) Res.string.yes else Res.string.no),
-                    modifier = Modifier.clickable { setUseSystemDecorations(!useSystemDecorations) },
-                    leadingContent = { Icon(Icons.Default.Tab, contentDescription = null) },
-                    tailingContent = {
-                        Checkbox(useSystemDecorations, {
-                            setUseSystemDecorations(it)
-                        })
+            Row(Modifier.fillMaxSize()) {
+                Column(Modifier.width(156.dp).fillMaxHeight().background(MaterialTheme.colorScheme.surfaceVariant).padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("SETTINGS", Modifier.padding(8.dp), style = MaterialTheme.typography.labelSmall)
+                    SettingsCategory.entries.forEach { category ->
+                        Text(category.label, Modifier.fillMaxWidth().clickable { selectedCategory = category }.padding(horizontal = 10.dp, vertical = 9.dp), style = MaterialTheme.typography.bodyMedium)
                     }
-                )
-
-                PreferenceItem(
-                    title = stringResource(Res.string.font_size),
-                    value = NumberFormat.getPercentInstance().format(fontScale),
-                    leadingContent = { Icon(Icons.Default.ZoomIn, contentDescription = null) },
-                ) {
-                    Slider(
-                        fontScale,
-                        {
-                            val rounded = (it * 10).roundToInt() / 10f
-                            Preferences.fontScale.set(rounded)
-                        },
-                        steps = 14,
-                        valueRange = 0.5f..2f,
-                        colors = SliderDefaults.colors(
-                            thumbColor = LocalContentColor.current,
-                            activeTrackColor = LocalContentColor.current,
-                            inactiveTickColor = LocalContentColor.current,
-                        ),
-                    )
+                }
+                Column(Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()).padding(16.dp)) {
+                    Text(selectedCategory.label, style = MaterialTheme.typography.headlineSmall)
+                    Spacer(Modifier.height(12.dp))
+                    when (selectedCategory) {
+                        SettingsCategory.LIBRARY -> LibraryDirectorySetting(onSelectingFolder = { maintainOnTop = 0 })
+                        SettingsCategory.AUDIO -> StatusSetting(Icons.Default.GraphicEq, "Audio engine", "Java Sound / bundled decoder is active")
+                        SettingsCategory.APPEARANCE -> {
+                            ThemeSetting()
+                            PreferenceItem(stringResource(Res.string.use_system_decorations), stringResource(if (useSystemDecorations) Res.string.yes else Res.string.no), Modifier.clickable { setUseSystemDecorations(!useSystemDecorations) }, { Icon(Icons.Default.Tab, null) }, { Checkbox(useSystemDecorations, ::setUseSystemDecorations) })
+                            PreferenceItem(stringResource(Res.string.font_size), NumberFormat.getPercentInstance().format(fontScale), leadingContent = { Icon(Icons.Default.ZoomIn, null) }) {
+                                Slider(fontScale, { Preferences.fontScale.set((it * 10).roundToInt() / 10f) }, steps = 14, valueRange = 0.5f..2f)
+                            }
+                        }
+                        SettingsCategory.INTEGRATION -> StatusSetting(Icons.Default.Extension, "Desktop integration", "MPRIS controls are available when the session bus is running")
+                        SettingsCategory.ABOUT -> StatusSetting(Icons.Default.Info, "MuzikPlayer", "Local music player for Linux\nVersion 1.5.3")
+                    }
                 }
             }
         }
     }
+}
+
+private enum class SettingsCategory(val label: String) { LIBRARY("Library"), AUDIO("Audio"), APPEARANCE("Appearance"), INTEGRATION("Integration"), ABOUT("About") }
+
+@Composable
+private fun StatusSetting(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, value: String) {
+    PreferenceItem(title, value, leadingContent = { Icon(icon, null) })
 }
 
 @Composable
