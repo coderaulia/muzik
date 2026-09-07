@@ -103,7 +103,7 @@ fun MuzikPlayerShell(
                 Box(Modifier.weight(1f).fillMaxHeight()) { content() }
             }
             if (compact) {
-                MuzikBottomBar(selectedPanel, selectPanel)
+                MuzikBottomBar(selectedPanel, selectPanel, openSettings)
             }
             MuzikTransportBar(
                 onOpenQueue = { selectPanel(Panel.QUEUE) },
@@ -116,6 +116,7 @@ fun MuzikPlayerShell(
 private fun MuzikBottomBar(
     selectedPanel: Panel,
     selectPanel: (Panel) -> Unit,
+    openSettings: () -> Unit,
 ) {
     NavigationBar(containerColor = sidebarSurface) {
         listOf(
@@ -142,6 +143,13 @@ private fun MuzikBottomBar(
                 label = { Text(label, style = MaterialTheme.typography.labelMedium) },
             )
         }
+        NavigationBarItem(
+            selected = false,
+            onClick = openSettings,
+            icon = { Icon(Icons.Default.Settings, "Settings") },
+            alwaysShowLabel = false,
+            label = { Text("Settings", style = MaterialTheme.typography.labelMedium) },
+        )
     }
 }
 
