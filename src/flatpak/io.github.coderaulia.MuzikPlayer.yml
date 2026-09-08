@@ -48,6 +48,7 @@ modules:
       - install -D io.github.coderaulia.MuzikPlayer.desktop /app/share/applications/io.github.coderaulia.MuzikPlayer.desktop
       - install -D icon.svg /app/share/icons/hicolor/scalable/apps/io.github.coderaulia.MuzikPlayer.svg
       - install -D icon-symbolic.svg /app/share/icons/hicolor/scalable/apps/io.github.coderaulia.MuzikPlayer-symbolic.svg
+      - install -D io.github.coderaulia.MuzikPlayer.metainfo.xml /app/share/metainfo/io.github.coderaulia.MuzikPlayer.metainfo.xml
     sources:
       - type: file
         path: io.github.coderaulia.MuzikPlayer.desktop
@@ -55,3 +56,5 @@ modules:
         path: icon.svg
       - type: file
         path: icon-symbolic.svg
+      - type: file
+        path: io.github.coderaulia.MuzikPlayer.metainfo.xml

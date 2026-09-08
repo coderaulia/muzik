@@ -21,7 +21,7 @@ Make sure you have the following installed:
 - `flatpak-builder`
 - Flatpak runtimes:
   ```
-  flatpak install flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.freedesktop.Platform.ffmpeg-full//24.08
+  flatpak install flathub org.freedesktop.Platform//25.08 org.freedesktop.Sdk//25.08 org.freedesktop.Platform.ffmpeg-full//25.08
   ```
 
 To build and install:
@@ -35,4 +35,3 @@ To run:
 ```
 flatpak run io.github.coderaulia.MuzikPlayer
 ```
-

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.coderaulia.MuzikPlayer</id>
+  <name>MuzikPlayer</name>
+  <summary>A local music player for Linux</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <developer id="io.github.coderaulia"><name>Coderaulia</name></developer>
+  <description>
+    <p>MuzikPlayer is a focused desktop music player for Linux that keeps your
+    local library, playback queue, and playlists easy to browse and control.</p>
+    <p>Browse albums, artists, tracks, and playlists, then control playback from the shared queue.</p>
+  </description>
+  <launchable type="desktop-id">io.github.coderaulia.MuzikPlayer.desktop</launchable>
+  <icon type="stock">io.github.coderaulia.MuzikPlayer</icon>
+  <categories><category>AudioVideo</category><category>Audio</category><category>Player</category></categories>
+  <keywords><keyword>music</keyword><keyword>audio</keyword><keyword>player</keyword><keyword>library</keyword><keyword>playlist</keyword></keywords>
+  <url type="homepage">https://github.com/coderaulia/muzik</url>
+  <url type="bugtracker">https://github.com/coderaulia/muzik/issues</url>
+  <content_rating type="oars-1.1"/>
+  <releases><release version="1.5.3" date="2026-09-08"><description><p>Responsive shell, categorized settings, playlist persistence, and improved playback resilience.</p></description></release></releases>
+</component>
