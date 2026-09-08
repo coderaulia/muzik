@@ -45,6 +45,17 @@ Compose Desktop may also create host-native packages:
 ```
 
 Packages are written below `src/build/compose/binaries/main-release/`.
+With the Linux targets enabled in `src/build.gradle.kts`, the release package
+tasks are:
+
+```bash
+./gradlew packageReleaseDeb
+./gradlew packageReleaseRpm
+```
+
+The resulting `.deb` and `.rpm` files are placed under
+`src/build/compose/binaries/main-release/`. These tasks require a clean JDK
+installation because Compose uses `jlink` to create the bundled runtime.
 
 ## Build and install Flatpak locally
 

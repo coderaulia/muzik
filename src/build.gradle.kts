@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.gradle.api.tasks.JavaExec
 import java.nio.file.Files
@@ -222,6 +223,7 @@ compose.desktop {
                 modules.add("jdk.jdwp.agent")
             }
             linux {
+                targetFormats(TargetFormat.Deb, TargetFormat.Rpm)
                 iconFile.set(project.file("flatpak/icon.png"))
             }
         }
