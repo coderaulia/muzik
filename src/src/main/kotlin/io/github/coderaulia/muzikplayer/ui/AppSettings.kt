@@ -56,22 +56,22 @@ import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger {}
 
-// Libadwaita Slate design tokens
-private val SlateCanvas = Color(0xFF131313)
-private val SlateContainerLow = Color(0xFF1B1C1C)
-private val SlateContainer = Color(0xFF1F2020)
-private val SlateContainerHigh = Color(0xFF2A2A2A)
-private val SlateContainerHighest = Color(0xFF353535)
-private val SlateContainerLowest = Color(0xFF0E0E0E)
-private val SlateBorder = Color(0xFF2E2E2E)
-private val SlateBorderSubtle = Color(0xFF242424)
-private val SlateTextPrimary = Color(0xFFE4E2E1)
-private val SlateTextSecondary = Color(0xFFC1C6D4)
-private val SlateTextMuted = Color(0xFF8B919E)
-private val GnomeBlue = Color(0xFF4691F2)
-private val GnomeBlueLight = Color(0xFFA7C8FF)
-private val GnomeGreen = Color(0xFF48E087)
-private val GnomeGreenContainer = Color(0x3300A65B)
+// Libadwaita Slate design tokens delegating to active theme
+private val SlateCanvas: Color @Composable get() = LocalMuzikColors.current.canvas
+private val SlateContainerLow: Color @Composable get() = LocalMuzikColors.current.containerLow
+private val SlateContainer: Color @Composable get() = LocalMuzikColors.current.container
+private val SlateContainerHigh: Color @Composable get() = LocalMuzikColors.current.containerHigh
+private val SlateContainerHighest: Color @Composable get() = LocalMuzikColors.current.containerHighest
+private val SlateContainerLowest: Color @Composable get() = LocalMuzikColors.current.containerLowest
+private val SlateBorder: Color @Composable get() = LocalMuzikColors.current.border
+private val SlateBorderSubtle: Color @Composable get() = LocalMuzikColors.current.borderSubtle
+private val SlateTextPrimary: Color @Composable get() = LocalMuzikColors.current.textPrimary
+private val SlateTextSecondary: Color @Composable get() = LocalMuzikColors.current.textSecondary
+private val SlateTextMuted: Color @Composable get() = LocalMuzikColors.current.textMuted
+private val GnomeBlue: Color @Composable get() = LocalMuzikColors.current.accentPrimary
+private val GnomeBlueLight: Color @Composable get() = LocalMuzikColors.current.accentPrimaryLight
+private val GnomeGreen: Color @Composable get() = LocalMuzikColors.current.accentTertiary
+private val GnomeGreenContainer: Color @Composable get() = LocalMuzikColors.current.accentTertiaryContainer
 
 enum class SettingsCategory(
     val label: String,
@@ -132,7 +132,7 @@ fun AppSettingsWindow(
         },
     ) {
         Scaled {
-            MaterialTheme(colorScheme = MuzikTheme.getDefaultScheme()) {
+            MuzikTheme.Provider {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = SlateCanvas,
@@ -542,6 +542,7 @@ private fun LibrarySettingsPane(
             badgeText = "Primary",
             badgeColor = GnomeBlueLight,
             badgeBackground = Color(0x334691F2),
+            filterQuery = filterQuery,
             leadingIcon = {
                 Box(
                     modifier = Modifier
@@ -563,6 +564,7 @@ private fun LibrarySettingsPane(
                     Button(
                         onClick = {
                             isRescanning = true
+                            Preferences.triggerLibraryRescan()
                             cs.launch {
                                 delay(1.seconds)
                                 isRescanning = false
@@ -640,6 +642,7 @@ private fun LibrarySettingsPane(
             badgeText = "Default",
             badgeColor = GnomeGreen,
             badgeBackground = GnomeGreenContainer,
+            filterQuery = filterQuery,
             trailingContent = {
                 LibadwaitaSwitch(
                     checked = readOnlyMode,
@@ -653,6 +656,7 @@ private fun LibrarySettingsPane(
         LibadwaitaPreferenceRow(
             title = "Watch for filesystem changes (inotify)",
             subtitle = "Automatically refresh index when albums or cue sheets are moved, added, or deleted via file manager.",
+            filterQuery = filterQuery,
             trailingContent = {
                 LibadwaitaSwitch(
                     checked = watchFilesystem,
@@ -666,6 +670,7 @@ private fun LibrarySettingsPane(
         LibadwaitaPreferenceRow(
             title = "Local Cover Art Cache",
             subtitle = "Store extracted high-resolution cover arts in ~/.cache/muzikplayer/covers for instant layout rendering.",
+            filterQuery = filterQuery,
             trailingContent = {
                 Button(
                     onClick = {
@@ -721,6 +726,7 @@ private fun AudioSettingsPane(filterQuery: String) {
         LibadwaitaPreferenceRow(
             title = "Output Device",
             subtitle = "Physical DAC or default PipeWire audio sink",
+            filterQuery = filterQuery,
             trailingContent = {
                 Surface(
                     shape = RoundedCornerShape(6.dp),
@@ -757,6 +763,7 @@ private fun AudioSettingsPane(filterQuery: String) {
             badgeText = "Bit-Perfect 1:1",
             badgeColor = GnomeGreen,
             badgeBackground = GnomeGreenContainer,
+            filterQuery = filterQuery,
             trailingContent = {
                 LibadwaitaSwitch(
                     checked = bitPerfect,
@@ -771,6 +778,7 @@ private fun AudioSettingsPane(filterQuery: String) {
         LibadwaitaPreferenceRow(
             title = "Buffer Latency",
             subtitle = "Current: 5.33 ms (512 frames @ 96.0 kHz)",
+            filterQuery = filterQuery,
             trailingContent = {
                 LibadwaitaSegmentedControl(
                     options = listOf(
@@ -790,6 +798,7 @@ private fun AudioSettingsPane(filterQuery: String) {
         LibadwaitaPreferenceRow(
             title = "ReplayGain Loudness Normalization",
             subtitle = "EBU R128 loudness matching without dynamic range distortion.",
+            filterQuery = filterQuery,
             trailingContent = {
                 Box {
                     Surface(
@@ -847,6 +856,7 @@ private fun AudioSettingsPane(filterQuery: String) {
         LibadwaitaPreferenceRow(
             title = "Prevent True-Peak Intersample Clipping",
             subtitle = "Automatically lower preamp gain if high sample-rate intersample peaks exceed 0.0 dBFS.",
+            filterQuery = filterQuery,
             trailingContent = {
                 LibadwaitaSwitch(
                     checked = peakProtection,
@@ -882,6 +892,7 @@ private fun AppearanceSettingsPane(
         LibadwaitaPreferenceRow(
             title = "Color Scheme",
             subtitle = "Adapt to GNOME dark style preference",
+            filterQuery = filterQuery,
             trailingContent = {
                 LibadwaitaSegmentedControl(
                     options = listOf(
@@ -901,6 +912,7 @@ private fun AppearanceSettingsPane(
         LibadwaitaPreferenceRow(
             title = "Native Window Decorations",
             subtitle = "Use system titlebar instead of custom Libadwaita headerbar",
+            filterQuery = filterQuery,
             trailingContent = {
                 LibadwaitaSwitch(
                     checked = useSystemDecorations,
@@ -916,53 +928,55 @@ private fun AppearanceSettingsPane(
         LibadwaitaDivider()
 
         // Font scale slider
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+        val showFontScale = filterQuery.isBlank() || "ui font scale".contains(filterQuery.lowercase()) || "scaling".contains(filterQuery.lowercase())
+        if (showFontScale) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
             ) {
-                Column(Modifier.weight(1f)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            "UI Font Scale",
+                            style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                            fontWeight = FontWeight.SemiBold,
+                            color = SlateTextPrimary,
+                        )
+                        Text(
+                            "Global text scaling factor across all panels",
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                            color = SlateTextSecondary,
+                        )
+                    }
                     Text(
-                        "UI Font Scale",
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        fontWeight = FontWeight.SemiBold,
-                        color = SlateTextPrimary,
-                    )
-                    Text(
-                        "Global text scaling factor across all panels",
-                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-                        color = SlateTextSecondary,
+                        NumberFormat.getPercentInstance().format(fontScale),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                        ),
+                        color = GnomeBlueLight,
                     )
                 }
-                Text(
-                    NumberFormat.getPercentInstance().format(fontScale),
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold,
+                Slider(
+                    value = fontScale,
+                    onValueChange = { Preferences.fontScale.set((it * 10).roundToInt() / 10f) },
+                    steps = 14,
+                    valueRange = 0.5f..2f,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = SliderDefaults.colors(
+                        thumbColor = GnomeBlueLight,
+                        activeTrackColor = GnomeBlue,
+                        inactiveTrackColor = SlateContainerHighest,
                     ),
-                    color = GnomeBlueLight,
                 )
             }
-            Slider(
-                value = fontScale,
-                onValueChange = { Preferences.fontScale.set((it * 10).roundToInt() / 10f) },
-                steps = 14,
-                valueRange = 0.5f..2f,
-                modifier = Modifier.fillMaxWidth(),
-                colors = SliderDefaults.colors(
-                    thumbColor = GnomeBlueLight,
-                    activeTrackColor = GnomeBlue,
-                    inactiveTrackColor = SlateContainerHighest,
-                ),
-            )
+            LibadwaitaDivider()
         }
-
-        LibadwaitaDivider()
 
         // Font family (status-only with fallback badge)
         LibadwaitaPreferenceRow(
@@ -971,6 +985,7 @@ private fun AppearanceSettingsPane(
             badgeText = "Platform Fallback",
             badgeColor = SlateTextSecondary,
             badgeBackground = SlateContainerHighest,
+            filterQuery = filterQuery,
             trailingContent = {
                 Surface(
                     shape = RoundedCornerShape(6.dp),
@@ -996,6 +1011,7 @@ private fun AppearanceSettingsPane(
         LibadwaitaPreferenceRow(
             title = "Real-time Audio Format Telemetry",
             subtitle = "Display format pill (e.g. FLAC 24/96) in bottom transport bar deck.",
+            filterQuery = filterQuery,
             trailingContent = {
                 LibadwaitaSwitch(
                     checked = audioTelemetry,
@@ -1010,6 +1026,7 @@ private fun AppearanceSettingsPane(
         LibadwaitaPreferenceRow(
             title = "Album Miniatures in Table Rows",
             subtitle = "Render 28px album thumbnails in high-density tracklists.",
+            filterQuery = filterQuery,
             trailingContent = {
                 LibadwaitaSwitch(
                     checked = showTableThumbnails,
@@ -1024,6 +1041,9 @@ private fun AppearanceSettingsPane(
 private fun IntegrationSettingsPane(filterQuery: String) {
     val mprisEnabled by Preferences.mprisEnabled.state
     val discordRpc by Preferences.discordRpc.state
+    val listenBrainzToken by Preferences.listenBrainzToken.state
+    var showTokenDialog by remember { mutableStateOf(false) }
+    var tokenInput by remember(listenBrainzToken) { mutableStateOf(listenBrainzToken) }
 
     PaneHeader(
         title = "Desktop Integration & MPRIS",
@@ -1042,6 +1062,7 @@ private fun IntegrationSettingsPane(filterQuery: String) {
             badgeText = "Registered",
             badgeColor = GnomeGreen,
             badgeBackground = GnomeGreenContainer,
+            filterQuery = filterQuery,
             trailingContent = {
                 LibadwaitaSwitch(
                     checked = mprisEnabled,
@@ -1059,6 +1080,7 @@ private fun IntegrationSettingsPane(filterQuery: String) {
             badgeText = "Status: Disabled",
             badgeColor = SlateTextMuted,
             badgeBackground = SlateContainerHighest,
+            filterQuery = filterQuery,
             trailingContent = {
                 LibadwaitaSwitch(
                     checked = discordRpc,
@@ -1070,12 +1092,17 @@ private fun IntegrationSettingsPane(filterQuery: String) {
         LibadwaitaDivider()
 
         // ListenBrainz Scrobbler
+        val hasToken = listenBrainzToken.isNotBlank()
         LibadwaitaPreferenceRow(
             title = "ListenBrainz Open Scrobbling",
             subtitle = "Submit listen history to community-owned MetaBrainz open registry.",
+            badgeText = if (hasToken) "Connected" else "Not Configured",
+            badgeColor = if (hasToken) GnomeGreen else SlateTextMuted,
+            badgeBackground = if (hasToken) GnomeGreenContainer else SlateContainerHighest,
+            filterQuery = filterQuery,
             trailingContent = {
                 Button(
-                    onClick = { /* Status action */ },
+                    onClick = { showTokenDialog = true },
                     shape = RoundedCornerShape(6.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = SlateContainerHigh,
@@ -1085,11 +1112,62 @@ private fun IntegrationSettingsPane(filterQuery: String) {
                     modifier = Modifier.height(30.dp),
                 ) {
                     Text(
-                        "Connect Token",
+                        if (hasToken) "Edit Token" else "Connect Token",
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
                     )
                 }
             },
+        )
+    }
+
+    if (showTokenDialog) {
+        AlertDialog(
+            onDismissRequest = { showTokenDialog = false },
+            title = { Text("ListenBrainz User Token", color = SlateTextPrimary) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        "Enter your personal user token from listenbrainz.org/profile to enable scrobbling:",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = SlateTextSecondary,
+                    )
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = SlateContainerLowest,
+                        border = BorderStroke(1.dp, SlateBorder),
+                    ) {
+                        BasicTextField(
+                            value = tokenInput,
+                            onValueChange = { tokenInput = it },
+                            modifier = Modifier.fillMaxWidth().padding(10.dp),
+                            singleLine = true,
+                            textStyle = TextStyle(
+                                color = SlateTextPrimary,
+                                fontSize = 12.sp,
+                                fontFamily = FontFamily.Monospace,
+                            ),
+                            cursorBrush = SolidColor(GnomeBlueLight),
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        Preferences.listenBrainzToken.set(tokenInput.trim())
+                        showTokenDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = GnomeBlue, contentColor = Color.White),
+                ) {
+                    Text("Save Token")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTokenDialog = false }) {
+                    Text("Cancel", color = SlateTextSecondary)
+                }
+            },
+            containerColor = SlateContainerLow,
         )
     }
 }
@@ -1246,9 +1324,17 @@ private fun LibadwaitaPreferenceRow(
     badgeText: String? = null,
     badgeColor: Color = GnomeGreen,
     badgeBackground: Color = GnomeGreenContainer,
+    filterQuery: String = "",
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingContent: (@Composable () -> Unit)? = null,
 ) {
+    if (filterQuery.isNotBlank()) {
+        val q = filterQuery.trim().lowercase()
+        val matches = title.lowercase().contains(q) ||
+            subtitle?.lowercase()?.contains(q) == true ||
+            badgeText?.lowercase()?.contains(q) == true
+        if (!matches) return
+    }
     Row(
         modifier = modifier
             .fillMaxWidth()

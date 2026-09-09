@@ -39,20 +39,20 @@ import kotlin.io.path.extension
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
 
-private val slateCanvas = Color(0xFF131313)
-private val surfaceContainerLowest = Color(0xFF0E0E0E)
-private val surfaceContainerLow = Color(0xFF1B1C1C)
-private val surfaceContainer = Color(0xFF1F2020)
-private val surfaceContainerHigh = Color(0xFF2A2A2A)
-private val surfaceContainerHighest = Color(0xFF353535)
-private val surfaceBright = Color(0xFF393939)
-private val textOnSurface = Color(0xFFE4E2E1)
-private val textOnSurfaceVariant = Color(0xFFC1C6D4)
-private val outlineVariant = Color(0xFF414752)
-private val tertiaryGreen = Color(0xFF48E087)
-private val primaryBlue = Color(0xFF4691F2)
-private val secondaryPurple = Color(0xFFCABEFF)
-private val secondaryContainer = Color(0xFF4A16D1)
+private val slateCanvas: Color @Composable get() = LocalMuzikColors.current.canvas
+private val surfaceContainerLowest: Color @Composable get() = LocalMuzikColors.current.containerLowest
+private val surfaceContainerLow: Color @Composable get() = LocalMuzikColors.current.containerLow
+private val surfaceContainer: Color @Composable get() = LocalMuzikColors.current.container
+private val surfaceContainerHigh: Color @Composable get() = LocalMuzikColors.current.containerHigh
+private val surfaceContainerHighest: Color @Composable get() = LocalMuzikColors.current.containerHighest
+private val surfaceBright: Color @Composable get() = if (LocalMuzikColors.current.isDark) Color(0xFF393939) else Color(0xFFFFFFFF)
+private val textOnSurface: Color @Composable get() = LocalMuzikColors.current.textPrimary
+private val textOnSurfaceVariant: Color @Composable get() = LocalMuzikColors.current.textSecondary
+private val outlineVariant: Color @Composable get() = LocalMuzikColors.current.border
+private val tertiaryGreen: Color @Composable get() = LocalMuzikColors.current.accentTertiary
+private val primaryBlue: Color @Composable get() = LocalMuzikColors.current.accentPrimary
+private val secondaryPurple: Color @Composable get() = LocalMuzikColors.current.accentSecondary
+private val secondaryContainer: Color @Composable get() = LocalMuzikColors.current.accentTertiaryContainer
 
 @Composable
 fun PlaylistsPage(

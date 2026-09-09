@@ -99,6 +99,15 @@ object Preferences {
         read = { prefs -> prefs.getBoolean("discord_rpc", false) },
         write = { prefs, value -> prefs.putBoolean("discord_rpc", value) }
     )
+    val listenBrainzToken = PreferenceContainer(
+        read = { prefs -> prefs.get("listenbrainz_token", "") },
+        write = { prefs, value -> prefs.put("listenbrainz_token", value) }
+    )
+
+    val libraryRescanToken = MutableStateFlow(0L)
+    fun triggerLibraryRescan() {
+        libraryRescanToken.value = System.currentTimeMillis()
+    }
 
     @Composable
     fun mainWindowState(): WindowState {

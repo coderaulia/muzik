@@ -6,3 +6,5 @@ src/build/
 .kotlin/
 local.properties
 *.log
+*.tar.gz
+*.flatpak

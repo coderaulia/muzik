@@ -54,8 +54,10 @@ fun main(args: Array<String>) {
         preloadDbus()
 
         // Start loading ASAP
-        val musicLibrary: StateFlow<Library?> = Preferences.libraryFolder.flow
-            .map { lib -> setOf(lib) + filesFromArgs }
+        val musicLibrary: StateFlow<Library?> = kotlinx.coroutines.flow.combine(
+            Preferences.libraryFolder.flow,
+            Preferences.libraryRescanToken,
+        ) { lib, _ -> setOf(lib) + filesFromArgs }
             .toLibrary()
             .stateIn(this, started = SharingStarted.Eagerly, null)
 
@@ -125,7 +127,7 @@ fun main(args: Array<String>) {
                 playerController provides player,
                 LocalAppearanceSettings provides systemAppearance,
             ) {
-                MaterialTheme(MuzikTheme.getDefaultScheme()) {
+                MuzikTheme.Provider {
                     MainWindow(
                         title = "MuzikPlayer",
                         onCloseRequest = ::exitApplication,

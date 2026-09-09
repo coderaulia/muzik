@@ -3,7 +3,10 @@ package io.github.coderaulia.muzikplayer.ui
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -27,6 +30,91 @@ const val INACTIVE_ALPHA = .38f
 private const val TOO_DARK_THRESHOLD = 0.15
 private const val TOO_BRIGHT_THRESHOLD_LIGHT = 0.85
 private const val TOO_BRIGHT_THRESHOLD_SATURATION = 0.3
+
+@Immutable
+data class MuzikColors(
+    val isDark: Boolean,
+    val canvas: Color,
+    val containerLowest: Color,
+    val containerLow: Color,
+    val container: Color,
+    val containerHigh: Color,
+    val containerHighest: Color,
+    val border: Color,
+    val borderSubtle: Color,
+    val textPrimary: Color,
+    val textSecondary: Color,
+    val textMuted: Color,
+    val accentPrimary: Color,
+    val accentPrimaryLight: Color,
+    val accentSecondary: Color,
+    val accentTertiary: Color,
+    val accentTertiaryContainer: Color,
+    val error: Color,
+)
+
+val SlateDarkColors = MuzikColors(
+    isDark = true,
+    canvas = Color(0xFF131313),
+    containerLowest = Color(0xFF0E0E0E),
+    containerLow = Color(0xFF1B1C1C),
+    container = Color(0xFF1F2020),
+    containerHigh = Color(0xFF2A2A2A),
+    containerHighest = Color(0xFF353535),
+    border = Color(0xFF2E2E2E),
+    borderSubtle = Color(0xFF242424),
+    textPrimary = Color(0xFFE4E2E1),
+    textSecondary = Color(0xFFC1C6D4),
+    textMuted = Color(0xFF8B919E),
+    accentPrimary = Color(0xFF4691F2),
+    accentPrimaryLight = Color(0xFFA7C8FF),
+    accentSecondary = Color(0xFFCABEFF),
+    accentTertiary = Color(0xFF48E087),
+    accentTertiaryContainer = Color(0x3300A65B),
+    error = Color(0xFFFFB4AB),
+)
+
+val SlateLightColors = MuzikColors(
+    isDark = false,
+    canvas = Color(0xFFF6F5F4),
+    containerLowest = Color(0xFFEBEAE7),
+    containerLow = Color(0xFFEDECE9),
+    container = Color(0xFFFFFFFF),
+    containerHigh = Color(0xFFE4E3DF),
+    containerHighest = Color(0xFFD8D7D3),
+    border = Color(0xFFDDDCD8),
+    borderSubtle = Color(0xFFE8E7E4),
+    textPrimary = Color(0xFF1C1C1E),
+    textSecondary = Color(0xFF5E6168),
+    textMuted = Color(0xFF8B8E96),
+    accentPrimary = Color(0xFF1C71D8),
+    accentPrimaryLight = Color(0xFF3584E4),
+    accentSecondary = Color(0xFF624296),
+    accentTertiary = Color(0xFF26A269),
+    accentTertiaryContainer = Color(0x2626A269),
+    error = Color(0xFFC01C28),
+)
+
+val LocalMuzikColors = staticCompositionLocalOf { SlateDarkColors }
+
+@Composable
+fun isDarkTheme(): Boolean {
+    val theme by Preferences.theme.state
+    return when (theme) {
+        MuzikTheme.UserPreference.LIGHT -> false
+        MuzikTheme.UserPreference.DARK -> true
+        MuzikTheme.UserPreference.AUTO -> when (LocalAppearanceSettings.current.colorScheme) {
+            Settings.Appearance.ColorScheme.LIGHT, Settings.Appearance.ColorScheme.NO_PREFERENCE -> false
+            Settings.Appearance.ColorScheme.DARK -> true
+        }
+    }
+}
+
+@Composable
+fun currentMuzikColors(): MuzikColors {
+    val dark = isDarkTheme()
+    return if (dark) SlateDarkColors else SlateLightColors
+}
 
 @OptIn(ExperimentalTextApi::class)
 object MuzikTheme {
@@ -118,6 +206,24 @@ object MuzikTheme {
         outline = Color(0xFF717782),
         outlineVariant = Color(0xFFC1C6D4),
     )
+
+    @Composable
+    fun Provider(
+        content: @Composable () -> Unit,
+    ) {
+        val colors = currentMuzikColors()
+        val scheme = getDefaultScheme()
+        CompositionLocalProvider(
+            LocalMuzikColors provides colors,
+        ) {
+            MaterialTheme(
+                colorScheme = scheme,
+                typography = typography,
+                shapes = shapes,
+                content = content,
+            )
+        }
+    }
 
     @Composable
     fun getDefaultScheme(): ColorScheme {

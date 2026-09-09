@@ -64,17 +64,18 @@ private fun LibraryStatsBanner(
     onShuffle: () -> Unit,
 ) {
     val stats = library.stats
+    val colors = LocalMuzikColors.current
     Surface(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
         shape = RoundedCornerShape(10.dp),
-        color = Color(0xFF1B1C1C),
+        color = colors.containerLow,
     ) {
         Row(
             Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                Modifier.size(8.dp).clip(CircleShape).background(Color(0xFF48E087)),
+                Modifier.size(8.dp).clip(CircleShape).background(colors.accentTertiary),
             )
             Text(
                 "LOCAL INDEX READY",
@@ -84,7 +85,7 @@ private fun LibraryStatsBanner(
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.width(12.dp))
-            VerticalDivider(Modifier.height(14.dp), color = Color(0xFF353535))
+            VerticalDivider(Modifier.height(14.dp), color = colors.border)
             val formats = remember(library) {
                 library.songs.map { it.file.extension.uppercase() }.filter { it.isNotEmpty() }.distinct().sorted().joinToString("/")
             }
@@ -110,13 +111,13 @@ private fun LibraryStatsBanner(
             Spacer(Modifier.width(10.dp))
             Surface(
                 shape = RoundedCornerShape(4.dp),
-                color = if (isPlaying) Color(0x3300A65B) else Color(0x224691F2),
+                color = if (isPlaying) colors.accentTertiaryContainer else colors.accentPrimary.copy(alpha = 0.15f),
             ) {
                 Text(
                     enginePillText,
                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                     style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace, fontSize = 9.sp),
-                    color = if (isPlaying) Color(0xFF48E087) else Color(0xFFA7C8FF),
+                    color = if (isPlaying) colors.accentTertiary else colors.accentPrimaryLight,
                     fontWeight = FontWeight.Bold,
                 )
             }
@@ -124,7 +125,7 @@ private fun LibraryStatsBanner(
             Button(
                 onClick = onPlayAll,
                 shape = RoundedCornerShape(6.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4691F2), contentColor = Color.White),
+                colors = ButtonDefaults.buttonColors(containerColor = colors.accentPrimary, contentColor = Color.White),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                 modifier = Modifier.height(28.dp),
             ) {
@@ -136,7 +137,7 @@ private fun LibraryStatsBanner(
             Button(
                 onClick = onShuffle,
                 shape = RoundedCornerShape(6.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A2A2A), contentColor = Color(0xFFE4E2E1)),
+                colors = ButtonDefaults.buttonColors(containerColor = colors.containerHigh, contentColor = colors.textPrimary),
                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                 modifier = Modifier.height(28.dp),
             ) {

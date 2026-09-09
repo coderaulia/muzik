@@ -48,15 +48,22 @@ import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.io.path.extension
 
-private val shellSurface = Color(0xFF2A2A2A)
-private val sidebarSurface = Color(0xFF1B1C1C)
-private val shellCanvas = Color(0xFF131313)
-private val borderOutline = Color(0xFF383838)
-private val tertiaryGreen = Color(0xFF48E087)
-private val primaryBlue = Color(0xFF4691F2)
-private val secondaryPurple = Color(0xFFCABEFF)
-private val secondaryContainer = Color(0xFF4A16D1)
-private val surfaceContainerHighest = Color(0xFF353535)
+private val shellSurface: Color @Composable get() = LocalMuzikColors.current.containerHigh
+private val sidebarSurface: Color @Composable get() = LocalMuzikColors.current.containerLow
+private val shellCanvas: Color @Composable get() = LocalMuzikColors.current.canvas
+private val borderOutline: Color @Composable get() = LocalMuzikColors.current.border
+private val tertiaryGreen: Color @Composable get() = LocalMuzikColors.current.accentTertiary
+private val primaryBlue: Color @Composable get() = LocalMuzikColors.current.accentPrimary
+private val secondaryPurple: Color @Composable get() = LocalMuzikColors.current.accentSecondary
+private val secondaryContainer: Color @Composable get() = LocalMuzikColors.current.accentTertiaryContainer
+private val surfaceContainerHighest: Color @Composable get() = LocalMuzikColors.current.containerHighest
+
+private val textPrimary: Color @Composable get() = LocalMuzikColors.current.textPrimary
+private val textSecondary: Color @Composable get() = LocalMuzikColors.current.textSecondary
+private val textMuted: Color @Composable get() = LocalMuzikColors.current.textMuted
+private val containerSurface: Color @Composable get() = LocalMuzikColors.current.container
+private val containerLowest: Color @Composable get() = LocalMuzikColors.current.containerLowest
+private val errorColor: Color @Composable get() = LocalMuzikColors.current.error
 
 @Composable
 fun MuzikPlayerShell(
@@ -194,7 +201,7 @@ private fun MuzikHeader(
                     modifier = Modifier.padding(start = 10.dp),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFFE4E2E1),
+                    color = textPrimary,
                 )
 
                 Spacer(Modifier.weight(1f))
@@ -203,7 +210,7 @@ private fun MuzikHeader(
                 if (!compact) {
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFF1B1C1C),
+                        color = sidebarSurface,
                     ) {
                         Row(Modifier.padding(2.dp)) {
                             HeaderTab("Albums") { onHeaderTabClick?.invoke(LibraryHeaderTab.ALBUM) }
@@ -219,34 +226,34 @@ private fun MuzikHeader(
                     Surface(
                         Modifier.widthIn(min = 200.dp, max = 340.dp).height(32.dp),
                         shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFF0E0E0E),
+                        color = containerLowest,
                     ) {
                         Row(
                             Modifier.padding(horizontal = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Icon(Icons.Default.Search, null, Modifier.size(17.dp), tint = Color(0xFFC1C6D4))
+                            Icon(Icons.Default.Search, null, Modifier.size(17.dp), tint = textSecondary)
                             BasicTextField(
                                 value = searchQuery,
                                 onValueChange = onSearchQueryChange,
                                 modifier = Modifier.padding(start = 8.dp).weight(1f).focusRequester(searchFocusRequester),
                                 singleLine = true,
-                                textStyle = MaterialTheme.typography.bodySmall.copy(color = Color(0xFFE4E2E1)),
+                                textStyle = MaterialTheme.typography.bodySmall.copy(color = textPrimary),
                                 decorationBox = { field ->
-                                    if (searchQuery.isEmpty()) Text("Search local library...", color = Color(0xFF8B919E), style = MaterialTheme.typography.bodySmall)
+                                    if (searchQuery.isEmpty()) Text("Search local library...", color = textMuted, style = MaterialTheme.typography.bodySmall)
                                     field()
                                 },
                             )
                             Surface(
                                 shape = RoundedCornerShape(4.dp),
-                                color = Color(0xFF2A2A2A),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF414752)),
+                                color = shellSurface,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, borderOutline),
                             ) {
                                 Text(
                                     "Ctrl K",
                                     modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
                                     style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace, fontSize = 10.sp),
-                                    color = Color(0xFFC1C6D4),
+                                    color = textSecondary,
                                 )
                             }
                         }
@@ -296,14 +303,14 @@ private fun HeaderWindowButton(
             .clip(CircleShape)
             .clickable(onClick = onClick),
         shape = CircleShape,
-        color = Color(0xFF1F2020),
+        color = containerSurface,
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 icon,
                 description,
                 Modifier.size(13.dp),
-                tint = if (isDestructive) Color(0xFFFFB4AB) else Color(0xFFC1C6D4),
+                tint = if (isDestructive) errorColor else textSecondary,
             )
         }
     }
@@ -318,7 +325,7 @@ private fun HeaderTab(label: String, onClick: () -> Unit) {
             .clickable(onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 5.dp),
         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
-        color = Color(0xFFC1C6D4),
+        color = textSecondary,
     )
 }
 
@@ -344,7 +351,7 @@ private fun MuzikSidebar(
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = 1.sp,
             ),
-            color = Color(0xFF8B919E),
+            color = textMuted,
         )
         Spacer(Modifier.height(10.dp))
         SidebarItem("Home", Icons.Default.Home, selectedPanel == Panel.PLAYER) { selectPanel(Panel.PLAYER) }
@@ -371,18 +378,18 @@ private fun MuzikSidebar(
         Surface(
             Modifier.fillMaxWidth().padding(top = 10.dp),
             shape = RoundedCornerShape(8.dp),
-            color = Color(0x660E0E0E),
+            color = containerLowest.copy(alpha = 0.5f),
         ) {
             Row(
                 Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(Icons.Default.GraphicEq, null, Modifier.size(15.dp), tint = if (isPlaying) tertiaryGreen else Color(0xFF8B919E))
+                Icon(Icons.Default.GraphicEq, null, Modifier.size(15.dp), tint = if (isPlaying) tertiaryGreen else textMuted)
                 Text(
                     "$osName • $engineStatus",
                     Modifier.padding(start = 8.dp).weight(1f),
                     style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
-                    color = Color(0xFFC1C6D4),
+                    color = textSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -390,7 +397,7 @@ private fun MuzikSidebar(
                     Modifier
                         .size(7.dp)
                         .clip(CircleShape)
-                        .background(if (isPlaying) tertiaryGreen else Color(0xFF8B919E))
+                        .background(if (isPlaying) tertiaryGreen else textMuted)
                 )
             }
         }
@@ -405,7 +412,7 @@ private fun SidebarItem(
     onClick: () -> Unit,
 ) {
     val background = if (selected) primaryBlue else Color.Transparent
-    val foreground = if (selected) Color.White else Color(0xFFC1C6D4)
+    val foreground = if (selected) Color.White else textSecondary
     Row(
         Modifier
             .fillMaxWidth()
@@ -466,14 +473,14 @@ private fun MuzikTransportBar(
                 Surface(
                     modifier = Modifier.size(48.dp),
                     shape = RoundedCornerShape(6.dp),
-                    color = Color(0xFF1F2020),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF414752)),
+                    color = containerSurface,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, borderOutline),
                 ) {
                     if (song?.cover != null) {
                         AlbumCoverContent(song.cover, modifier = Modifier.fillMaxSize())
                     } else {
                         Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.Album, null, Modifier.size(26.dp), tint = Color(0xFFC1C6D4))
+                            Icon(Icons.Default.Album, null, Modifier.size(26.dp), tint = textSecondary)
                         }
                     }
                 }
@@ -482,14 +489,14 @@ private fun MuzikTransportBar(
                     Text(
                         song?.title ?: "No Track Playing",
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = Color(0xFFE4E2E1),
+                        color = textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         song?.artist?.name ?: "No track playing",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFFC1C6D4),
+                        color = textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -537,7 +544,7 @@ private fun MuzikTransportBar(
                             Icons.Default.Shuffle,
                             "Shuffle",
                             Modifier.size(18.dp),
-                            tint = if (isShuffled) primaryBlue else Color(0xFFC1C6D4),
+                            tint = if (isShuffled) primaryBlue else textSecondary,
                         )
                     }
 
@@ -551,7 +558,7 @@ private fun MuzikTransportBar(
                         },
                         modifier = Modifier.size(32.dp),
                     ) {
-                        Icon(Icons.Default.SkipPrevious, "Previous", Modifier.size(22.dp), tint = Color(0xFFE4E2E1))
+                        Icon(Icons.Default.SkipPrevious, "Previous", Modifier.size(22.dp), tint = textPrimary)
                     }
 
                     // Play/Pause Circle Button
@@ -584,7 +591,7 @@ private fun MuzikTransportBar(
                         },
                         modifier = Modifier.size(32.dp),
                     ) {
-                        Icon(Icons.Default.SkipNext, "Next", Modifier.size(22.dp), tint = Color(0xFFE4E2E1))
+                        Icon(Icons.Default.SkipNext, "Next", Modifier.size(22.dp), tint = textPrimary)
                     }
 
                     // Repeat
@@ -600,7 +607,7 @@ private fun MuzikTransportBar(
                             if (repeatMode == RepeatMode.REPEAT_SONG) Icons.Default.RepeatOne else Icons.Default.Repeat,
                             "Repeat",
                             Modifier.size(18.dp),
-                            tint = if (repeatMode != RepeatMode.DO_NOT_REPEAT) primaryBlue else Color(0xFFC1C6D4),
+                            tint = if (repeatMode != RepeatMode.DO_NOT_REPEAT) primaryBlue else textSecondary,
                         )
                     }
                 }
@@ -614,7 +621,7 @@ private fun MuzikTransportBar(
                     Text(
                         position.format(),
                         style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
-                        color = Color(0xFFC1C6D4),
+                        color = textSecondary,
                     )
 
                     // Continuous Interactive Scrubber
@@ -639,7 +646,7 @@ private fun MuzikTransportBar(
                     Text(
                         totalDuration.format(),
                         style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
-                        color = Color(0xFFC1C6D4),
+                        color = textSecondary,
                     )
                 }
             }
@@ -656,7 +663,7 @@ private fun MuzikTransportBar(
                     onClick = onOpenQueue,
                     modifier = Modifier.size(32.dp),
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.QueueMusic, "Queue", Modifier.size(20.dp), tint = Color(0xFFC1C6D4))
+                    Icon(Icons.AutoMirrored.Filled.QueueMusic, "Queue", Modifier.size(20.dp), tint = textSecondary)
                 }
 
                 Spacer(Modifier.width(8.dp))
@@ -704,7 +711,7 @@ private fun TransportScrubber(
                 .fillMaxWidth()
                 .height(barHeight)
                 .clip(RoundedCornerShape(2.dp))
-                .background(Color(0xFF353535))
+                .background(surfaceContainerHighest)
         ) {
             // Filled portion
             Box(
@@ -740,7 +747,7 @@ private fun CompactVolumeControl() {
             },
             modifier = Modifier.size(30.dp),
         ) {
-            Icon(volIcon, "Mute toggle", Modifier.size(18.dp), tint = Color(0xFFC1C6D4))
+            Icon(volIcon, "Mute toggle", Modifier.size(18.dp), tint = textSecondary)
         }
 
         BoxWithConstraints(
@@ -766,7 +773,7 @@ private fun CompactVolumeControl() {
                     .fillMaxWidth()
                     .height(4.dp)
                     .clip(RoundedCornerShape(2.dp))
-                    .background(Color(0xFF353535))
+                    .background(surfaceContainerHighest)
             ) {
                 Box(
                     modifier = Modifier
