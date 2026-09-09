@@ -167,7 +167,7 @@ fun main(args: Array<String>) {
                         }
                     }
                     if (openSettings) {
-                        AppSettingsWindow { openSettings = false }
+                        AppSettingsWindow(library = library) { openSettings = false }
                     }
                 }
             }

@@ -59,6 +59,46 @@ object Preferences {
             prefs.put("theme", value.name)
         }
     )
+    val readOnlyMode = PreferenceContainer(
+        read = { prefs -> prefs.getBoolean("read_only_mode", true) },
+        write = { prefs, value -> prefs.putBoolean("read_only_mode", value) }
+    )
+    val watchFilesystem = PreferenceContainer(
+        read = { prefs -> prefs.getBoolean("watch_filesystem", true) },
+        write = { prefs, value -> prefs.putBoolean("watch_filesystem", value) }
+    )
+    val bitPerfect = PreferenceContainer(
+        read = { prefs -> prefs.getBoolean("bit_perfect", true) },
+        write = { prefs, value -> prefs.putBoolean("bit_perfect", value) }
+    )
+    val bufferLatency = PreferenceContainer(
+        read = { prefs -> prefs.get("buffer_latency", "512 (5.3ms)") },
+        write = { prefs, value -> prefs.put("buffer_latency", value) }
+    )
+    val replayGain = PreferenceContainer(
+        read = { prefs -> prefs.get("replay_gain", "Album Gain (-1.4 dB target)") },
+        write = { prefs, value -> prefs.put("replay_gain", value) }
+    )
+    val peakProtection = PreferenceContainer(
+        read = { prefs -> prefs.getBoolean("peak_protection", true) },
+        write = { prefs, value -> prefs.putBoolean("peak_protection", value) }
+    )
+    val audioTelemetry = PreferenceContainer(
+        read = { prefs -> prefs.getBoolean("audio_telemetry", true) },
+        write = { prefs, value -> prefs.putBoolean("audio_telemetry", value) }
+    )
+    val showTableThumbnails = PreferenceContainer(
+        read = { prefs -> prefs.getBoolean("show_table_thumbnails", true) },
+        write = { prefs, value -> prefs.putBoolean("show_table_thumbnails", value) }
+    )
+    val mprisEnabled = PreferenceContainer(
+        read = { prefs -> prefs.getBoolean("mpris_enabled", true) },
+        write = { prefs, value -> prefs.putBoolean("mpris_enabled", value) }
+    )
+    val discordRpc = PreferenceContainer(
+        read = { prefs -> prefs.getBoolean("discord_rpc", false) },
+        write = { prefs, value -> prefs.putBoolean("discord_rpc", value) }
+    )
 
     @Composable
     fun mainWindowState(): WindowState {
