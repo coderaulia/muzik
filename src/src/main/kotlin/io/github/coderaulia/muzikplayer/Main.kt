@@ -190,23 +190,22 @@ private fun initializeAudioDecoder() {
 }
 
 private suspend fun preloadFonts(fontResolver: FontFamily.Resolver) {
-    coroutineScope {
-        val fonts = with(MuzikTheme.typography) {
-            listOf(
-                bodySmall, bodyMedium, bodyLarge,
-                labelSmall, labelMedium, labelLarge,
-                titleSmall, titleMedium, titleLarge,
+    val fonts = with(MuzikTheme.typography) {
+        listOf(
+            bodySmall, bodyMedium, bodyLarge,
+            labelSmall, labelMedium, labelLarge,
+            titleSmall, titleMedium, titleLarge,
+        )
+    }
+    for (font in fonts) {
+        try {
+            fontResolver.resolve(
+                fontFamily = font.fontFamily,
+                fontWeight = font.fontWeight ?: FontWeight.Normal,
+                fontStyle = font.fontStyle ?: FontStyle.Normal,
+                fontSynthesis = font.fontSynthesis ?: FontSynthesis.All,
             )
-        }
-        for (font in fonts) {
-            launch(Dispatchers.Default) {
-                fontResolver.resolve(
-                    fontFamily = font.fontFamily,
-                    fontWeight = font.fontWeight ?: FontWeight.Normal,
-                    fontStyle = font.fontStyle ?: FontStyle.Normal,
-                    fontSynthesis = font.fontSynthesis ?: FontSynthesis.All,
-                )
-            }
+        } catch (_: Throwable) {
         }
     }
 }
