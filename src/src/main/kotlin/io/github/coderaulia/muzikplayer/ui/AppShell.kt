@@ -209,7 +209,7 @@ private fun MuzikHeader(
                             HeaderTab("Albums") { onHeaderTabClick?.invoke(LibraryHeaderTab.ALBUM) }
                             HeaderTab("Artists") { onHeaderTabClick?.invoke(LibraryHeaderTab.ARTIST) }
                             HeaderTab("Tracks") { onHeaderTabClick?.invoke(LibraryHeaderTab.SONG) }
-                            HeaderTab("Genres") { onHeaderTabClick?.invoke(LibraryHeaderTab.SONG) }
+                            HeaderTab("Playlists") { onHeaderTabClick?.invoke(LibraryHeaderTab.PLAYLIST) }
                         }
                     }
 
@@ -360,6 +360,14 @@ private fun MuzikSidebar(
         SidebarItem("Settings", Icons.Default.Settings, false, openSettings)
 
         // System telemetry status pill matching design
+        val player = playerController.current
+        val isPlaying = player.queue?.currentSong != null && !player.pause
+        val engineStatus = when {
+            isPlaying -> "Playing"
+            player.queue?.currentSong != null -> "Paused"
+            else -> "Audio Ready"
+        }
+        val osName = System.getProperty("os.name") ?: "Linux"
         Surface(
             Modifier.fillMaxWidth().padding(top = 10.dp),
             shape = RoundedCornerShape(8.dp),
@@ -369,9 +377,9 @@ private fun MuzikSidebar(
                 Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(Icons.Default.GraphicEq, null, Modifier.size(15.dp), tint = tertiaryGreen)
+                Icon(Icons.Default.GraphicEq, null, Modifier.size(15.dp), tint = if (isPlaying) tertiaryGreen else Color(0xFF8B919E))
                 Text(
-                    "Fedora GNOME • PipeWire",
+                    "$osName • $engineStatus",
                     Modifier.padding(start = 8.dp).weight(1f),
                     style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
                     color = Color(0xFFC1C6D4),
@@ -382,7 +390,7 @@ private fun MuzikSidebar(
                     Modifier
                         .size(7.dp)
                         .clip(CircleShape)
-                        .background(tertiaryGreen)
+                        .background(if (isPlaying) tertiaryGreen else Color(0xFF8B919E))
                 )
             }
         }
@@ -434,7 +442,7 @@ private fun MuzikTransportBar(
 
     val isShuffled = queue?.isShuffled == true
     val repeatMode = queue?.repeatMode ?: RepeatMode.DO_NOT_REPEAT
-    val formatTag = song?.file?.extension?.uppercase() ?: "FLAC"
+    val formatTag = song?.file?.extension?.uppercase().orEmpty()
 
     Surface(
         modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),
@@ -479,7 +487,7 @@ private fun MuzikTransportBar(
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        song?.artist?.name ?: "MuzikPlayer Desktop Engine",
+                        song?.artist?.name ?: "No track playing",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color(0xFFC1C6D4),
                         maxLines = 1,
@@ -487,17 +495,19 @@ private fun MuzikTransportBar(
                     )
                 }
 
-                Surface(
-                    shape = RoundedCornerShape(4.dp),
-                    color = secondaryContainer.copy(alpha = 0.4f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, secondaryPurple.copy(alpha = 0.3f)),
-                ) {
-                    Text(
-                        formatTag,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                        style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace, fontSize = 10.sp),
-                        color = secondaryPurple,
-                    )
+                if (formatTag.isNotEmpty()) {
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = secondaryContainer.copy(alpha = 0.4f),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, secondaryPurple.copy(alpha = 0.3f)),
+                    ) {
+                        Text(
+                            formatTag,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace, fontSize = 10.sp),
+                            color = secondaryPurple,
+                        )
+                    }
                 }
             }
 

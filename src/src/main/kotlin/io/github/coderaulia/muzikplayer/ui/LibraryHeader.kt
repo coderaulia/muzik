@@ -47,11 +47,14 @@ import io.github.coderaulia.muzikplayer.generated.resources.*
 import io.github.coderaulia.muzikplayer.playerController
 import io.github.coderaulia.muzikplayer.ui.LibraryHeaderTab.*
 
+import io.github.coderaulia.muzikplayer.utils.Preferences
 import io.github.coderaulia.muzikplayer.utils.animateContentHeight
 import io.github.coderaulia.muzikplayer.utils.format
 import io.github.coderaulia.muzikplayer.utils.noopComparator
 import io.github.coderaulia.muzikplayer.utils.orNoop
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import kotlin.io.path.extension
 import kotlin.math.roundToInt
 
 @Composable
@@ -82,22 +85,38 @@ private fun LibraryStatsBanner(
             )
             Spacer(Modifier.width(12.dp))
             VerticalDivider(Modifier.height(14.dp), color = Color(0xFF353535))
+            val formats = remember(library) {
+                library.songs.map { it.file.extension.uppercase() }.filter { it.isNotEmpty() }.distinct().sorted().joinToString("/")
+            }
+            val formattedTotalLength = stats.totalLength.format()
+            val statsDetail = remember(library, stats, formats, formattedTotalLength) {
+                val fmtPart = if (formats.isNotEmpty()) "  •  $formats" else ""
+                "${stats.songsCount} Tracks  •  ${library.albums.size} Albums  •  $formattedTotalLength$fmtPart"
+            }
             Text(
-                "${stats.songsCount} Tracks  •  ${library.albums.size} Albums  •  ${stats.totalLength.format()} Lossless",
+                statsDetail,
                 Modifier.padding(start = 12.dp),
                 style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            val player = playerController.current
+            val isPlaying = player.queue?.currentSong != null && !player.pause
+            val bitPerfect = Preferences.bitPerfect.state.value
+            val enginePillText = when {
+                bitPerfect -> "BIT-PERFECT DIRECT"
+                isPlaying -> "AUDIO STREAMING"
+                else -> "AUDIO READY"
+            }
             Spacer(Modifier.width(10.dp))
             Surface(
                 shape = RoundedCornerShape(4.dp),
-                color = Color(0x3300A65B),
+                color = if (isPlaying) Color(0x3300A65B) else Color(0x224691F2),
             ) {
                 Text(
-                    "PIPEWIRE DIRECT ALSA",
+                    enginePillText,
                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                     style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace, fontSize = 9.sp),
-                    color = Color(0xFF48E087),
+                    color = if (isPlaying) Color(0xFF48E087) else Color(0xFFA7C8FF),
                     fontWeight = FontWeight.Bold,
                 )
             }
@@ -129,42 +148,6 @@ private fun LibraryStatsBanner(
     }
 }
 
-@Composable
-private fun GenreFilterBar(
-    queryFilter: String,
-    onSelectGenre: (String) -> Unit,
-) {
-    val genres = listOf("All Genres", "Ambient", "Synthwave", "Indie Folk", "Modern Classical", "IDM & Glitch", "Post-Rock", "Acoustic")
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        Text(
-            "Genres:",
-            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(end = 4.dp),
-        )
-        genres.forEach { genre ->
-            val isSelected = (genre == "All Genres" && queryFilter.isEmpty()) || (queryFilter.contains(genre, ignoreCase = true))
-            Text(
-                genre,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(if (isSelected) Color(0xFF393939) else Color(0xFF1B1C1C))
-                    .clickable { onSelectGenre(if (genre == "All Genres") "" else genre) }
-                    .padding(horizontal = 10.dp, vertical = 4.dp),
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
-                ),
-                color = if (isSelected) Color(0xFFE4E2E1) else Color(0xFFC1C6D4),
-            )
-        }
-    }
-}
 
 private sealed interface SortFilterOption {
     @Composable
@@ -411,13 +394,47 @@ fun LibraryHeader(
                 }
             }
         }
+        val player = playerController.current
+        val cs = rememberCoroutineScope()
         LibraryStatsBanner(
             library = library,
             onPlayAll = {
-                // The existing list controller remains responsible for queue creation.
+                if (library.songs.isNotEmpty()) {
+                    cs.launch {
+                        val keys = library.songs.map { it.uniqueKey }
+                        player.transformQueue { q ->
+                            val queue = SongQueue(
+                                originalSongs = keys,
+                                songs = keys,
+                                songsByKey = library.songs.associateBy { it.uniqueKey },
+                                position = 0,
+                                repeatMode = q?.repeatMode ?: RepeatMode.DEFAULT,
+                            )
+                            queue to Position.Beginning
+                        }
+                        player.play()
+                    }
+                }
             },
             onShuffle = {
-                // The existing list controller remains responsible for queue creation.
+                if (library.songs.isNotEmpty()) {
+                    cs.launch {
+                        val shuffledSongs = library.songs.shuffled()
+                        val keys = shuffledSongs.map { it.uniqueKey }
+                        player.transformQueue { q ->
+                            val queue = SongQueue(
+                                originalSongs = library.songs.map { it.uniqueKey },
+                                songs = keys,
+                                songsByKey = library.songs.associateBy { it.uniqueKey },
+                                position = 0,
+                                repeatMode = q?.repeatMode ?: RepeatMode.DEFAULT,
+                                isShuffled = true,
+                            )
+                            queue to Position.Beginning
+                        }
+                        player.play()
+                    }
+                }
             },
         )
         HorizontalDivider()

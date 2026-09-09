@@ -32,18 +32,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.coderaulia.muzikplayer.audio.Position
+import io.github.coderaulia.muzikplayer.data.AudioMetadataResolver
 import io.github.coderaulia.muzikplayer.data.Library
+import io.github.coderaulia.muzikplayer.data.Lyrics
 import io.github.coderaulia.muzikplayer.data.Song
 import io.github.coderaulia.muzikplayer.data.SongQueue
 import io.github.coderaulia.muzikplayer.playerController
+import io.github.coderaulia.muzikplayer.utils.Preferences
 import io.github.coderaulia.muzikplayer.utils.format
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.io.path.extension
+import kotlin.io.path.pathString
 
 private val slateCanvas = Color(0xFF131313)
 private val surfaceContainerLow = Color(0xFF1B1C1C)
@@ -108,7 +113,7 @@ fun HomePage(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         // 1. Top System & Library Status Anchor Bar
-        SystemStatusAnchorBar(library = library)
+        SystemStatusAnchorBar(library = library, currentSong = currentSong)
 
         if (currentSong == null) {
             // Empty state when nothing is in queue
@@ -254,10 +259,18 @@ fun HomePage(
 }
 
 @Composable
-private fun SystemStatusAnchorBar(library: Library?) {
+private fun SystemStatusAnchorBar(
+    library: Library?,
+    currentSong: Song?,
+) {
+    val player = playerController.current
     val songCount = library?.songs?.size ?: 0
     val totalLength = (library?.stats?.totalLength ?: ZERO).format()
-    val musicDir = library?.songs?.firstOrNull()?.file?.parent?.toString() ?: "/home/asw/Music"
+    val libraryFolder by Preferences.libraryFolder.state
+    val musicDir = libraryFolder.pathString
+    val audioInfo = remember(currentSong?.uniqueKey) {
+        currentSong?.let { AudioMetadataResolver.resolve(it.file) }
+    }
 
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val compact = maxWidth < 720.dp
@@ -266,77 +279,81 @@ private fun SystemStatusAnchorBar(library: Library?) {
             shape = RoundedCornerShape(8.dp),
             color = surfaceContainer,
         ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(Modifier.size(8.dp).clip(CircleShape).background(tertiaryGreen))
-            Text(
-                "PipeWire Direct: 96,000 Hz / 24-bit PCM",
-                modifier = Modifier.padding(start = 8.dp),
-                style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
-                color = textOnSurface,
-                maxLines = 1,
-            )
-            if (!compact) {
-                Text(" / ", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), color = outlineVariant)
-                Icon(Icons.Default.FolderOpen, null, Modifier.size(15.dp), tint = textOnSurfaceVariant)
-                Text(
-                    musicDir,
-                    modifier = Modifier.padding(start = 6.dp),
-                    style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
-                    color = textOnSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(Modifier.width(12.dp))
-                Text("$songCount tracks • $totalLength", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), color = outlineVariant, maxLines = 1)
-            }
-            Spacer(Modifier.weight(1f))
-            Surface(
-                shape = RoundedCornerShape(4.dp),
-                color = surfaceContainerHigh,
+            Row(
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
+                Box(Modifier.size(8.dp).clip(CircleShape).background(tertiaryGreen))
                 Text(
-                    if (songCount == 0) "Library empty" else "Library ready",
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                    if (audioInfo != null) "${audioInfo.format} • ${audioInfo.sampleRate} • ${audioInfo.bitDepth}"
+                    else "Audio Engine Ready • ALSA Direct",
+                    modifier = Modifier.padding(start = 8.dp),
                     style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
-                    color = tertiaryGreen,
+                    color = textOnSurface,
+                    maxLines = 1,
                 )
-            }
-            Spacer(Modifier.width(8.dp))
-            if (!compact) {
-                Surface(
-                    shape = RoundedCornerShape(6.dp),
-                    color = surfaceContainerHighest,
-                ) {
-                    Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
+                if (!compact) {
+                    Text(" / ", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), color = outlineVariant)
+                    Icon(Icons.Default.FolderOpen, null, Modifier.size(15.dp), tint = textOnSurfaceVariant)
                     Text(
-                        "96 kHz PCM",
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .clickable {}
-                            .padding(horizontal = 8.dp, vertical = 3.dp),
+                        musicDir,
+                        modifier = Modifier.padding(start = 6.dp),
                         style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
                         color = textOnSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
+                    Spacer(Modifier.width(12.dp))
+                    Text("$songCount tracks • $totalLength", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), color = outlineVariant, maxLines = 1)
+                }
+                Spacer(Modifier.weight(1f))
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = surfaceContainerHigh,
+                ) {
                     Text(
-                        "PipeWire Default",
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(surfaceContainerLow)
-                            .padding(horizontal = 8.dp, vertical = 3.dp),
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                        color = primaryBlue,
+                        if (currentSong == null) {
+                            if (songCount == 0) "Library empty" else "Library ready"
+                        } else {
+                            if (player.pause) "Playback Paused" else "Direct Streaming"
+                        },
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                        style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                        color = tertiaryGreen,
                     )
+                }
+                Spacer(Modifier.width(8.dp))
+                if (!compact) {
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = surfaceContainerHighest,
+                    ) {
+                        Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                audioInfo?.sampleRateKHz ?: "Ready",
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .padding(horizontal = 8.dp, vertical = 3.dp),
+                                style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                                color = textOnSurfaceVariant,
+                            )
+                            Text(
+                                if (player.pause || currentSong == null) "Idle" else "Direct Output",
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(surfaceContainerLow)
+                                    .padding(horizontal = 8.dp, vertical = 3.dp),
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontFamily = FontFamily.Monospace,
+                                    fontWeight = FontWeight.Bold,
+                                ),
+                                color = primaryBlue,
+                            )
+                        }
                     }
                 }
             }
         }
-    }
     }
 }
 
@@ -474,12 +491,13 @@ private fun StudioPlayerStageCard(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
+                            val audioInfo = remember(song.uniqueKey) { AudioMetadataResolver.resolve(song.file) }
                             Surface(
                                 shape = RoundedCornerShape(4.dp),
                                 color = secondaryContainer,
                             ) {
                                 Text(
-                                    "$formatTag MASTER",
+                                    "${audioInfo.format} ${if (audioInfo.isLossless) "LOSSLESS" else "AUDIO"}",
                                     modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         fontFamily = FontFamily.Monospace,
@@ -493,7 +511,7 @@ private fun StudioPlayerStageCard(
                                 color = surfaceContainerHigh,
                             ) {
                                 Text(
-                                    "96 kHz / 24-bit",
+                                    "${audioInfo.sampleRateKHz} / ${audioInfo.bitDepth}",
                                     modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
                                     style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
                                     color = tertiaryGreen,
@@ -504,7 +522,7 @@ private fun StudioPlayerStageCard(
                                 color = surfaceContainerHigh,
                             ) {
                                 Text(
-                                    "2,842 kbps",
+                                    audioInfo.bitRate,
                                     modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
                                     style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
                                     color = textOnSurfaceVariant,
@@ -535,8 +553,9 @@ private fun StudioPlayerStageCard(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
+                        val audioInfo = remember(song.uniqueKey) { AudioMetadataResolver.resolve(song.file) }
                         Text(
-                            "${song.album.title} ${song.date?.let { "($it)" } ?: ""} • Local Lossless Audio",
+                            "${song.album.title} ${song.date?.let { "($it)" } ?: ""} • ${if (audioInfo.isLossless) "Lossless Audio" else "Standard Audio"}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = textOnSurfaceVariant,
                             maxLines = 1,
@@ -758,8 +777,13 @@ private fun TabbedInspectorDeck(
                         )
                     }
                 }
+                val lyricsType = when (song.lyrics) {
+                    is io.github.coderaulia.muzikplayer.data.Lyrics.Synchronized -> "Synchronized LRC • Timed"
+                    is io.github.coderaulia.muzikplayer.data.Lyrics.Plain -> "Plain Text Lyrics"
+                    null -> "No Embedded Lyrics"
+                }
                 Text(
-                    "LRC Verified • UTF-8",
+                    lyricsType,
                     style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
                     color = textOnSurfaceVariant,
                 )
@@ -803,79 +827,105 @@ private fun LyricsDeckContent(
     position: Duration,
     onSeek: (Duration) -> Unit,
 ) {
-    val lyrics = song.lyrics
-    if (lyrics is io.github.coderaulia.muzikplayer.data.Lyrics.Synchronized) {
-        val lines = lyrics.lines
-        val activeIndex = lines.indexOfLast { it.start <= position }.coerceAtLeast(0)
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = 160.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            lines.forEachIndexed { index, line ->
-                val lineTime = line.start
-                val lineText = line.content
-                val isActive = index == activeIndex
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(6.dp))
-                        .clickable { onSeek(lineTime) }
-                        .padding(horizontal = 6.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    if (isActive) {
-                        Box(Modifier.size(6.dp).clip(CircleShape).background(primaryBlue))
+    when (val lyrics = song.lyrics) {
+        is io.github.coderaulia.muzikplayer.data.Lyrics.Synchronized -> {
+            val lines = lyrics.lines
+            val activeIndex = lines.indexOfLast { it.start <= position }.coerceAtLeast(0)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 160.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                lines.forEachIndexed { index, line ->
+                    val lineTime = line.start
+                    val lineText = line.content
+                    val isActive = index == activeIndex
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable { onSeek(lineTime) }
+                            .padding(horizontal = 6.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        if (isActive) {
+                            Box(Modifier.size(6.dp).clip(CircleShape).background(primaryBlue))
+                        }
+                        Text(
+                            lineText,
+                            style = if (isActive) MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            else MaterialTheme.typography.bodyMedium,
+                            color = if (isActive) primaryBlue else textOnSurfaceVariant,
+                        )
                     }
+                }
+            }
+        }
+        is io.github.coderaulia.muzikplayer.data.Lyrics.Plain -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 160.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                lyrics.lyrics.lines().forEach { line ->
                     Text(
-                        lineText,
-                        style = if (isActive) MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                        else MaterialTheme.typography.bodyMedium,
-                        color = if (isActive) primaryBlue else textOnSurfaceVariant,
+                        line,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = textOnSurfaceVariant,
                     )
                 }
             }
         }
-    } else {
-        // Fallback ambient lyrics mockup matching design
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Text("Shadows crawling down the ridge line slow", style = MaterialTheme.typography.bodyMedium, color = textOnSurfaceVariant.copy(alpha = 0.6f))
-            Text("Cold heather waking up to the dawn glow", style = MaterialTheme.typography.bodyMedium, color = textOnSurfaceVariant)
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Box(Modifier.size(6.dp).clip(CircleShape).background(primaryBlue))
+        null -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Icon(
+                    Icons.Default.SubtitlesOff,
+                    contentDescription = null,
+                    tint = outlineVariant,
+                    modifier = Modifier.size(24.dp),
+                )
                 Text(
-                    "The mist recedes where the stone stands tall",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = primaryBlue,
+                    "No embedded lyrics for \"${song.title}\"",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                    color = textOnSurfaceVariant,
+                )
+                Text(
+                    "Embedded LRC timestamps will synchronize automatically during playback",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = outlineVariant,
                 )
             }
-            Text("And the golden ray breaks over us all", style = MaterialTheme.typography.bodyMedium, color = textOnSurfaceVariant.copy(alpha = 0.8f))
-            Text("Footsteps echo through the heather deep...", style = MaterialTheme.typography.bodyMedium, color = textOnSurfaceVariant.copy(alpha = 0.5f))
         }
     }
 }
 
 @Composable
 private fun TagsDeckContent(song: Song) {
+    val audioInfo = remember(song.uniqueKey) { AudioMetadataResolver.resolve(song.file) }
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            TagMetricItem("Container Format", song.file.extension.uppercase(), Modifier.weight(1f))
-            TagMetricItem("Sample Rate", "96,000 Hz", Modifier.weight(1f))
-            TagMetricItem("Bit Depth", "24-bit PCM", Modifier.weight(1f))
+            TagMetricItem("Container Format", audioInfo.format, Modifier.weight(1f))
+            TagMetricItem("Sample Rate", audioInfo.sampleRate, Modifier.weight(1f))
+            TagMetricItem("Bit Depth", audioInfo.bitDepth, Modifier.weight(1f))
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            TagMetricItem("Channels", "2 (Stereo L/R)", Modifier.weight(1f))
-            TagMetricItem("Encoding", "Lossless FLAC", Modifier.weight(1f))
-            TagMetricItem("ReplayGain", "-1.4 dB", Modifier.weight(1f))
+            TagMetricItem("Channels", audioInfo.channels, Modifier.weight(1f))
+            TagMetricItem("Encoding", audioInfo.encoding, Modifier.weight(1f))
+            TagMetricItem("Bitrate", audioInfo.bitRate, Modifier.weight(1f))
         }
         TagMetricItem("Source File", song.file.toString(), Modifier.fillMaxWidth())
     }
@@ -897,13 +947,16 @@ private fun TagMetricItem(label: String, value: String, modifier: Modifier = Mod
 
 @Composable
 private fun DspDeckContent() {
+    val player = playerController.current
+    val bitPerfect by Preferences.bitPerfect.state
+    val peakProtection by Preferences.peakProtection.state
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        TagMetricItem("Engine Sink", "Direct PipeWire / ALSA", Modifier.weight(1f))
-        TagMetricItem("Resampling", "Bit-Perfect (1:1 Bypass)", Modifier.weight(1f))
-        TagMetricItem("DSP Headroom", "No clipping (0.0 dB)", Modifier.weight(1f))
+        TagMetricItem("Engine Sink", "ALSA Direct / PipeWire", Modifier.weight(1f))
+        TagMetricItem("Resampling", if (bitPerfect) "Bit-Perfect (1:1 Bypass)" else "Software Resampler", Modifier.weight(1f))
+        TagMetricItem("DSP Guard", if (peakProtection) "True-Peak Guard Active" else "Bypass (${(player.level * 100).roundToInt()}%)", Modifier.weight(1f))
     }
 }
 
@@ -1193,6 +1246,12 @@ private fun PlayQueueCard(
 
 @Composable
 private fun AudioBackendMonitorCard() {
+    val player = playerController.current
+    val bufferLatency by Preferences.bufferLatency.state
+    val replayGain by Preferences.replayGain.state
+    val bitPerfect by Preferences.bitPerfect.state
+    val peakProtection by Preferences.peakProtection.state
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -1211,17 +1270,21 @@ private fun AudioBackendMonitorCard() {
                     Icon(Icons.Default.Memory, null, Modifier.size(16.dp), tint = tertiaryGreen)
                     Text("Audio Backend Monitor", style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold), color = textOnSurface)
                 }
-                Text("PipeWire 1.0.5", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), color = tertiaryGreen)
+                Text(
+                    if (player.pause) "Idle" else "Active (Streaming)",
+                    style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                    color = if (player.pause) textOnSurfaceVariant else tertiaryGreen,
+                )
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    DiagnosticPill("Buffer Latency", "5.33 ms (512 spl)", Modifier.weight(1f))
-                    DiagnosticPill("ReplayGain", "-1.4 dB (Album)", Modifier.weight(1f))
+                    DiagnosticPill("Buffer Latency", bufferLatency, Modifier.weight(1f))
+                    DiagnosticPill("ReplayGain", replayGain, Modifier.weight(1f))
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    DiagnosticPill("Resampling", "Bit-Perfect 1:1", Modifier.weight(1f))
-                    DiagnosticPill("DSP State", "No clipping (0.0dB)", Modifier.weight(1f), isSuccess = true)
+                    DiagnosticPill("Resampling", if (bitPerfect) "Bit-Perfect 1:1" else "System Mixer", Modifier.weight(1f))
+                    DiagnosticPill("DSP State", if (peakProtection) "Guarded (0.0 dBFS)" else "Bypass", Modifier.weight(1f), isSuccess = peakProtection)
                 }
             }
         }

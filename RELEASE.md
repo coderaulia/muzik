@@ -63,9 +63,8 @@ Install the required tools and runtime once:
 
 ```bash
 flatpak install flathub \
-  org.freedesktop.Platform//25.08 \
-  org.freedesktop.Sdk//25.08 \
-  org.freedesktop.Platform.ffmpeg-full//25.08
+  org.freedesktop.Platform//26.08 \
+  org.freedesktop.Sdk//26.08
 ```
 
 Flatpak metadata and assets live in `src/flatpak/`: the manifest, desktop

@@ -11,7 +11,9 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import java.util.Locale
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.*
@@ -317,13 +319,40 @@ fun PlaylistsPage(
                     color = surfaceContainerLowest.copy(alpha = 0.6f),
                 ) {
                     Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        val plSongsCount = activePlaylistSongs.size
+                        val libTotalSongs = (library?.songs?.size ?: 0).coerceAtLeast(1)
+                        val cacheRatio = if (activePlaylist != null) {
+                            (plSongsCount.toFloat() / libTotalSongs.toFloat()).coerceIn(0.05f, 1f)
+                        } else 1f
+                        val plSizeBytes = remember(activePlaylistSongs) {
+                            activePlaylistSongs.sumOf { runCatching { it.file.toFile().length() }.getOrDefault(0L) }
+                        }
+                        val plSizeStr = remember(plSizeBytes) {
+                            if (plSizeBytes > 1_000_000_000L) {
+                                String.format(Locale.US, "%.1f GB", plSizeBytes / 1_000_000_000.0)
+                            } else {
+                                String.format(Locale.US, "%.1f MB", plSizeBytes / 1_000_000.0)
+                            }
+                        }
+                        val formatsStr = remember(activePlaylistSongs) {
+                            val distinctFmts = activePlaylistSongs.map { it.file.extension.uppercase() }.filter { it.isNotEmpty() }.distinct().sorted()
+                            if (distinctFmts.isNotEmpty()) distinctFmts.joinToString(" • ") else "AUDIO"
+                        }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("LOCAL CACHE", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), color = textOnSurfaceVariant)
-                            Text("All Synced", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), color = tertiaryGreen)
+                            Text(
+                                if (activePlaylist != null) "PLAYLIST CACHE" else "LIBRARY CACHE",
+                                style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                                color = textOnSurfaceVariant,
+                            )
+                            Text(
+                                if (activePlaylist != null) "$plSongsCount / $libTotalSongs Tracks" else "$libTotalSongs Tracks",
+                                style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                                color = tertiaryGreen,
+                            )
                         }
                         Box(
                             modifier = Modifier
@@ -334,7 +363,7 @@ fun PlaylistsPage(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .fillMaxWidth(0.65f)
+                                    .fillMaxWidth(cacheRatio)
                                     .fillMaxHeight()
                                     .background(primaryBlue)
                             )
@@ -343,8 +372,16 @@ fun PlaylistsPage(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
-                            Text("6.4 GB Lossless", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace, fontSize = 10.sp), color = textOnSurfaceVariant)
-                            Text("FLAC 24-bit/96kHz", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace, fontSize = 10.sp), color = textOnSurfaceVariant)
+                            Text(
+                                if (activePlaylist != null) "$plSizeStr • ${totalDuration.format()}" else plSizeStr,
+                                style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace, fontSize = 10.sp),
+                                color = textOnSurfaceVariant,
+                            )
+                            Text(
+                                formatsStr,
+                                style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace, fontSize = 10.sp),
+                                color = textOnSurfaceVariant,
+                            )
                         }
                     }
                 }
@@ -696,20 +733,32 @@ fun PlaylistsPage(
                             ) {
                                 Icon(Icons.Default.Search, null, Modifier.size(16.dp), tint = textOnSurfaceVariant)
                                 Spacer(Modifier.width(8.dp))
-                                Text(
-                                    searchQuery.ifEmpty { "Search track or artist..." },
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = if (searchQuery.isEmpty()) outlineVariant else textOnSurface,
+                                BasicTextField(
+                                    value = searchQuery,
+                                    onValueChange = { searchQuery = it },
+                                    modifier = Modifier.weight(1f),
+                                    singleLine = true,
+                                    textStyle = MaterialTheme.typography.bodySmall.copy(color = textOnSurface),
+                                    decorationBox = { innerTextField ->
+                                        if (searchQuery.isEmpty()) {
+                                            Text("Search track, artist, or album...", style = MaterialTheme.typography.bodySmall, color = outlineVariant)
+                                        }
+                                        innerTextField()
+                                    },
                                 )
                             }
                         }
 
-                        // Filter genre pills
+                        // Filter format pills
+                        val availableFormats = remember(library) {
+                            val fmts = library?.songs?.map { it.file.extension.uppercase() }?.filter { it.isNotEmpty() }?.distinct()?.sorted().orEmpty()
+                            listOf("All") + fmts
+                        }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
-                            listOf("All", "Acoustic", "Ambient", "FLAC").forEach { genre ->
+                            availableFormats.take(6).forEach { genre ->
                                 val isGenreSelected = selectedGenre == genre
                                 Text(
                                     genre,
@@ -725,8 +774,16 @@ fun PlaylistsPage(
                         }
 
                         // Available Songs List
-                        val availableSongs = remember(library, searchQuery, activePlaylist) {
-                            library?.songs.orEmpty()
+                        val availableSongs = remember(library, searchQuery, selectedGenre) {
+                            val allSongs = library?.songs.orEmpty()
+                            allSongs.filter { s ->
+                                val matchesQuery = searchQuery.isBlank() ||
+                                    s.title.contains(searchQuery, ignoreCase = true) ||
+                                    s.artist.name.contains(searchQuery, ignoreCase = true) ||
+                                    s.album.title.contains(searchQuery, ignoreCase = true)
+                                val matchesFormat = selectedGenre == "All" || s.file.extension.equals(selectedGenre, ignoreCase = true)
+                                matchesQuery && matchesFormat
+                            }
                         }
 
                         LazyColumn(

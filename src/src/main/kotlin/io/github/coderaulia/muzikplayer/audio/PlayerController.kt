@@ -261,6 +261,7 @@ class PlayerController(
     val queue by derivedStateOf { observableState.currentlyPlaying?.queue }
     val pause by derivedStateOf { observableState.pause }
     val position by derivedStateOf { observableState.position }
+    val currentAudioFormat by derivedStateOf { observableState.currentlyPlaying?.player?.format }
 
     fun position(now: Instant): Duration {
         return observableState.calculateCurrentPosition(now)

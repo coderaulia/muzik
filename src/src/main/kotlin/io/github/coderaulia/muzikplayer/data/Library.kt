@@ -93,7 +93,8 @@ data class Song(
     private fun matches(queryFilter: String): Boolean {
         return title.contains(queryFilter, ignoreCase = true) ||
                 this.album.title.contains(queryFilter, ignoreCase = true) ||
-                this.artist.name.contains(queryFilter, ignoreCase = true)
+                this.artist.name.contains(queryFilter, ignoreCase = true) ||
+                this.file.fileName?.toString()?.contains(queryFilter, ignoreCase = true) == true
     }
 
     fun matches(artist: ArtistKey?, album: AlbumKey?, playlist: Playlist?, queryFilter: List<String>): Boolean {
