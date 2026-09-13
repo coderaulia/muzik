@@ -46,6 +46,7 @@ val LocalAppearanceSettings = compositionLocalOf<Settings.Appearance> { throw Il
 private val logger = KotlinLogging.logger {}
 
 fun main(args: Array<String>) {
+    System.setProperty("redhat.crypto-policies", "false")
     Thread.currentThread().priority = Thread.MAX_PRIORITY
     val filesFromArgs = args.map { Path.of(it) }
     runBlocking {

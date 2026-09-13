@@ -3,6 +3,7 @@ import org.jetbrains.compose.desktop.application.tasks.AbstractJLinkTask
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.gradle.api.tasks.JavaExec
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -42,8 +43,72 @@ kotlin {
 val ffsampledsp by configurations.creating
 val ffsampledspVersion = "0.9.54"
 val ffsampledspRuntimeDir = layout.buildDirectory.dir("ffsampledsp-runtime")
+val patchedFfsampledspDir = layout.buildDirectory.dir("ffsampledsp-patched")
+
+fun patchElfBzip2(file: File) {
+    if (!file.exists() || !file.name.endsWith(".so")) return
+    val bytes = file.readBytes()
+    val target = "libbz2.so.1.0\u0000".toByteArray(Charsets.ISO_8859_1)
+    val replacement = "libbz2.so.1\u0000\u0000\u0000".toByteArray(Charsets.ISO_8859_1)
+    var modified = false
+    var i = 0
+    while (i <= bytes.size - target.size) {
+        var match = true
+        for (j in target.indices) {
+            if (bytes[i + j] != target[j]) {
+                match = false
+                break
+            }
+        }
+        if (match) {
+            System.arraycopy(replacement, 0, bytes, i, replacement.size)
+            modified = true
+            i += target.size
+        } else {
+            i++
+        }
+    }
+    if (modified) {
+        file.writeBytes(bytes)
+        println("Patched ELF DT_NEEDED libbz2 in ${file.name}")
+    }
+}
+
+fun fixCryptoPolicies(file: File) {
+    if (!file.exists()) return
+    val content = file.readText()
+    val updated = content.lines().joinToString("\n") { line ->
+        if (line.trimStart().startsWith("include redhat/")) {
+            "#$line"
+        } else {
+            line
+        }
+    }
+    if (content != updated) {
+        file.writeText(updated)
+        println("Commented out redhat crypto-policies include in ${file.path}")
+    }
+}
+
+val preparePatchedFfsampledsp by tasks.registering {
+    inputs.files(ffsampledsp)
+    outputs.dir(patchedFfsampledspDir)
+    doLast {
+        val outDir = patchedFfsampledspDir.get().asFile
+        outDir.mkdirs()
+        val sourceFile = ffsampledsp.files.single()
+        val destStandard = File(outDir, System.mapLibraryName("ffsampledsp"))
+        val destArchSpecific = File(outDir, sourceFile.name.replace("-$ffsampledspVersion", ""))
+        sourceFile.copyTo(destStandard, overwrite = true)
+        patchElfBzip2(destStandard)
+        if (destArchSpecific.name != destStandard.name) {
+            destStandard.copyTo(destArchSpecific, overwrite = true)
+        }
+    }
+}
 
 val prepareFfsampledspRuntime by tasks.registering {
+    dependsOn(preparePatchedFfsampledsp)
     outputs.dir(ffsampledspRuntimeDir)
     doLast {
         val runtimeDir = ffsampledspRuntimeDir.get().asFile.toPath()
@@ -64,11 +129,12 @@ val prepareFfsampledspRuntime by tasks.registering {
 }
 
 tasks.withType<JavaExec>().configureEach {
-    dependsOn(prepareFfsampledspRuntime)
+    dependsOn(preparePatchedFfsampledsp, prepareFfsampledspRuntime)
     doFirst {
+        val patchedDir = patchedFfsampledspDir.get().asFile.absolutePath
         val runtimeDir = ffsampledspRuntimeDir.get().asFile.absolutePath
         val existing = environment["LD_LIBRARY_PATH"]?.toString()
-        environment["LD_LIBRARY_PATH"] = listOfNotNull(runtimeDir, existing).joinToString(":")
+        environment["LD_LIBRARY_PATH"] = listOfNotNull(patchedDir, runtimeDir, existing).joinToString(":")
     }
 }
 
@@ -126,39 +192,42 @@ dependencies {
     testImplementation("io.kotest:kotest-property:$kotest")
 }
 
-// ffsampledsp can be included in two ways:
-//  1. When a JPackage task is present, the .so is copied directly into the destinationDir; it will be loaded at runtime thanks to -Djava.library.path
-//  2. When a JPackage task is NOT present, the .so is copied into the app's resources. At runtime, it will be unpacked into /tmp
-gradle.taskGraph.whenReady {
-    val hasJpackageTask = gradle.taskGraph.allTasks.any { it is AbstractJPackageTask }
-    println("has JPackage task = $hasJpackageTask")
-    if (hasJpackageTask) {
-        tasks.withType(AbstractJPackageTask::class.java).configureEach {
-            doLast {
-                copy {
-                    from(ffsampledsp.files.single())
-                    into(destinationDir.dir("MuzikPlayer/lib/app"))
-                    rename {
-                        System.mapLibraryName("ffsampledsp")
-                    }
+tasks.processResources {
+    dependsOn(preparePatchedFfsampledsp)
+    from(patchedFfsampledspDir)
+}
+
+tasks.withType(AbstractJPackageTask::class.java).configureEach {
+    dependsOn(preparePatchedFfsampledsp)
+    doLast {
+        val appDirs = listOf(
+            destinationDir.dir("MuzikPlayer/lib/app"),
+            destinationDir.dir("lib/app")
+        )
+        for (dir in appDirs) {
+            val targetDir = dir.get().asFile
+            if (targetDir.parentFile.exists()) {
+                targetDir.mkdirs()
+                val destLib = File(targetDir, System.mapLibraryName("ffsampledsp"))
+                val sourceLib = File(patchedFfsampledspDir.get().asFile, System.mapLibraryName("ffsampledsp"))
+                if (sourceLib.exists()) {
+                    sourceLib.copyTo(destLib, overwrite = true)
                 }
             }
         }
-    } else {
-        tasks.processResources {
-            from(ffsampledsp) {
-                // The file name as expected by FFNativeLibraryLoader doesn't have the version
-                // See https://github.com/hendriks73/ffsampledsp/blob/dev/ffsampledsp-complete/pom.xml
-                rename {
-                    it.replace("-$ffsampledspVersion", "")
-                }
-            }
-        }
+        destinationDir.asFile.get().walkTopDown()
+            .filter { it.name == "java.security" }
+            .forEach { fixCryptoPolicies(it) }
     }
 }
 
 tasks.withType(AbstractJLinkTask::class.java).configureEach {
     freeArgs.add("--ignore-modified-runtime")
+    doLast {
+        destinationDir.asFile.get().walkTopDown()
+            .filter { it.name == "java.security" }
+            .forEach { fixCryptoPolicies(it) }
+    }
 }
 
 tasks.named<KotlinCompilationTask<*>>("compileKotlin").configure {
@@ -190,6 +259,7 @@ compose.desktop {
         jvmArgs += listOf("--enable-native-access=ALL-UNNAMED")
         // To find ffsampledsp.so
         jvmArgs += listOf($$"-Djava.library.path=$APPDIR")
+        jvmArgs += listOf("-Dredhat.crypto-policies=false")
         // These options are set to optimize the memory usage
         jvmArgs += listOf("-XX:+UseZGC") // Use Z Garbage Collector, for low latency, see https://docs.oracle.com/en/java/javase/25/gctuning/z-garbage-collector.html
         jvmArgs += listOf("-XX:SoftMaxHeapSize=256m") // Let's target a reasonable max memory of 256mb
@@ -246,6 +316,16 @@ compose.desktop {
 afterEvaluate {
     tasks.named("createReleaseDistributable") {
         dependsOn(tasks.test)
+    }
+    tasks.withType(AbstractJPackageTask::class.java).configureEach {
+        if (targetFormat != TargetFormat.AppImage) {
+            val appImageTaskName = if (name.contains("Release")) "createReleaseDistributable" else "createDistributable"
+            if (tasks.names.contains(appImageTaskName)) {
+                val appImageTask = tasks.named<AbstractJPackageTask>(appImageTaskName)
+                dependsOn(appImageTask)
+                appImage.set(appImageTask.flatMap { it.destinationDir.dir("MuzikPlayer") })
+            }
+        }
     }
 }
 

@@ -26,10 +26,11 @@ ICON_SCALABLE_DIR="$XDG_DATA_HOME/icons/hicolor/scalable/apps"
 ICON_PNG_DIR="$XDG_DATA_HOME/icons/hicolor/512x512/apps"
 
 echo "Installing MuzikPlayer to $INSTALL_DIR..."
+rm -rf "$INSTALL_DIR"
 mkdir -p "$INSTALL_DIR" "$BIN_DIR" "$DESKTOP_DIR" "$ICON_SCALABLE_DIR" "$ICON_PNG_DIR"
 
 # Copy application files (bundled JRE and binaries)
-cp -r "$SRC_APP_DIR"/* "$INSTALL_DIR/"
+cp -rf "$SRC_APP_DIR"/* "$INSTALL_DIR/"
 chmod +x "$INSTALL_DIR/bin/MuzikPlayer"
 
 # Symlink executable into ~/.local/bin
