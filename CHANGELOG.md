@@ -2,6 +2,17 @@
 
 All notable changes to MuzikPlayer are documented in this file.
 
+## [1.5.4] — 2026-09-13
+
+### Added
+- **Zero-Dependency Portable Bundle** — Bundled JRE archive (`.tar.gz`) with user-space `install.sh` and `uninstall.sh` scripts for one-click desktop launcher and icon registration on any Linux distribution without root privileges.
+- **Native RPM Packaging** — Self-contained `.rpm` package with embedded JVM runtime for Fedora, RHEL, and openSUSE.
+- **Automated GitHub Actions Releases** — Root `.github/workflows/tagged-release.yml` for multi-architecture builds producing `.deb`, `.rpm`, and portable `.tar.gz` release artifacts automatically on tag push (`v*`).
+
+### Changed
+- **Installation Documentation** — Detailed package installation guides for daily users (no dependencies needed) and build prerequisites for developers across Fedora, Debian/Ubuntu, and Arch Linux.
+- **Release Build Optimization** — Made ProGuard opt-in via `-PenableProguard=true` to enable reliable, fast jpackage and distributable builds across all modern JDK environments.
+
 ## [1.5.3] — 2026-09-09
 
 ### Added
