@@ -1,3 +1,4 @@
+-ignorewarnings
 -dontwarn javax.annotation.**
 -dontwarn kotlinx.serialization.**
 -keep public class io.github.coderaulia.muzikplayer.** { *; }

@@ -26,43 +26,102 @@ A modern desktop music player for your local library, built with Compose Desktop
 
 ## Installation
 
-### Portable Archive (Linux x86_64)
+### For Daily Users (No Dependencies Required)
 
-Download the latest `.tar.gz` from the [Releases](https://github.com/coderaulia/muzik/releases) page:
+Pre-built releases include a bundled Java runtime—**no Java, Gradle, or build tools need to be installed on your machine**. Download the latest release from the [Releases](https://github.com/coderaulia/muzik/releases) page.
 
+#### Debian / Ubuntu / Linux Mint (`.deb`)
 ```bash
-tar -xzf MuzikPlayer-1.5.3-linux-x86_64.tar.gz
-./MuzikPlayer/bin/MuzikPlayer
+sudo apt install ./MuzikPlayer-1.5.3.deb
 ```
 
-### Flatpak
+#### Fedora / RHEL / openSUSE (`.rpm`)
+```bash
+sudo dnf install ./MuzikPlayer-1.5.3.rpm
+```
 
-Install the required runtime (one-time):
+#### Portable Archive (Any Linux — No Root Required)
+Download and extract the portable archive, then run the installer to integrate MuzikPlayer into your application launcher:
+```bash
+tar -xzf MuzikPlayer-1.5.3-linux-x86_64.tar.gz
+cd MuzikPlayer
+./install.sh
+```
+To run directly without installing:
+```bash
+./bin/MuzikPlayer
+```
+To uninstall at any time, run `./uninstall.sh`.
 
+#### Flatpak
+Install the Freedesktop 26.08 runtime:
 ```bash
 flatpak install flathub org.freedesktop.Platform//26.08 org.freedesktop.Sdk//26.08
 ```
-
-Then build and install locally from source:
-
+Then install the downloaded `.flatpak` bundle or run:
 ```bash
-cd src
-./flatpak/build.sh
+flatpak install --user MuzikPlayer-1.5.3.flatpak
 flatpak run io.github.coderaulia.MuzikPlayer
 ```
 
-### Build from Source
+---
 
-**Requirements:** JDK 25+, Gradle 9.4+
+### Building & Developing from Source
+
+If you want to contribute, build from source, or package locally, you will need the build dependencies installed on your system.
+
+#### Prerequisites
+
+- **JDK 25+** (A full development kit with `javac` and `jpackage` is required; a headless JRE is not sufficient)
+- **Gradle 9.4+** (included via `./gradlew` wrapper)
+- **flatpak-builder** (only required if building Flatpak packages)
+
+##### Install Prerequisites by Distribution
+
+- **Fedora / RHEL:**
+  ```bash
+  sudo dnf install -y java-25-openjdk-devel java-25-openjdk flatpak-builder
+  ```
+
+- **Debian / Ubuntu:**
+  ```bash
+  sudo apt install -y openjdk-25-jdk flatpak-builder rpm
+  ```
+
+- **Arch Linux:**
+  ```bash
+  sudo pacman -S jdk25-openjdk flatpak-builder rpm-tools
+  ```
+
+- **Flatpak Runtimes (for Flatpak builds):**
+  ```bash
+  flatpak install flathub org.freedesktop.Platform//26.08 org.freedesktop.Sdk//26.08
+  ```
+
+#### Build Commands
 
 ```bash
 cd src
-./gradlew run          # dev run
-./gradlew test         # unit tests
-./gradlew createReleaseDistributable  # release build
+
+# Run in development mode
+./gradlew run
+
+# Run unit tests
+./gradlew test
+
+# Build standalone release application
+./gradlew createReleaseDistributable
+
+# Build zero-dependency system packages
+./gradlew packageReleaseDeb           # Creates .deb package
+./gradlew packageReleaseRpm           # Creates .rpm package
+./gradlew packagePortableDistributable # Creates portable .tar.gz bundle with installer
+
+# Build and install Flatpak locally
+./flatpak/build.sh
 ```
 
-The release application is written to `src/build/compose/binaries/main-release/app/MuzikPlayer/`.
+The release binaries are output under `src/build/compose/binaries/main-release/` and portable archives under `src/build/distributions/`.
 
 See [DEVELOPMENT.md](src/DEVELOPMENT.md) for detailed build instructions and [RELEASE.md](RELEASE.md) for the full release workflow.
 

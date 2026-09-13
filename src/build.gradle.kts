@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
+import org.jetbrains.compose.desktop.application.tasks.AbstractJLinkTask
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.gradle.api.tasks.JavaExec
@@ -156,6 +157,10 @@ gradle.taskGraph.whenReady {
     }
 }
 
+tasks.withType(AbstractJLinkTask::class.java).configureEach {
+    freeArgs.add("--ignore-modified-runtime")
+}
+
 tasks.named<KotlinCompilationTask<*>>("compileKotlin").configure {
     compilerOptions.optIn.add("kotlin.time.ExperimentalTime")
 }
@@ -229,6 +234,7 @@ compose.desktop {
         }
         buildTypes.release.proguard {
             version.set("7.9.0")
+            isEnabled.set(providers.gradleProperty("enableProguard").map { it.toBoolean() }.orElse(false))
             optimize = providers.gradleProperty("OptimizeProGuard").orNull != "false"
             obfuscate = false
             configurationFiles.from(project.file("compose-desktop.pro"))
@@ -240,5 +246,32 @@ compose.desktop {
 afterEvaluate {
     tasks.named("createReleaseDistributable") {
         dependsOn(tasks.test)
+    }
+}
+
+val packagePortableDistributable by tasks.registering(Tar::class) {
+    group = "distribution"
+    description = "Packages the release distributable into a self-contained tar.gz bundle with user-space installer"
+    dependsOn("createReleaseDistributable")
+
+    compression = Compression.GZIP
+    archiveBaseName.set("MuzikPlayer")
+    archiveVersion.set(version.toString())
+    archiveClassifier.set("linux-${System.getProperty("os.arch")}")
+    archiveExtension.set("tar.gz")
+    destinationDirectory.set(layout.buildDirectory.dir("distributions"))
+
+    into("MuzikPlayer") {
+        from(layout.buildDirectory.dir("compose/binaries/main-release/app/MuzikPlayer"))
+    }
+    into("MuzikPlayer") {
+        from("packaging/install.sh") {
+            filePermissions { unix("rwxr-xr-x") }
+        }
+        from("packaging/uninstall.sh") {
+            filePermissions { unix("rwxr-xr-x") }
+        }
+        from("flatpak/icon.svg")
+        from("flatpak/icon.png")
     }
 }
