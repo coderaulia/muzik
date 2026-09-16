@@ -42,11 +42,16 @@ import io.github.coderaulia.muzikplayer.utils.GLOBAL_CONNECTION
 import io.github.coderaulia.muzikplayer.utils.Preferences
 import io.github.mmarco94.klibportal.portals.openFile
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.swing.Swing
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
 import java.io.File
+import java.nio.file.Path
 import java.text.NumberFormat
+import javax.swing.JFileChooser
 import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
 import kotlin.math.roundToInt
@@ -72,6 +77,7 @@ private val GnomeBlue: Color @Composable get() = LocalMuzikColors.current.accent
 private val GnomeBlueLight: Color @Composable get() = LocalMuzikColors.current.accentPrimaryLight
 private val GnomeGreen: Color @Composable get() = LocalMuzikColors.current.accentTertiary
 private val GnomeGreenContainer: Color @Composable get() = LocalMuzikColors.current.accentTertiaryContainer
+private val SlateError: Color @Composable get() = LocalMuzikColors.current.error
 
 enum class SettingsCategory(
     val label: String,
@@ -156,7 +162,7 @@ fun AppSettingsWindow(
                             )
 
                             // Right Detail Pane
-                            Box(
+                            Column(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
@@ -497,29 +503,83 @@ private fun LibrarySettingsPane(
     filterQuery: String,
 ) {
     val cs = rememberCoroutineScope()
-    val libraryFolder by Preferences.libraryFolder.state
+    val libraryFolders by Preferences.libraryFolders.state
     val readOnlyMode by Preferences.readOnlyMode.state
     val watchFilesystem by Preferences.watchFilesystem.state
     var cacheClearedMessage by remember { mutableStateOf<String?>(null) }
     var isRescanning by remember { mutableStateOf(false) }
 
     val chooseLibraryStr = stringResource(Res.string.action_choose_library)
-    fun openFolderSelector() {
+
+    suspend fun pickFolders(title: String, multiple: Boolean): List<Path> {
+        // Try XDG Desktop Portal first (native file chooser via D-Bus)
+        try {
+            val dbus = GLOBAL_CONNECTION.await()
+            if (dbus != null) {
+                val selected = openFile(
+                    dbus,
+                    title = title,
+                    directory = true,
+                    multiple = multiple,
+                )
+                if (selected.isNotEmpty()) {
+                    return selected.filter { it.isDirectory() }
+                }
+            }
+        } catch (e: Exception) {
+            logger.warn(e) { "XDG Portal folder picker unavailable or failed, falling back to Swing JFileChooser" }
+        }
+
+        // Fallback: Swing JFileChooser (always works across all desktop environments)
+        return withContext(Dispatchers.Swing) {
+            val chooser = JFileChooser().apply {
+                dialogTitle = title
+                fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+                isMultiSelectionEnabled = multiple
+            }
+            val result = chooser.showOpenDialog(null)
+            if (result == JFileChooser.APPROVE_OPTION) {
+                if (multiple && chooser.selectedFiles.isNotEmpty()) {
+                    chooser.selectedFiles.map { it.toPath() }.filter { it.isDirectory() }
+                } else if (chooser.selectedFile != null) {
+                    listOfNotNull(chooser.selectedFile?.toPath()).filter { it.isDirectory() }
+                } else {
+                    emptyList()
+                }
+            } else {
+                emptyList()
+            }
+        }
+    }
+
+    fun openAddFoldersSelector() {
         onSelectingFolder()
         cs.launch {
             try {
-                val file = openFile(
-                    checkNotNull(GLOBAL_CONNECTION.await()),
-                    title = chooseLibraryStr,
-                    directory = true,
-                    multiple = false,
-                ).singleOrNull()
-                logger.info { "Selected file $file" }
-                if (file != null && file.isDirectory()) {
-                    Preferences.libraryFolder.set(file)
+                val paths = pickFolders(title = chooseLibraryStr, multiple = true)
+                logger.info { "Selected folders to add: $paths" }
+                if (paths.isNotEmpty()) {
+                    Preferences.addLibraryFolders(paths)
                 }
             } catch (e: Exception) {
-                logger.error(e) { "Error while picking file" }
+                logger.error(e) { "Error picking folder" }
+            }
+        }
+    }
+
+    fun openChangePrimaryFolderSelector() {
+        onSelectingFolder()
+        cs.launch {
+            try {
+                val paths = pickFolders(title = chooseLibraryStr, multiple = false)
+                val first = paths.firstOrNull()
+                logger.info { "Selected primary folder: $first" }
+                if (first != null) {
+                    Preferences.libraryFolder.set(first)
+                    Preferences.triggerLibraryRescan()
+                }
+            } catch (e: Exception) {
+                logger.error(e) { "Error changing primary folder" }
             }
         }
     }
@@ -535,82 +595,116 @@ private fun LibrarySettingsPane(
     SectionTitle("MUSIC LIBRARY DIRECTORIES")
     Spacer(Modifier.height(6.dp))
     LibadwaitaGroupCard {
-        // Primary directory row
-        LibadwaitaPreferenceRow(
-            title = libraryFolder.pathString,
-            subtitle = "${library?.stats?.songsCount ?: 0} tracks • ${library?.albums?.size ?: 0} albums • ext4",
-            badgeText = "Primary",
-            badgeColor = GnomeBlueLight,
-            badgeBackground = Color(0x334691F2),
-            filterQuery = filterQuery,
-            leadingIcon = {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(SlateContainer),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        Icons.Default.Folder,
-                        contentDescription = null,
-                        tint = GnomeBlueLight,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-            },
-            trailingContent = {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(
-                        onClick = {
-                            isRescanning = true
-                            Preferences.triggerLibraryRescan()
-                            cs.launch {
-                                delay(1.seconds)
-                                isRescanning = false
+        libraryFolders.forEachIndexed { index, folder ->
+            val isPrimary = index == 0
+            LibadwaitaPreferenceRow(
+                title = folder.pathString,
+                subtitle = if (isPrimary) {
+                    "${library?.stats?.songsCount ?: 0} tracks • ${library?.albums?.size ?: 0} albums"
+                } else {
+                    "Monitored secondary library folder"
+                },
+                badgeText = if (isPrimary) "Primary" else "Secondary",
+                badgeColor = if (isPrimary) GnomeBlueLight else SlateTextSecondary,
+                badgeBackground = if (isPrimary) Color(0x334691F2) else SlateContainerHigh,
+                filterQuery = filterQuery,
+                leadingIcon = {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(SlateContainer),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            Icons.Default.Folder,
+                            contentDescription = null,
+                            tint = if (isPrimary) GnomeBlueLight else SlateTextSecondary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                },
+                trailingContent = {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (isPrimary) {
+                            Button(
+                                onClick = {
+                                    isRescanning = true
+                                    Preferences.triggerLibraryRescan()
+                                    cs.launch {
+                                        delay(1.seconds)
+                                        isRescanning = false
+                                    }
+                                },
+                                shape = RoundedCornerShape(6.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = SlateContainerHigh,
+                                    contentColor = SlateTextPrimary,
+                                ),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                modifier = Modifier.height(30.dp),
+                            ) {
+                                Text(
+                                    if (isRescanning) "Scanning..." else "Rescan",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                                )
                             }
-                        },
-                        shape = RoundedCornerShape(6.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = SlateContainerHigh,
-                            contentColor = SlateTextPrimary,
-                        ),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                        modifier = Modifier.height(30.dp),
-                    ) {
-                        Text(
-                            if (isRescanning) "Scanning..." else "Rescan",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
-                        )
-                    }
 
-                    Button(
-                        onClick = ::openFolderSelector,
-                        shape = RoundedCornerShape(6.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = SlateContainerHigh,
-                            contentColor = SlateTextPrimary,
-                        ),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                        modifier = Modifier.height(30.dp),
-                    ) {
-                        Text(
-                            "Change...",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
-                        )
-                    }
-                }
-            },
-        )
+                            Button(
+                                onClick = ::openChangePrimaryFolderSelector,
+                                shape = RoundedCornerShape(6.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = SlateContainerHigh,
+                                    contentColor = SlateTextPrimary,
+                                ),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                modifier = Modifier.height(30.dp),
+                            ) {
+                                Text(
+                                    "Change...",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                                )
+                            }
+                        }
 
-        LibadwaitaDivider()
+                        if (libraryFolders.size > 1) {
+                            Button(
+                                onClick = {
+                                    Preferences.removeLibraryFolder(folder)
+                                },
+                                shape = RoundedCornerShape(6.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = SlateContainerHigh,
+                                    contentColor = SlateError,
+                                ),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                                modifier = Modifier.height(30.dp),
+                            ) {
+                                Icon(
+                                    Icons.Default.DeleteOutline,
+                                    contentDescription = "Remove folder",
+                                    modifier = Modifier.size(16.dp),
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Text(
+                                    "Remove",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                                )
+                            }
+                        }
+                    }
+                },
+            )
+
+            LibadwaitaDivider()
+        }
 
         // Add music folder action row
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
-                .clickable { openFolderSelector() }
+                .clickable { openAddFoldersSelector() }
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),

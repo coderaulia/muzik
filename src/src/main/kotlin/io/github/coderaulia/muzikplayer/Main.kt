@@ -55,9 +55,9 @@ fun main(args: Array<String>) {
 
         // Start loading ASAP
         val musicLibrary: StateFlow<Library?> = kotlinx.coroutines.flow.combine(
-            Preferences.libraryFolder.flow,
+            Preferences.libraryFolders.flow,
             Preferences.libraryRescanToken,
-        ) { lib, _ -> setOf(lib) + filesFromArgs }
+        ) { libs, _ -> libs.toSet() + filesFromArgs }
             .toLibrary()
             .stateIn(this, started = SharingStarted.Eagerly, null)
 

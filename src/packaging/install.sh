@@ -29,6 +29,7 @@ echo "Installing MuzikPlayer to $INSTALL_DIR..."
 mkdir -p "$INSTALL_DIR" "$BIN_DIR" "$DESKTOP_DIR" "$ICON_SCALABLE_DIR" "$ICON_PNG_DIR"
 
 # Copy application files (bundled JRE and binaries)
+rm -f "$INSTALL_DIR/bin/MuzikPlayer"
 cp -r "$SRC_APP_DIR"/* "$INSTALL_DIR/"
 chmod +x "$INSTALL_DIR/bin/MuzikPlayer"
 

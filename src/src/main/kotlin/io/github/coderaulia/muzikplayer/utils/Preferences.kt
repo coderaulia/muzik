@@ -30,12 +30,74 @@ object Preferences {
 
     private val prefs: Preferences = Preferences.userRoot().node("/io/github/music-player")
 
-    val libraryFolder = PreferenceContainer(
-        read = { prefs -> Path.of(prefs.get("library_folder", System.getProperty("user.home") + "/Music")) },
-        write = { prefs, value ->
-            prefs.put("library_folder", value.pathString)
+    val libraryFolders = PreferenceContainer(
+        read = { prefs ->
+            val raw = prefs.get("library_folders", null)
+            if (raw.isNullOrBlank()) {
+                val single = prefs.get("library_folder", null)
+                val defaultPath = Path.of(single ?: (System.getProperty("user.home") + "/Music"))
+                listOf(defaultPath)
+            } else {
+                raw.split(java.io.File.pathSeparator)
+                    .filter { it.isNotBlank() }
+                    .map { Path.of(it) }
+                    .distinct()
+                    .ifEmpty { listOf(Path.of(System.getProperty("user.home") + "/Music")) }
+            }
+        },
+        write = { prefs, values ->
+            val distinct = values.distinct()
+            val serialized = distinct.joinToString(java.io.File.pathSeparator) { it.pathString }
+            prefs.put("library_folders", serialized)
+            distinct.firstOrNull()?.let { prefs.put("library_folder", it.pathString) }
         }
     )
+
+    val libraryFolder = PreferenceContainer(
+        read = { prefs ->
+            libraryFolders.get().firstOrNull() ?: Path.of(prefs.get("library_folder", System.getProperty("user.home") + "/Music"))
+        },
+        write = { prefs, value ->
+            prefs.put("library_folder", value.pathString)
+            val current = libraryFolders.get().toMutableList()
+            if (!current.contains(value)) {
+                current.add(0, value)
+            } else {
+                current.remove(value)
+                current.add(0, value)
+            }
+            libraryFolders.set(current)
+        }
+    )
+
+    fun addLibraryFolders(newPaths: List<Path>) {
+        val current = libraryFolders.get().toMutableList()
+        var changed = false
+        for (path in newPaths) {
+            if (!current.contains(path)) {
+                current.add(path)
+                changed = true
+            }
+        }
+        if (changed) {
+            libraryFolders.set(current)
+            libraryFolder.set(current.first())
+            triggerLibraryRescan()
+        }
+    }
+
+    fun removeLibraryFolder(path: Path) {
+        val current = libraryFolders.get().toMutableList()
+        if (current.remove(path)) {
+            if (current.isEmpty()) {
+                current.add(Path.of(System.getProperty("user.home") + "/Music"))
+            }
+            libraryFolders.set(current)
+            libraryFolder.set(current.first())
+            triggerLibraryRescan()
+        }
+    }
+
     val useSystemDecorations = PreferenceContainer(
         read = { prefs -> prefs.getBoolean("system_decorations", false) },
         write = { prefs, value ->
