@@ -32,6 +32,14 @@ mkdir -p "$INSTALL_DIR" "$BIN_DIR" "$DESKTOP_DIR" "$ICON_SCALABLE_DIR" "$ICON_PN
 cp -r "$SRC_APP_DIR"/* "$INSTALL_DIR/"
 chmod +x "$INSTALL_DIR/bin/MuzikPlayer"
 
+# Sanitize Red Hat crypto-policies directive if present in bundled runtime.
+# When built with Fedora/RHEL OpenJDK, jlink carries over 'include redhat/...'
+# without the redhat/ directory, causing NoSuchFileException on other distributions.
+JAVA_SEC="$INSTALL_DIR/lib/runtime/conf/security/java.security"
+if [ -f "$JAVA_SEC" ]; then
+    sed -i 's|^include redhat/|#include redhat/|' "$JAVA_SEC"
+fi
+
 # Symlink executable into ~/.local/bin
 ln -sf "$INSTALL_DIR/bin/MuzikPlayer" "$BIN_DIR/muzikplayer"
 

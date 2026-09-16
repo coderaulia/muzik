@@ -126,6 +126,16 @@ dependencies {
     testImplementation("io.kotest:kotest-property:$kotest")
 }
 
+fun sanitizeJavaSecurity(file: java.io.File) {
+    if (file.exists()) {
+        val content = file.readText()
+        val sanitized = content.replace(Regex("""(?m)^include redhat/"""), "#include redhat/")
+        if (content != sanitized) {
+            file.writeText(sanitized)
+        }
+    }
+}
+
 // ffsampledsp can be included in two ways:
 //  1. When a JPackage task is present, the .so is copied directly into the destinationDir; it will be loaded at runtime thanks to -Djava.library.path
 //  2. When a JPackage task is NOT present, the .so is copied into the app's resources. At runtime, it will be unpacked into /tmp
@@ -142,6 +152,7 @@ gradle.taskGraph.whenReady {
                         System.mapLibraryName("ffsampledsp")
                     }
                 }
+                sanitizeJavaSecurity(destinationDir.get().asFile.resolve("MuzikPlayer/lib/runtime/conf/security/java.security"))
             }
         }
     } else {
@@ -159,6 +170,9 @@ gradle.taskGraph.whenReady {
 
 tasks.withType(AbstractJLinkTask::class.java).configureEach {
     freeArgs.add("--ignore-modified-runtime")
+    doLast {
+        sanitizeJavaSecurity(destinationDir.get().asFile.resolve("conf/security/java.security"))
+    }
 }
 
 tasks.named<KotlinCompilationTask<*>>("compileKotlin").configure {
