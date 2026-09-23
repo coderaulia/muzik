@@ -15,4 +15,4 @@ export MALLOC_TRIM_THRESHOLD_=131072 # 128k. See https://www.man7.org/linux/man-
 # Printing the JAR's stat for debugging
 stat /app/MuzikPlayer/lib/app/MuzikPlayer-*.jar
 
-LD_LIBRARY_PATH=/app/MuzikPlayer/lib/os exec /app/MuzikPlayer/bin/MuzikPlayer "$@"
+exec /app/MuzikPlayer/bin/MuzikPlayer "$@"

@@ -1,12 +1,17 @@
 # MuzikPlayer Release Guide
 
-This project uses Flatpak as its primary Linux release format. The current
-application version is defined in `src/build.gradle.kts` (`1.5.3` at the time
-of writing).
+This project uses Flatpak as its primary Linux release format. The
+application version lives in exactly one place: `version = "..."` in
+`src/build.gradle.kts`. Every other reference to it (README.md's install
+examples and "Version:" field) is derived from that value by
+`scripts/bump-version.sh` — never hand-edit a version string anywhere else.
 
 ## Before releasing
 
-1. Update `version = "..."` in `src/build.gradle.kts`.
+1. Run `./scripts/bump-version.sh <new-version>` from the repo root. This
+   updates `src/build.gradle.kts` and every hardcoded version string in
+   README.md, and reminds you to add a CHANGELOG.md entry (which it does not
+   write for you, since changelog prose needs a human).
 2. Check the working tree and whitespace:
 
    ```bash
@@ -98,7 +103,7 @@ flatpak build-bundle repo MuzikPlayer-VERSION.flatpak \
   io.github.coderaulia.MuzikPlayer VERSION
 ```
 
-Replace `VERSION` with the value in `src/build.gradle.kts`, such as `1.5.3`.
+Replace `VERSION` with the current `version = "..."` value in `src/build.gradle.kts`.
 Test the bundle before distributing it:
 
 ```bash

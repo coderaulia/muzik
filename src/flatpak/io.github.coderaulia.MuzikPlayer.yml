@@ -19,10 +19,13 @@ modules:
       # Installing the actual app
       - mv MuzikPlayer /app/
       - install -D run.sh /app/bin/run.sh
-      # ffsampledsp requires libbz2.so.1.0, however Flatpak only provides libbz2.so.1.0.8
-      - mkdir -p /app/lib/ffmpeg
-      - mkdir -p /app/MuzikPlayer/lib/os
-      - ln -s /usr/lib/x86_64-linux-gnu/libbz2.so.1.0.8 /app/MuzikPlayer/lib/os/libbz2.so.1.0
+      # Note: ffsampledsp used to require libbz2.so.1.0, which Flatpak only provides
+      # as libbz2.so.1.0.8, so this build used to symlink it in manually. The
+      # bundled libffsampledsp.so is now ELF-patched at build time (see
+      # preparePatchedFfsampledsp in src/build.gradle.kts) to depend on the plain
+      # libbz2.so.1 SONAME instead, which org.freedesktop.Platform//26.08 provides
+      # directly (verified via readelf -d + `flatpak run --command=sh`), so no
+      # workaround is needed here anymore.
       # running the app to create the SharedArchiveFile
       - touch -d "1970-01-01T00:00:00Z" /app/MuzikPlayer/lib/app/MuzikPlayer-*.jar # setting a stable timestamp on the JAR
       - cp /app/MuzikPlayer/lib/app/MuzikPlayer.cfg /app/MuzikPlayer/lib/app/MuzikPlayer.cfg.bkp
