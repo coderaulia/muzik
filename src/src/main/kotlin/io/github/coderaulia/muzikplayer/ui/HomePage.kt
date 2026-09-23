@@ -10,6 +10,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,6 +27,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -831,14 +833,25 @@ private fun LyricsDeckContent(
         is io.github.coderaulia.muzikplayer.data.Lyrics.Synchronized -> {
             val lines = lyrics.lines
             val activeIndex = lines.indexOfLast { it.start <= position }.coerceAtLeast(0)
-            Column(
+            val deckHeight = 160.dp
+            val listState = rememberLazyListState()
+            val density = LocalDensity.current
+            val targetOffset = with(density) {
+                val lineHeightPx = MaterialTheme.typography.titleMedium.lineHeight.toPx()
+                ((lineHeightPx - deckHeight.toPx()) / 2).roundToInt().coerceAtMost(0)
+            }
+            LaunchedEffect(activeIndex, targetOffset) {
+                listState.animateScrollToItem(activeIndex, targetOffset)
+            }
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 160.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .heightIn(max = deckHeight),
+                state = listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(vertical = deckHeight / 2),
             ) {
-                lines.forEachIndexed { index, line ->
+                itemsIndexed(lines) { index, line ->
                     val lineTime = line.start
                     val lineText = line.content
                     val isActive = index == activeIndex

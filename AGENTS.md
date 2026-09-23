@@ -50,7 +50,7 @@ Flatpak packaging: `./flatpak/build.sh` (requires flatpak-builder + freedesktop
   Libadwaita Slate (see `design/home-page/DESIGN.md`), ported in `ui/Theme.kt`.
 - Shell (headerbar, sidebar, transport bar) lives in `ui/AppShell.kt`; panel
   content in `ui/App.kt` + view files (`LibraryHeader.kt`, `SongListUI.kt`,
-  `SongQueueUI.kt`, `PlayerUI.kt`).
+  `SongQueueUI.kt`, `HomePage.kt` — the now-playing/lyrics view).
 - Upstream-preserved packages (`audio/`, `data/`, `color/`, `mpris/`) should be
   extended, not rewritten; UI changes stay in `ui/`.
 - Typography uses named system font families: `SF Pro Text` for UI/body text,

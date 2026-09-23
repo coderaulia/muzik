@@ -1,22 +1,36 @@
 package io.github.coderaulia.muzikplayer.ui
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.RepeatOne
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.github.coderaulia.muzikplayer.audio.Position
 import io.github.coderaulia.muzikplayer.data.Library
+import io.github.coderaulia.muzikplayer.data.RepeatMode
 import io.github.coderaulia.muzikplayer.data.SongListItem
+import io.github.coderaulia.muzikplayer.data.SongQueue
 import io.github.coderaulia.muzikplayer.data.SongQueueController
 import io.github.coderaulia.muzikplayer.generated.resources.*
 import io.github.coderaulia.muzikplayer.playerController
 import io.github.coderaulia.muzikplayer.utils.format
 import io.github.coderaulia.muzikplayer.utils.sumOfDuration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -100,5 +114,69 @@ fun SongQueueUI(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun ShuffleIcon(
+    cs: CoroutineScope,
+    queue: SongQueue
+) {
+    val player = playerController.current
+    PlayerIcon(
+        cs,
+        Icons.Default.Shuffle,
+        label = stringResource(if (queue.isShuffled) Res.string.action_disable_shuffle else Res.string.action_enable_shuffle),
+        active = queue.isShuffled
+    ) {
+        player.transformQueue { queue ->
+            queue?.toggleShuffle() to Position.Current
+        }
+    }
+}
+
+@Composable
+fun RepeatIcon(
+    cs: CoroutineScope,
+    queue: SongQueue
+) {
+    val player = playerController.current
+    val next = queue.repeatMode.next
+    PlayerIcon(
+        cs,
+        if (queue.repeatMode == RepeatMode.REPEAT_SONG) Icons.Default.RepeatOne else Icons.Default.Repeat,
+        label = stringResource(
+            when (next) {
+                RepeatMode.DO_NOT_REPEAT -> Res.string.action_repeat_none
+                RepeatMode.REPEAT_QUEUE -> Res.string.action_repeat_queue
+                RepeatMode.REPEAT_SONG -> Res.string.action_repeat_song
+            }
+        ),
+        active = queue.repeatMode != RepeatMode.DO_NOT_REPEAT
+    ) {
+        player.transformQueue { queue ->
+            queue?.setRepeatMode(next) to Position.Current
+        }
+    }
+}
+
+@Composable
+private fun PlayerIcon(
+    cs: CoroutineScope,
+    icon: ImageVector,
+    label: String,
+    iconModifier: Modifier = Modifier,
+    size: Dp = 40.dp,
+    enabled: Boolean = true,
+    active: Boolean = true,
+    onClick: suspend CoroutineScope.() -> Unit
+) {
+    val alpha by animateFloatAsState(if (active) 1f else INACTIVE_ALPHA)
+    BigIconButton(size = size, {
+        cs.launch {
+            onClick()
+        }
+    }, enabled = enabled) {
+        Icon(icon, label, iconModifier.padding(4.dp).alpha(alpha))
     }
 }
