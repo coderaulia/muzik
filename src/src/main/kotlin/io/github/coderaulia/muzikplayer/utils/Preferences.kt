@@ -98,6 +98,27 @@ object Preferences {
         }
     }
 
+    val favoriteSongKeys = PreferenceContainer(
+        read = { prefs ->
+            prefs.get("favorite_song_keys", "")
+                .split(java.io.File.pathSeparator)
+                .filter { it.isNotBlank() }
+                .toSet()
+        },
+        write = { prefs, values ->
+            prefs.put("favorite_song_keys", values.joinToString(java.io.File.pathSeparator))
+        }
+    )
+
+    fun isFavorite(song: Path): Boolean = favoriteSongKeys.get().contains(song.pathString)
+
+    fun toggleFavorite(song: Path) {
+        val current = favoriteSongKeys.get()
+        favoriteSongKeys.set(
+            if (song.pathString in current) current - song.pathString else current + song.pathString
+        )
+    }
+
     val useSystemDecorations = PreferenceContainer(
         read = { prefs -> prefs.getBoolean("system_decorations", false) },
         write = { prefs, value ->
@@ -152,6 +173,10 @@ object Preferences {
     val showTableThumbnails = PreferenceContainer(
         read = { prefs -> prefs.getBoolean("show_table_thumbnails", true) },
         write = { prefs, value -> prefs.putBoolean("show_table_thumbnails", value) }
+    )
+    val autoQueueSimilar = PreferenceContainer(
+        read = { prefs -> prefs.getBoolean("auto_queue_similar", true) },
+        write = { prefs, value -> prefs.putBoolean("auto_queue_similar", value) }
     )
     val mprisEnabled = PreferenceContainer(
         read = { prefs -> prefs.getBoolean("mpris_enabled", true) },

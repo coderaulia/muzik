@@ -39,7 +39,22 @@ class MPRISPlayerController(
             identity = "MuzikPlayer",
             desktopEntry = "io.github.coderaulia.muzikplayer",
             supportedUriSchemes = listOf("file"),
-            supportedMimeTypes = listOf("audio/mpeg", "audio/mp3"),//TODO
+            supportedMimeTypes = listOf(
+                "audio/mpeg",
+                "audio/mp3",
+                "audio/flac",
+                "audio/x-flac",
+                "audio/ogg",
+                "audio/vorbis",
+                "audio/x-vorbis+ogg",
+                "audio/x-opus+ogg",
+                "audio/wav",
+                "audio/x-wav",
+                "audio/aac",
+                "audio/mp4",
+                "audio/m4a",
+                "audio/x-m4a",
+            ),
         ),
         mprisPlayerState = MPRISPlayerState(
             playbackStatus = PlaybackStatus.Stopped,
@@ -267,7 +282,9 @@ class MPRISPlayerController(
     }
 
     override fun OpenUri(uri: String) {
-        //TODO
-        println("Open $uri")
+        // Intentionally unimplemented: MuzikPlayer's queue is built from the local
+        // library, and this project has no mechanism to import an arbitrary URI as
+        // a playable song outside that library.
+        logger.warn { "MPRIS OpenUri is not supported; ignoring request for $uri" }
     }
 }

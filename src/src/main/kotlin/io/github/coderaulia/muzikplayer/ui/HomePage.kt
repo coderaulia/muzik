@@ -37,8 +37,10 @@ import io.github.coderaulia.muzikplayer.audio.Position
 import io.github.coderaulia.muzikplayer.data.AudioMetadataResolver
 import io.github.coderaulia.muzikplayer.data.Library
 import io.github.coderaulia.muzikplayer.data.Lyrics
+import io.github.coderaulia.muzikplayer.data.RepeatMode
 import io.github.coderaulia.muzikplayer.data.Song
 import io.github.coderaulia.muzikplayer.data.SongQueue
+import io.github.coderaulia.muzikplayer.data.append
 import io.github.coderaulia.muzikplayer.playerController
 import io.github.coderaulia.muzikplayer.utils.Preferences
 import io.github.coderaulia.muzikplayer.utils.format
@@ -85,7 +87,8 @@ fun HomePage(
         player.ObservePosition { position = it }
     }
     var selectedTab by remember { mutableStateOf(HomeInspectorTab.LYRICS) }
-    var isFavorite by remember { mutableStateOf(false) }
+    val favoriteSongKeys by Preferences.favoriteSongKeys.state
+    val isFavorite = currentSong != null && currentSong.file.pathString in favoriteSongKeys
     var showTrackInfo by remember { mutableStateOf(false) }
     var showEqualizer by remember { mutableStateOf(false) }
     var loopStart by remember { mutableStateOf<Duration?>(null) }
@@ -136,7 +139,7 @@ fun HomePage(
                         queue = queue,
                         position = position,
                         isFavorite = isFavorite,
-                        onToggleFavorite = { isFavorite = !isFavorite },
+                        onToggleFavorite = { currentSong?.let { Preferences.toggleFavorite(it.file) } },
                         onSeek = { target ->
                             scope.launch {
                                 player.startSeek()
@@ -197,6 +200,7 @@ fun HomePage(
                 ) {
                     PlayQueueCard(
                         queue = queue,
+                        library = library,
                         onRemove = { index ->
                             scope.launch {
                                 player.transformQueue { q ->
@@ -1082,6 +1086,7 @@ private fun ContextualAlbumTracksStrip(
 @Composable
 private fun PlayQueueCard(
     queue: SongQueue?,
+    library: Library?,
     onRemove: (Int) -> Unit,
     onClear: () -> Unit,
 ) {
@@ -1090,6 +1095,20 @@ private fun PlayQueueCard(
     val songs = queue?.songs.orEmpty()
     val songsByKey = queue?.songsByKey.orEmpty()
     val currentPos = queue?.position ?: 0
+    val autoQueueSimilar by Preferences.autoQueueSimilar.state
+
+    LaunchedEffect(queue?.currentSongKey, queue?.position, queue?.songs?.size, autoQueueSimilar, library) {
+        if (!autoQueueSimilar || queue == null || library == null) return@LaunchedEffect
+        if (queue.repeatMode != RepeatMode.DO_NOT_REPEAT) return@LaunchedEffect
+        if (queue.position != queue.songs.lastIndex) return@LaunchedEffect
+        val additions = library.songsByArtist[queue.currentSong.artist]
+            ?.filter { it.uniqueKey !in queue.songsByKey.keys }
+            .orEmpty()
+        if (additions.isEmpty()) return@LaunchedEffect
+        player.transformQueue { q ->
+            additions.fold(q) { acc, song -> acc.append(song) } to Position.Current
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -1235,14 +1254,13 @@ private fun PlayQueueCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                var autoQueue by remember { mutableStateOf(true) }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Checkbox(
-                        checked = autoQueue,
-                        onCheckedChange = { autoQueue = it },
+                        checked = autoQueueSimilar,
+                        onCheckedChange = { Preferences.autoQueueSimilar.set(it) },
                         modifier = Modifier.size(16.dp),
                     )
                     Text("Auto-queue similar", style = MaterialTheme.typography.labelSmall, color = textOnSurfaceVariant)
