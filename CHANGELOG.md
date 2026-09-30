@@ -2,6 +2,20 @@
 
 All notable changes to MuzikPlayer are documented in this file.
 
+## [1.5.5] — 2026-09-30
+
+### Added
+- **Full Lyrics View** — Expand synced lyrics on Home into a full-width mode with large cover art, blurred backdrop, and big centered lyrics.
+- **Multi-Folder Music Library** — Choose several library directories in Settings with a folder picker.
+- **Persistent Favorites**, working Auto-queue Similar, and completed MPRIS integration.
+
+### Fixed
+- Synced lyrics now follow playback and keep the active line centered in the view.
+- Sanitized Red Hat crypto-policies directive in the bundled runtime; dropped dead libbz2 workaround.
+
+### Changed
+- Polished local `install.sh`/`uninstall.sh`; added `scripts/bump-version.sh`.
+
 ## [1.5.4] — 2026-09-13
 
 ### Added
