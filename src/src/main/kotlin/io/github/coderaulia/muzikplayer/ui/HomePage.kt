@@ -5,6 +5,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -87,6 +90,7 @@ fun HomePage(
         player.ObservePosition { position = it }
     }
     var selectedTab by remember { mutableStateOf(HomeInspectorTab.LYRICS) }
+    var lyricsFull by remember { mutableStateOf(false) }
     val favoriteSongKeys by Preferences.favoriteSongKeys.state
     val isFavorite = currentSong != null && currentSong.file.pathString in favoriteSongKeys
     var showTrackInfo by remember { mutableStateOf(false) }
@@ -123,6 +127,24 @@ fun HomePage(
         if (currentSong == null) {
             // Empty state when nothing is in queue
             EmptyPlaybackHero(library = library)
+        } else if (lyricsFull) {
+            FullLyricsView(
+                song = currentSong,
+                position = position,
+                onSeek = { target ->
+            scope.launch {
+                player.startSeek()
+                player.transformQueue { q ->
+                    if (q?.currentSongKey == currentSong?.uniqueKey) {
+                        q to Position.Specific(target)
+                    } else q to Position.Current
+                }
+                player.endSeek()
+            }
+        },
+                onCollapse = { lyricsFull = false },
+                modifier = Modifier.fillMaxWidth().height(640.dp),
+            )
         } else {
             // Main 2-column studio layout
             Row(
@@ -173,6 +195,7 @@ fun HomePage(
                         position = position,
                         selectedTab = selectedTab,
                         onSelectTab = { selectedTab = it },
+                        onExpandLyrics = { lyricsFull = true },
                         onSeek = { target ->
                             scope.launch {
                                 player.startSeek()
@@ -745,6 +768,7 @@ private fun TabbedInspectorDeck(
     position: Duration,
     selectedTab: HomeInspectorTab,
     onSelectTab: (HomeInspectorTab) -> Unit,
+    onExpandLyrics: () -> Unit,
     onSeek: (Duration) -> Unit,
 ) {
     Surface(
@@ -788,11 +812,21 @@ private fun TabbedInspectorDeck(
                     is io.github.coderaulia.muzikplayer.data.Lyrics.Plain -> "Plain Text Lyrics"
                     null -> "No Embedded Lyrics"
                 }
-                Text(
-                    lyricsType,
-                    style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
-                    color = textOnSurfaceVariant,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        lyricsType,
+                        style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                        color = textOnSurfaceVariant,
+                    )
+                    IconButton(onClick = onExpandLyrics, modifier = Modifier.size(28.dp)) {
+                        Icon(
+                            Icons.Default.OpenInFull,
+                            contentDescription = "Expand lyrics",
+                            tint = textOnSurfaceVariant,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
             }
 
             Crossfade(selectedTab) { tab ->
@@ -827,6 +861,160 @@ private fun InspectorTabButton(
     )
 }
 
+/** Synced lyrics list that keeps the active line vertically centered in its viewport. */
+@Composable
+private fun SyncedLyricsList(
+    lines: List<Lyrics.Synchronized.Line>,
+    position: Duration,
+    onSeek: (Duration) -> Unit,
+    modifier: Modifier = Modifier,
+    large: Boolean = false,
+) {
+    val activeIndex = lines.indexOfLast { it.start <= position }.coerceAtLeast(0)
+    val listState = rememberLazyListState()
+    LaunchedEffect(activeIndex) {
+        if (listState.layoutInfo.visibleItemsInfo.none { it.index == activeIndex }) {
+            listState.scrollToItem(activeIndex)
+        }
+        val info = listState.layoutInfo
+        val item = info.visibleItemsInfo.firstOrNull { it.index == activeIndex } ?: return@LaunchedEffect
+        val itemCenter = item.offset + item.size / 2f
+        val viewportCenter = (info.viewportStartOffset + info.viewportEndOffset) / 2f
+        listState.animateScrollBy(itemCenter - viewportCenter)
+    }
+    BoxWithConstraints(modifier) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(if (large) 18.dp else 8.dp),
+            contentPadding = PaddingValues(vertical = maxHeight / 2),
+        ) {
+            itemsIndexed(lines) { index, line ->
+                val isActive = index == activeIndex
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(6.dp))
+                        .clickable { onSeek(line.start) }
+                        .padding(horizontal = 6.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (isActive && !large) {
+                        Box(Modifier.size(6.dp).clip(CircleShape).background(primaryBlue))
+                    }
+                    val style = when {
+                        large && isActive -> MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
+                        large -> MaterialTheme.typography.titleLarge
+                        isActive -> MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        else -> MaterialTheme.typography.bodyMedium
+                    }
+                    Text(
+                        line.content,
+                        style = style,
+                        color = if (isActive) primaryBlue else textOnSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FullLyricsView(
+    song: Song,
+    position: Duration,
+    onSeek: (Duration) -> Unit,
+    onCollapse: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(modifier = modifier, shape = RoundedCornerShape(10.dp), color = surfaceContainer) {
+        Box(Modifier.fillMaxSize()) {
+            if (song.cover != null) {
+                AlbumCoverContent(
+                    song.cover,
+                    modifier = Modifier.fillMaxSize().blur(60.dp).alpha(0.25f),
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxSize().padding(32.dp),
+                horizontalArrangement = Arrangement.spacedBy(40.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(
+                    modifier = Modifier.weight(0.34f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        color = surfaceContainerHigh,
+                        shadowElevation = 12.dp,
+                    ) {
+                        if (song.cover != null) {
+                            AlbumCoverContent(song.cover, fullResolutionSource = song, modifier = Modifier.fillMaxSize())
+                        } else {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.MusicNote, null, tint = outlineVariant, modifier = Modifier.size(64.dp))
+                            }
+                        }
+                    }
+                    Text(
+                        song.title,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = textOnSurface,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        "${song.artist.name} • ${song.album.title}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = textOnSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                Box(Modifier.weight(0.66f).fillMaxHeight()) {
+                    when (val lyrics = song.lyrics) {
+                        is Lyrics.Synchronized -> SyncedLyricsList(
+                            lines = lyrics.lines,
+                            position = position,
+                            onSeek = onSeek,
+                            modifier = Modifier.fillMaxSize(),
+                            large = true,
+                        )
+                        is Lyrics.Plain -> Column(
+                            Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            lyrics.lyrics.lines().forEach {
+                                Text(it, style = MaterialTheme.typography.titleMedium, color = textOnSurfaceVariant)
+                            }
+                        }
+                        null -> Column(
+                            Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Icon(Icons.Default.SubtitlesOff, null, tint = outlineVariant, modifier = Modifier.size(40.dp))
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                "No embedded lyrics for \"${song.title}\"",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = textOnSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            }
+            IconButton(onClick = onCollapse, modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)) {
+                Icon(Icons.Default.CloseFullscreen, contentDescription = "Collapse lyrics", tint = textOnSurfaceVariant)
+            }
+        }
+    }
+}
+
 @Composable
 private fun LyricsDeckContent(
     song: Song,
@@ -835,51 +1023,12 @@ private fun LyricsDeckContent(
 ) {
     when (val lyrics = song.lyrics) {
         is io.github.coderaulia.muzikplayer.data.Lyrics.Synchronized -> {
-            val lines = lyrics.lines
-            val activeIndex = lines.indexOfLast { it.start <= position }.coerceAtLeast(0)
-            val deckHeight = 160.dp
-            val listState = rememberLazyListState()
-            val density = LocalDensity.current
-            val targetOffset = with(density) {
-                val lineHeightPx = MaterialTheme.typography.titleMedium.lineHeight.toPx()
-                ((lineHeightPx - deckHeight.toPx()) / 2).roundToInt().coerceAtMost(0)
-            }
-            LaunchedEffect(activeIndex, targetOffset) {
-                listState.animateScrollToItem(activeIndex, targetOffset)
-            }
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = deckHeight),
-                state = listState,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(vertical = deckHeight / 2),
-            ) {
-                itemsIndexed(lines) { index, line ->
-                    val lineTime = line.start
-                    val lineText = line.content
-                    val isActive = index == activeIndex
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(6.dp))
-                            .clickable { onSeek(lineTime) }
-                            .padding(horizontal = 6.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        if (isActive) {
-                            Box(Modifier.size(6.dp).clip(CircleShape).background(primaryBlue))
-                        }
-                        Text(
-                            lineText,
-                            style = if (isActive) MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                            else MaterialTheme.typography.bodyMedium,
-                            color = if (isActive) primaryBlue else textOnSurfaceVariant,
-                        )
-                    }
-                }
-            }
+            SyncedLyricsList(
+                lines = lyrics.lines,
+                position = position,
+                onSeek = onSeek,
+                modifier = Modifier.fillMaxWidth().height(220.dp),
+            )
         }
         is io.github.coderaulia.muzikplayer.data.Lyrics.Plain -> {
             Column(
