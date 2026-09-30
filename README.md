@@ -22,7 +22,17 @@ A modern desktop music player for your local library, built with Compose Desktop
 
 ## Screenshots
 
-<!-- Add screenshots here after release -->
+![Home dashboard](src/screenshots/home.png)
+*Home: studio player, synced lyrics, play queue, and audio backend monitor.*
+
+![Full lyrics view](src/screenshots/lyrics_full.png)
+*Full lyrics view with cover art and centered synced lyrics.*
+
+![Library](src/screenshots/library_blur.png)
+*Library with album-art backdrop.*
+
+![Queue](src/screenshots/queue_blur.png)
+*Play queue.*
 
 ## Installation
 

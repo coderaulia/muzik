@@ -130,3 +130,12 @@ The Flatpak workflow requires both `flatpak` and `flatpak-builder`. The release
 task also requires a clean JDK because `jlink` rejects modified files under the
 JDK security configuration. If the Gradle wrapper cache is read-only, set
 `GRADLE_USER_HOME` to a writable directory before building.
+
+## Screenshots
+
+Reference screenshots for release notes and store listings live in `src/screenshots/`:
+
+![Home dashboard](src/screenshots/home.png)
+![Full lyrics view](src/screenshots/lyrics_full.png)
+![Library](src/screenshots/library_blur.png)
+![Queue](src/screenshots/queue_blur.png)
