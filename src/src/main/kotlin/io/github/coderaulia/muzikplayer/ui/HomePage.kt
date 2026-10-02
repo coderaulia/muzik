@@ -48,6 +48,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.coderaulia.muzikplayer.audio.EQ_BANDS
+import io.github.coderaulia.muzikplayer.audio.EQ_MAX_GAIN_DB
 import io.github.coderaulia.muzikplayer.audio.Position
 import io.github.coderaulia.muzikplayer.data.AudioMetadataResolver
 import io.github.coderaulia.muzikplayer.data.Library
@@ -147,15 +149,7 @@ fun HomePage(
                     song = currentSong,
                     position = position,
                     onSeek = { target ->
-                scope.launch {
-                    player.startSeek()
-                    player.transformQueue { q ->
-                        if (q?.currentSongKey == currentSong?.uniqueKey) {
-                            q to Position.Specific(target)
-                        } else q to Position.Current
-                    }
-                    player.endSeek()
-                }
+                scope.launch { player.seekInSong(currentSong?.uniqueKey, target) }
             },
                     onCollapse = { Preferences.lyricsFullView.set(false) },
                     modifier = Modifier.fillMaxWidth().height((viewportHeight - 120.dp).coerceAtLeast(420.dp)),
@@ -178,15 +172,7 @@ fun HomePage(
                             isFavorite = isFavorite,
                             onToggleFavorite = { currentSong?.let { Preferences.toggleFavorite(it.file) } },
                             onSeek = { target ->
-                                scope.launch {
-                                    player.startSeek()
-                                    player.transformQueue { q ->
-                                        if (q?.currentSongKey == currentSong.uniqueKey) {
-                                            q to Position.Specific(target)
-                                        } else q to Position.Current
-                                    }
-                                    player.endSeek()
-                                }
+                                scope.launch { player.seekInSong(currentSong.uniqueKey, target) }
                             },
                             loopStart = loopStart,
                             loopEnd = loopEnd,
@@ -212,15 +198,7 @@ fun HomePage(
                             onSelectTab = { selectedTab = it },
                             onExpandLyrics = { Preferences.lyricsFullView.set(true) },
                             onSeek = { target ->
-                                scope.launch {
-                                    player.startSeek()
-                                    player.transformQueue { q ->
-                                        if (q?.currentSongKey == currentSong.uniqueKey) {
-                                            q to Position.Specific(target)
-                                        } else q to Position.Current
-                                    }
-                                    player.endSeek()
-                                }
+                                scope.launch { player.seekInSong(currentSong.uniqueKey, target) }
                             },
                         )
 
@@ -278,12 +256,7 @@ fun HomePage(
     }
 
     if (showEqualizer) {
-        AlertDialog(
-            onDismissRequest = { showEqualizer = false },
-            title = { Text("Parametric EQ") },
-            text = { Text("Equalizer controls are not available in the current audio backend.") },
-            confirmButton = { TextButton(onClick = { showEqualizer = false }) { Text("Close") } },
-        )
+        EqualizerDialog(onDismiss = { showEqualizer = false })
     }
     if (showTrackInfo && currentSong != null) {
         AlertDialog(
@@ -886,7 +859,9 @@ private fun SyncedLyricsList(
     modifier: Modifier = Modifier,
     large: Boolean = false,
 ) {
-    val activeIndex = lines.indexOfLast { it.start <= position }.coerceAtLeast(0)
+    val offsetMs by Preferences.lyricsOffsetMs.state
+    val shifted = position + offsetMs.milliseconds
+    val activeIndex = lines.indexOfLast { it.start <= shifted }.coerceAtLeast(0)
     val listState = rememberLazyListState()
     LaunchedEffect(activeIndex) {
         if (listState.layoutInfo.visibleItemsInfo.none { it.index == activeIndex }) {
@@ -1049,6 +1024,26 @@ private fun FullLyricsView(
                                 color = textOnSurfaceVariant,
                             )
                         }
+                    }
+                }
+            }
+            if (song.lyrics is Lyrics.Synchronized) {
+                val offsetMs by Preferences.lyricsOffsetMs.state
+                Row(
+                    Modifier.align(Alignment.BottomStart).padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Text("Lyrics offset", style = MaterialTheme.typography.labelSmall, color = textMuted)
+                    TextButton(onClick = { Preferences.lyricsOffsetMs.set(offsetMs - 250) }) { Text("−") }
+                    Text(
+                        "%+.2fs".format(offsetMs / 1000f),
+                        style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                        color = textOnSurfaceVariant,
+                    )
+                    TextButton(onClick = { Preferences.lyricsOffsetMs.set(offsetMs + 250) }) { Text("+") }
+                    if (offsetMs != 0) {
+                        TextButton(onClick = { Preferences.lyricsOffsetMs.set(0) }) { Text("Reset") }
                     }
                 }
             }
@@ -1531,12 +1526,23 @@ private fun AudioBackendMonitorCard() {
 
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    DiagnosticPill("Buffer Latency", bufferLatency, Modifier.weight(1f))
-                    DiagnosticPill("ReplayGain", replayGain, Modifier.weight(1f))
+                    val outputBuffer = player.currentOutputBuffer
+                    DiagnosticPill(
+                        "Buffer Latency",
+                        outputBuffer?.let { "${it.inWholeMilliseconds} ms (measured)" } ?: "$bufferLatency (setting)",
+                        Modifier.weight(1f),
+                    )
+                    DiagnosticPill("ReplayGain (setting)", replayGain, Modifier.weight(1f))
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    DiagnosticPill("Resampling", if (bitPerfect) "Bit-Perfect 1:1" else "System Mixer", Modifier.weight(1f))
-                    DiagnosticPill("DSP State", if (peakProtection) "Guarded (0.0 dBFS)" else "Bypass", Modifier.weight(1f), isSuccess = peakProtection)
+                    val format = player.currentAudioFormat
+                    DiagnosticPill(
+                        "Output Format",
+                        format?.let { "%.1f kHz / %d-bit / %d ch".format(it.sampleRate / 1000f, it.sampleSizeInBits, it.channels) }
+                            ?: if (bitPerfect) "Bit-Perfect (setting)" else "System Mixer (setting)",
+                        Modifier.weight(1f),
+                    )
+                    DiagnosticPill("Peak Guard (setting)", if (peakProtection) "On (0.0 dBFS)" else "Bypass", Modifier.weight(1f), isSuccess = peakProtection)
                 }
             }
         }
@@ -1620,4 +1626,57 @@ private fun EmptyPlaybackHero(library: Library?) {
             }
         }
     }
+}
+
+@Composable
+private fun EqualizerDialog(onDismiss: () -> Unit) {
+    val enabled by Preferences.equalizerEnabled.state
+    val gains by Preferences.equalizerGains.state
+    val bitPerfect by Preferences.bitPerfect.state
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Parametric EQ") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Switch(checked = enabled, onCheckedChange = { Preferences.equalizerEnabled.set(it) })
+                    Text(if (enabled) "Enabled" else "Bypassed", style = MaterialTheme.typography.labelLarge)
+                }
+                if (bitPerfect && enabled) {
+                    Text(
+                        "Equalizer processing is not bit-perfect.",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = textMuted,
+                    )
+                }
+                EQ_BANDS.forEachIndexed { band, hz ->
+                    val gain = gains[band]
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            if (hz >= 1000) "${hz / 1000} kHz" else "$hz Hz",
+                            Modifier.width(54.dp),
+                            style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                        )
+                        Slider(
+                            value = gain,
+                            onValueChange = { v ->
+                                Preferences.equalizerGains.set(gains.toMutableList().also { it[band] = (v * 2).roundToInt() / 2f })
+                            },
+                            valueRange = -EQ_MAX_GAIN_DB..EQ_MAX_GAIN_DB,
+                            modifier = Modifier.width(260.dp).height(24.dp),
+                        )
+                        Text(
+                            "%+.1f dB".format(gain),
+                            Modifier.width(60.dp),
+                            style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                        )
+                    }
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { Preferences.equalizerGains.set(List(10) { 0f }) }) { Text("Reset") }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+    )
 }

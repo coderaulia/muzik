@@ -1,5 +1,6 @@
 package io.github.coderaulia.muzikplayer.audio
 
+import io.github.coderaulia.muzikplayer.data.SongKey
 import androidx.compose.runtime.*
 import io.github.coderaulia.muzikplayer.audio.PlayerCommand.*
 import io.github.coderaulia.muzikplayer.audio.PlayerController.SongDecodingProcess
@@ -262,6 +263,7 @@ class PlayerController(
     val pause by derivedStateOf { observableState.pause }
     val position by derivedStateOf { observableState.position }
     val currentAudioFormat by derivedStateOf { observableState.currentlyPlaying?.player?.format }
+    val currentOutputBuffer by derivedStateOf { observableState.currentlyPlaying?.player?.outputBufferDuration }
 
     fun position(now: Instant): Duration {
         return observableState.calculateCurrentPosition(now)
@@ -343,6 +345,15 @@ class PlayerController(
     suspend fun startSeek() {
         sendCommand(EnterLowLatencyMode)
         sendCommand(SeekingStart)
+    }
+
+    /** Seeks to [target] only if [songKey] is still the current song. */
+    suspend fun seekInSong(songKey: SongKey?, target: Duration) {
+        startSeek()
+        transformQueue { q ->
+            if (q?.currentSongKey == songKey) q to Position.Specific(target) else q to Position.Current
+        }
+        endSeek()
     }
 
     suspend fun endSeek() {

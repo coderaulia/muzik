@@ -635,15 +635,7 @@ private fun MuzikTransportBar(
                         position = position,
                         duration = totalDuration,
                         onSeek = { target ->
-                            scope.launch {
-                                player.startSeek()
-                                player.transformQueue { q ->
-                                    if (q?.currentSongKey == song?.uniqueKey) {
-                                        q to Position.Specific(target)
-                                    } else q to Position.Current
-                                }
-                                player.endSeek()
-                            }
+                            scope.launch { player.seekInSong(song?.uniqueKey, target) }
                         },
                         modifier = Modifier.weight(1f),
                     )

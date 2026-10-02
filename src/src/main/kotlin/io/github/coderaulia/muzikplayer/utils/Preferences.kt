@@ -154,6 +154,21 @@ object Preferences {
         read = { prefs -> prefs.getBoolean("lyrics_full_view", false) },
         write = { prefs, value -> prefs.putBoolean("lyrics_full_view", value) }
     )
+    val equalizerEnabled = PreferenceContainer(
+        read = { prefs -> prefs.getBoolean("equalizer_enabled", false) },
+        write = { prefs, value -> prefs.putBoolean("equalizer_enabled", value) }
+    )
+    val equalizerGains = PreferenceContainer(
+        read = { prefs ->
+            val parsed = prefs.get("equalizer_gains", "").split(",").mapNotNull { it.toFloatOrNull() }
+            List(10) { parsed.getOrElse(it) { 0f } }
+        },
+        write = { prefs, value -> prefs.put("equalizer_gains", value.joinToString(",")) }
+    )
+    val lyricsOffsetMs = PreferenceContainer(
+        read = { prefs -> prefs.getInt("lyrics_offset_ms", 0) },
+        write = { prefs, value -> prefs.putInt("lyrics_offset_ms", value) }
+    )
     val bitPerfect = PreferenceContainer(
         read = { prefs -> prefs.getBoolean("bit_perfect", true) },
         write = { prefs, value -> prefs.putBoolean("bit_perfect", value) }

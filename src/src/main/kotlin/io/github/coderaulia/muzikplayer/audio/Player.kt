@@ -19,6 +19,10 @@ class Player private constructor(
     private val output: SourceDataLineWrapper,
 ) {
     private val source = SeekableAudioInputStream(format, input)
+    private val equalizer = Equalizer(format)
+    /** Length of the audio the output line can buffer, i.e. the real output latency ceiling. */
+    val outputBufferDuration: Duration
+        get() = format.framesToDuration((output.bufferSize / format.frameSize).toLong())
     val position: Duration
         get() {
             return format.framesToDuration(precisePositionInFrames())
@@ -90,7 +94,8 @@ class Player private constructor(
             val chunk = source.read(available, limitBytes)
             return if (chunk != null) {
                 cleanOutputtedFrames += chunk.length / format.frameSize
-                output.write(chunk.readData, chunk.offset, chunk.length)
+                val eq = equalizer.process(chunk.readData, chunk.offset, chunk.length)
+                if (eq != null) output.write(eq, 0, chunk.length) else output.write(chunk.readData, chunk.offset, chunk.length)
                 PlayResult.Played
             } else {
                 PlayResult.Finished
