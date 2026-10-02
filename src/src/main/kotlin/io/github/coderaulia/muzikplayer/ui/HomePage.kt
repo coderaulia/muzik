@@ -27,7 +27,19 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.foundation.focusable
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -64,6 +76,7 @@ private val surfaceContainerHigh: Color @Composable get() = LocalMuzikColors.cur
 private val surfaceContainerHighest: Color @Composable get() = LocalMuzikColors.current.containerHighest
 private val textOnSurface: Color @Composable get() = LocalMuzikColors.current.textPrimary
 private val textOnSurfaceVariant: Color @Composable get() = LocalMuzikColors.current.textSecondary
+private val textMuted: Color @Composable get() = LocalMuzikColors.current.textMuted
 private val outlineVariant: Color @Composable get() = LocalMuzikColors.current.border
 private val tertiaryGreen: Color @Composable get() = LocalMuzikColors.current.accentTertiary
 private val primaryBlue: Color @Composable get() = LocalMuzikColors.current.accentPrimary
@@ -90,7 +103,7 @@ fun HomePage(
         player.ObservePosition { position = it }
     }
     var selectedTab by remember { mutableStateOf(HomeInspectorTab.LYRICS) }
-    var lyricsFull by remember { mutableStateOf(false) }
+    val lyricsFull by Preferences.lyricsFullView.state
     val favoriteSongKeys by Preferences.favoriteSongKeys.state
     val isFavorite = currentSong != null && currentSong.file.pathString in favoriteSongKeys
     var showTrackInfo by remember { mutableStateOf(false) }
@@ -113,149 +126,152 @@ fun HomePage(
 
     val scrollState = rememberScrollState()
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(slateCanvas)
-            .verticalScroll(scrollState)
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        // 1. Top System & Library Status Anchor Bar
-        SystemStatusAnchorBar(library = library, currentSong = currentSong)
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        val viewportHeight = maxHeight
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(slateCanvas)
+                .verticalScroll(scrollState)
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            // 1. Top System & Library Status Anchor Bar
+            SystemStatusAnchorBar(library = library, currentSong = currentSong)
 
-        if (currentSong == null) {
-            // Empty state when nothing is in queue
-            EmptyPlaybackHero(library = library)
-        } else if (lyricsFull) {
-            FullLyricsView(
-                song = currentSong,
-                position = position,
-                onSeek = { target ->
-            scope.launch {
-                player.startSeek()
-                player.transformQueue { q ->
-                    if (q?.currentSongKey == currentSong?.uniqueKey) {
-                        q to Position.Specific(target)
-                    } else q to Position.Current
+            if (currentSong == null) {
+                // Empty state when nothing is in queue
+                EmptyPlaybackHero(library = library)
+            } else if (lyricsFull) {
+                FullLyricsView(
+                    song = currentSong,
+                    position = position,
+                    onSeek = { target ->
+                scope.launch {
+                    player.startSeek()
+                    player.transformQueue { q ->
+                        if (q?.currentSongKey == currentSong?.uniqueKey) {
+                            q to Position.Specific(target)
+                        } else q to Position.Current
+                    }
+                    player.endSeek()
                 }
-                player.endSeek()
-            }
-        },
-                onCollapse = { lyricsFull = false },
-                modifier = Modifier.fillMaxWidth().height(640.dp),
-            )
-        } else {
-            // Main 2-column studio layout
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                // Left 8-col: Studio Player Stage + Tabbed Deck + Contextual Album Strip
-                Column(
-                    modifier = Modifier.weight(0.65f),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+            },
+                    onCollapse = { Preferences.lyricsFullView.set(false) },
+                    modifier = Modifier.fillMaxWidth().height((viewportHeight - 120.dp).coerceAtLeast(420.dp)),
+                )
+            } else {
+                // Main 2-column studio layout
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    StudioPlayerStageCard(
-                        song = currentSong,
-                        queue = queue,
-                        position = position,
-                        isFavorite = isFavorite,
-                        onToggleFavorite = { currentSong?.let { Preferences.toggleFavorite(it.file) } },
-                        onSeek = { target ->
-                            scope.launch {
-                                player.startSeek()
-                                player.transformQueue { q ->
-                                    if (q?.currentSongKey == currentSong.uniqueKey) {
-                                        q to Position.Specific(target)
-                                    } else q to Position.Current
+                    // Left 8-col: Studio Player Stage + Tabbed Deck + Contextual Album Strip
+                    Column(
+                        modifier = Modifier.weight(0.65f),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        StudioPlayerStageCard(
+                            song = currentSong,
+                            queue = queue,
+                            position = position,
+                            isFavorite = isFavorite,
+                            onToggleFavorite = { currentSong?.let { Preferences.toggleFavorite(it.file) } },
+                            onSeek = { target ->
+                                scope.launch {
+                                    player.startSeek()
+                                    player.transformQueue { q ->
+                                        if (q?.currentSongKey == currentSong.uniqueKey) {
+                                            q to Position.Specific(target)
+                                        } else q to Position.Current
+                                    }
+                                    player.endSeek()
                                 }
-                                player.endSeek()
-                            }
-                        },
-                        loopStart = loopStart,
-                        loopEnd = loopEnd,
-                        onMarkLoop = {
-                            if (loopEnd != null) {
-                                loopStart = null
-                                loopEnd = null
-                            } else if (loopStart == null) {
-                                loopStart = position
-                                loopEnd = null
-                            } else {
-                                loopEnd = position.coerceAtLeast(loopStart ?: ZERO)
-                            }
-                        },
-                        onOpenEqualizer = { showEqualizer = true },
-                        onOpenTrackInfo = { showTrackInfo = true },
-                    )
-
-                    TabbedInspectorDeck(
-                        song = currentSong,
-                        position = position,
-                        selectedTab = selectedTab,
-                        onSelectTab = { selectedTab = it },
-                        onExpandLyrics = { lyricsFull = true },
-                        onSeek = { target ->
-                            scope.launch {
-                                player.startSeek()
-                                player.transformQueue { q ->
-                                    if (q?.currentSongKey == currentSong.uniqueKey) {
-                                        q to Position.Specific(target)
-                                    } else q to Position.Current
+                            },
+                            loopStart = loopStart,
+                            loopEnd = loopEnd,
+                            onMarkLoop = {
+                                if (loopEnd != null) {
+                                    loopStart = null
+                                    loopEnd = null
+                                } else if (loopStart == null) {
+                                    loopStart = position
+                                    loopEnd = null
+                                } else {
+                                    loopEnd = position.coerceAtLeast(loopStart ?: ZERO)
                                 }
-                                player.endSeek()
-                            }
-                        },
-                    )
+                            },
+                            onOpenEqualizer = { showEqualizer = true },
+                            onOpenTrackInfo = { showTrackInfo = true },
+                        )
 
-                    ContextualAlbumTracksStrip(
-                        currentSong = currentSong,
-                        library = library,
-                        onViewAlbumInLibrary = onViewAlbumInLibrary,
-                    )
-                }
-
-                // Right 4-col: Play Queue + Audio Diagnostic Monitor
-                Column(
-                    modifier = Modifier.weight(0.35f),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    PlayQueueCard(
-                        queue = queue,
-                        library = library,
-                        onRemove = { index ->
-                            scope.launch {
-                                player.transformQueue { q ->
-                                    if (q != null && q.songs.size > 1) {
-                                        val newSongs = q.songs.toMutableList().apply { removeAt(index) }
-                                        val newOriginal = q.originalSongs.toMutableList().apply { remove(q.songs[index]) }
-                                        val newPos = when {
-                                            index < q.position -> q.position - 1
-                                            index == q.position -> q.position.coerceAtMost(newSongs.lastIndex)
-                                            else -> q.position
-                                        }
-                                        q.copy(songs = newSongs, originalSongs = newOriginal, position = newPos) to Position.Current
-                                    } else q to Position.Current
+                        TabbedInspectorDeck(
+                            song = currentSong,
+                            position = position,
+                            selectedTab = selectedTab,
+                            onSelectTab = { selectedTab = it },
+                            onExpandLyrics = { Preferences.lyricsFullView.set(true) },
+                            onSeek = { target ->
+                                scope.launch {
+                                    player.startSeek()
+                                    player.transformQueue { q ->
+                                        if (q?.currentSongKey == currentSong.uniqueKey) {
+                                            q to Position.Specific(target)
+                                        } else q to Position.Current
+                                    }
+                                    player.endSeek()
                                 }
-                            }
-                        },
-                        onClear = {
-                            scope.launch {
-                                player.transformQueue { q ->
-                                    if (q != null) {
-                                        q.copy(
-                                            songs = listOf(q.currentSongKey),
-                                            originalSongs = listOf(q.currentSongKey),
-                                            position = 0,
-                                        ) to Position.Current
-                                    } else null to Position.Beginning
-                                }
-                            }
-                        },
-                    )
+                            },
+                        )
 
-                    AudioBackendMonitorCard()
+                        ContextualAlbumTracksStrip(
+                            currentSong = currentSong,
+                            library = library,
+                            onViewAlbumInLibrary = onViewAlbumInLibrary,
+                        )
+                    }
+
+                    // Right 4-col: Play Queue + Audio Diagnostic Monitor
+                    Column(
+                        modifier = Modifier.weight(0.35f),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        PlayQueueCard(
+                            queue = queue,
+                            library = library,
+                            onRemove = { index ->
+                                scope.launch {
+                                    player.transformQueue { q ->
+                                        if (q != null && q.songs.size > 1) {
+                                            val newSongs = q.songs.toMutableList().apply { removeAt(index) }
+                                            val newOriginal = q.originalSongs.toMutableList().apply { remove(q.songs[index]) }
+                                            val newPos = when {
+                                                index < q.position -> q.position - 1
+                                                index == q.position -> q.position.coerceAtMost(newSongs.lastIndex)
+                                                else -> q.position
+                                            }
+                                            q.copy(songs = newSongs, originalSongs = newOriginal, position = newPos) to Position.Current
+                                        } else q to Position.Current
+                                    }
+                                }
+                            },
+                            onClear = {
+                                scope.launch {
+                                    player.transformQueue { q ->
+                                        if (q != null) {
+                                            q.copy(
+                                                songs = listOf(q.currentSongKey),
+                                                originalSongs = listOf(q.currentSongKey),
+                                                position = 0,
+                                            ) to Position.Current
+                                        } else null to Position.Beginning
+                                    }
+                                }
+                            },
+                        )
+
+                        AudioBackendMonitorCard()
+                    }
                 }
             }
         }
@@ -322,7 +338,7 @@ private fun SystemStatusAnchorBar(
                     maxLines = 1,
                 )
                 if (!compact) {
-                    Text(" / ", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), color = outlineVariant)
+                    Text(" / ", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), color = textMuted)
                     Icon(Icons.Default.FolderOpen, null, Modifier.size(15.dp), tint = textOnSurfaceVariant)
                     Text(
                         musicDir,
@@ -333,7 +349,7 @@ private fun SystemStatusAnchorBar(
                         overflow = TextOverflow.Ellipsis,
                     )
                     Spacer(Modifier.width(12.dp))
-                    Text("$songCount tracks • $totalLength", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), color = outlineVariant, maxLines = 1)
+                    Text("$songCount tracks • $totalLength", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), color = textMuted, maxLines = 1)
                 }
                 Spacer(Modifier.weight(1f))
                 Surface(
@@ -626,7 +642,7 @@ private fun StudioPlayerStageCard(
                                 ),
                                 color = primaryBlue,
                             )
-                            Text("/", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), color = outlineVariant)
+                            Text("/", style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace), color = textMuted)
                             Text(
                                 song.length.format(),
                                 style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
@@ -884,7 +900,21 @@ private fun SyncedLyricsList(
     }
     BoxWithConstraints(modifier) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                .drawWithContent {
+                    drawContent()
+                    drawRect(
+                        Brush.verticalGradient(
+                            0f to Color.Transparent,
+                            0.18f to Color.Black,
+                            0.82f to Color.Black,
+                            1f to Color.Transparent,
+                        ),
+                        blendMode = BlendMode.DstIn,
+                    )
+                },
             state = listState,
             verticalArrangement = Arrangement.spacedBy(if (large) 18.dp else 8.dp),
             contentPadding = PaddingValues(vertical = maxHeight / 2),
@@ -928,7 +958,21 @@ private fun FullLyricsView(
     onCollapse: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Surface(modifier = modifier, shape = RoundedCornerShape(10.dp), color = surfaceContainer) {
+    val focus = remember { FocusRequester() }
+    LaunchedEffect(Unit) { focus.requestFocus() }
+    Surface(
+        modifier = modifier
+            .focusRequester(focus)
+            .focusable()
+            .onKeyEvent {
+                if (it.type == KeyEventType.KeyDown && it.key == Key.Escape) {
+                    onCollapse()
+                    true
+                } else false
+            },
+        shape = RoundedCornerShape(10.dp),
+        color = surfaceContainer,
+    ) {
         Box(Modifier.fillMaxSize()) {
             if (song.cover != null) {
                 AlbumCoverContent(
@@ -1069,7 +1113,7 @@ private fun LyricsDeckContent(
                 Text(
                     "Embedded LRC timestamps will synchronize automatically during playback",
                     style = MaterialTheme.typography.labelSmall,
-                    color = outlineVariant,
+                    color = textMuted,
                 )
             }
         }
@@ -1222,7 +1266,7 @@ private fun ContextualAlbumTracksStrip(
                             Text(
                                 song.length.format(),
                                 style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
-                                color = if (isPlaying) primaryBlue else outlineVariant,
+                                color = if (isPlaying) primaryBlue else textMuted,
                             )
                         }
                     }
@@ -1343,7 +1387,35 @@ private fun PlayQueueCard(
                                 )
                                 Icon(Icons.Default.Equalizer, null, Modifier.size(16.dp), tint = primaryBlue)
                             } else {
-                                Icon(Icons.Default.DragIndicator, null, Modifier.size(16.dp), tint = outlineVariant)
+                                Icon(
+                                    Icons.Default.DragIndicator,
+                                    "Reorder",
+                                    Modifier
+                                        .size(16.dp)
+                                        .pointerInput(index, songs.size) {
+                                            var total = 0f
+                                            detectDragGestures(
+                                                onDragStart = { total = 0f },
+                                                onDrag = { change, amount ->
+                                                    change.consume()
+                                                    total += amount.y
+                                                },
+                                                onDragEnd = {
+                                                    val rowPx = 54.dp.toPx()
+                                                    val target = (index + (total / rowPx).roundToInt())
+                                                        .coerceIn(0, songs.lastIndex)
+                                                    if (target != index) {
+                                                        scope.launch {
+                                                            player.transformQueue { q ->
+                                                                q?.moveTo(index, target) to Position.Current
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                            )
+                                        },
+                                    tint = textMuted,
+                                )
                             }
 
                             // Thumb
@@ -1381,7 +1453,7 @@ private fun PlayQueueCard(
                             Text(
                                 song?.length?.format() ?: "0:00",
                                 style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
-                                color = if (isPlaying) primaryBlue else outlineVariant,
+                                color = if (isPlaying) primaryBlue else textMuted,
                             )
 
                             if (!isPlaying) {
@@ -1417,7 +1489,7 @@ private fun PlayQueueCard(
                 Text(
                     "Total: ${songs.size} tracks",
                     style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
-                    color = outlineVariant,
+                    color = textMuted,
                 )
             }
         }

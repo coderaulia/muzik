@@ -150,6 +150,10 @@ object Preferences {
         read = { prefs -> prefs.getBoolean("watch_filesystem", true) },
         write = { prefs, value -> prefs.putBoolean("watch_filesystem", value) }
     )
+    val lyricsFullView = PreferenceContainer(
+        read = { prefs -> prefs.getBoolean("lyrics_full_view", false) },
+        write = { prefs, value -> prefs.putBoolean("lyrics_full_view", value) }
+    )
     val bitPerfect = PreferenceContainer(
         read = { prefs -> prefs.getBoolean("bit_perfect", true) },
         write = { prefs, value -> prefs.putBoolean("bit_perfect", value) }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
@@ -108,11 +109,13 @@ fun AlbumCoverBackground(cover: AlbumCover?, modifier: Modifier) {
                 Image(
                     cover.previewImage,
                     null,
-                    alpha = .3f,
+                    alpha = .2f,
                     modifier = Modifier.matchParentSize(),
                     contentScale = ContentScale.Crop,
                     filterQuality = FilterQuality.High,
                 )
+                // Scrim keeps list text readable over busy covers
+                Box(Modifier.matchParentSize().background(Color.Black.copy(alpha = .25f)))
             }
         }
     }

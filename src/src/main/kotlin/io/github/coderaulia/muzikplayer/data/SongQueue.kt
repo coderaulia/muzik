@@ -65,6 +65,19 @@ data class SongQueue(
         )
     }
 
+    /** Moves the song at [from] so it ends up at index [to]; the playing song keeps playing. */
+    fun moveTo(from: Int, to: Int): SongQueue {
+        if (from !in songs.indices || to !in songs.indices || from == to) return this
+        val newSongs = songs.toMutableList().apply { add(to, removeAt(from)) }
+        val newPos = when {
+            position == from -> to
+            from < position && to >= position -> position - 1
+            from > position && to <= position -> position + 1
+            else -> position
+        }
+        return copy(position = newPos, songs = newSongs)
+    }
+
     fun add(index: Int, song: Song): SongQueue {
         return copy(
             position = if (index <= position) position + 1 else position,

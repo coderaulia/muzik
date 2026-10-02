@@ -36,6 +36,19 @@ class SongQueueTest : FunSpec({
         shuffled.unshuffled().songs shouldBe queue.originalSongs
         shuffled.unshuffled().currentSongKey shouldBe songs[2].uniqueKey
     }
+
+    test("moveTo reorders and keeps the playing song current") {
+        val keys = songs.map { it.uniqueKey }
+        val down = queueOf(songs, 0).moveTo(0, 2)
+        down.songs shouldBe listOf(keys[1], keys[2], keys[0], keys[3])
+        down.currentSongKey shouldBe keys[0]
+
+        val up = queueOf(songs, 1).moveTo(3, 0)
+        up.songs shouldBe listOf(keys[3], keys[0], keys[1], keys[2])
+        up.currentSongKey shouldBe keys[1]
+
+        queueOf(songs, 2).moveTo(0, 3).currentSongKey shouldBe keys[2]
+    }
 })
 
 private fun song(number: Int): Song {

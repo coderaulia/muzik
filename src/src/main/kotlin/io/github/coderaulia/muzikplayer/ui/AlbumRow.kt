@@ -56,7 +56,7 @@ fun AlbumRow(
         sidePanelPadding = padding,
         showAlbumCover = false,
     ) {
-        Box(Modifier.width(128.dp), contentAlignment = Alignment.CenterEnd) {
+        Box(Modifier.width(128.dp), contentAlignment = Alignment.Center) {
             AlbumCover(album.cover, Modifier.size(albumSize), MaterialTheme.shapes.medium, elevation = 8.dp) {
                 if (songs.size > 1) {
                     var mouseOver by remember { mutableStateOf(false) }

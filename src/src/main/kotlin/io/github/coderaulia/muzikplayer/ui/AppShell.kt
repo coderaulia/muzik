@@ -452,14 +452,14 @@ private fun MuzikTransportBar(
     val formatTag = song?.file?.extension?.uppercase().orEmpty()
 
     Surface(
-        modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 84.dp),
         color = shellSurface,
         tonalElevation = 4.dp,
         border = androidx.compose.foundation.BorderStroke(1.dp, borderOutline),
     ) {
         BoxWithConstraints(Modifier.fillMaxWidth()) {
             val compactTransport = maxWidth < 820.dp
-            Column(Modifier.fillMaxWidth().padding(horizontal = if (compactTransport) 10.dp else 20.dp, vertical = if (compactTransport) 6.dp else 0.dp)) {
+            Column(Modifier.fillMaxWidth().padding(horizontal = if (compactTransport) 10.dp else 20.dp, vertical = if (compactTransport) 10.dp else 8.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -524,7 +524,7 @@ private fun MuzikTransportBar(
             Column(
                 modifier = if (compactTransport) Modifier.fillMaxWidth() else Modifier.widthIn(min = 340.dp, max = 560.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 // Button bar
                 Row(
@@ -539,6 +539,7 @@ private fun MuzikTransportBar(
                             }
                         },
                         modifier = Modifier.size(30.dp),
+                        enabled = song != null,
                     ) {
                         Icon(
                             Icons.Default.Shuffle,
@@ -557,6 +558,7 @@ private fun MuzikTransportBar(
                             }
                         },
                         modifier = Modifier.size(32.dp),
+                        enabled = song != null,
                     ) {
                         Icon(Icons.Default.SkipPrevious, "Previous", Modifier.size(22.dp), tint = textPrimary)
                     }
@@ -569,6 +571,7 @@ private fun MuzikTransportBar(
                             }
                         },
                         modifier = Modifier.size(36.dp),
+                        enabled = song != null,
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = primaryBlue,
                             contentColor = Color.White,
@@ -590,6 +593,7 @@ private fun MuzikTransportBar(
                             }
                         },
                         modifier = Modifier.size(32.dp),
+                        enabled = song != null,
                     ) {
                         Icon(Icons.Default.SkipNext, "Next", Modifier.size(22.dp), tint = textPrimary)
                     }
@@ -602,6 +606,7 @@ private fun MuzikTransportBar(
                             }
                         },
                         modifier = Modifier.size(30.dp),
+                        enabled = song != null,
                     ) {
                         Icon(
                             if (repeatMode == RepeatMode.REPEAT_SONG) Icons.Default.RepeatOne else Icons.Default.Repeat,
@@ -619,7 +624,7 @@ private fun MuzikTransportBar(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(
-                        position.format(),
+                        if (song == null) "--:--" else position.format(),
                         style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
                         color = textSecondary,
                     )
@@ -644,7 +649,7 @@ private fun MuzikTransportBar(
                     )
 
                     Text(
-                        totalDuration.format(),
+                        if (song == null) "--:--" else totalDuration.format(),
                         style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
                         color = textSecondary,
                     )
