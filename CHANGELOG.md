@@ -2,6 +2,23 @@
 
 All notable changes to MuzikPlayer are documented in this file.
 
+## [1.5.6] — 2026-10-02
+
+### Added
+- **Working Equalizer** — 10-band (31 Hz–16 kHz, ±12 dB) equalizer applied live to playback, with per-band sliders, enable switch, and reset.
+- **Lyrics Offset** — Adjust synced lyrics timing from the full lyrics view.
+- **Reorderable Play Queue** — Drag tracks in the Home play queue.
+- **Full Lyrics View improvements** — fills the window, `Esc` collapses, remembers its state, fades at the edges.
+
+### Changed
+- Audio Backend Monitor shows the measured output buffer and real output format; setting-driven values are labelled.
+- Bottom transport bar: more padding, `--:--` placeholders and disabled controls when idle.
+- Better text contrast on Home, centered album covers in Library, readability scrim over blurred backgrounds.
+- GitHub releases now use the matching CHANGELOG section as release notes.
+
+### Fixed
+- Seek logic de-duplicated into `PlayerController.seekInSong`.
+
 ## [1.5.5] — 2026-09-30
 
 ### Added

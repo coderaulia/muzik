@@ -46,8 +46,11 @@ Compose Desktop may also create host-native packages:
 ```bash
 ./gradlew packageDeb
 ./gradlew packageRpm
-./gradlew packageAppImage
 ```
+
+Compose's "app image" is only the unpacked application directory
+(`createReleaseDistributable` above), not a single-file `.AppImage`, so
+releases ship `.deb`, `.rpm`, and the portable `.tar.gz` instead.
 
 Packages are written below `src/build/compose/binaries/main-release/`.
 With the Linux targets enabled in `src/build.gradle.kts`, the release package
