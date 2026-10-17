@@ -73,15 +73,17 @@ fun main(args: Array<String>) {
             Thread.currentThread().priority = Thread.MAX_PRIORITY
 
             remember {
-                // Changing the WM class so the icon for the window is properly set.
+                // Changing the WM class so the icon for the window is properly set on Linux X11.
                 // Source - https://stackoverflow.com/a/29218320
-                try {
-                    val xToolkit = Toolkit.getDefaultToolkit()
-                    val awtAppClassNameField: Field = xToolkit.javaClass.getDeclaredField("awtAppClassName")
-                    awtAppClassNameField.setAccessible(true)
-                    awtAppClassNameField.set(xToolkit, "io.github.coderaulia.MuzikPlayer")
-                } catch (e: Exception) {
-                    logger.warn(e) { "Cannot change default WMClass" }
+                if (System.getProperty("os.name").orEmpty().lowercase().contains("linux")) {
+                    try {
+                        val xToolkit = Toolkit.getDefaultToolkit()
+                        val awtAppClassNameField: Field = xToolkit.javaClass.getDeclaredField("awtAppClassName")
+                        awtAppClassNameField.setAccessible(true)
+                        awtAppClassNameField.set(xToolkit, "io.github.coderaulia.MuzikPlayer")
+                    } catch (e: Exception) {
+                        logger.warn(e) { "Cannot change default WMClass" }
+                    }
                 }
             }
 

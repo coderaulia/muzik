@@ -13,6 +13,11 @@ private val logger = KotlinLogging.logger {}
 val GLOBAL_CONNECTION = CompletableDeferred<DBusConnection?>()
 
 fun loadDbusCollection() {
+    val isLinux = System.getProperty("os.name").orEmpty().lowercase().contains("linux")
+    if (!isLinux) {
+        GLOBAL_CONNECTION.complete(null)
+        return
+    }
     val dbus = try {
         DBusConnectionBuilder.forSessionBus().apply {
             withShared(false)

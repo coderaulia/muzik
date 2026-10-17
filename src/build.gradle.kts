@@ -133,12 +133,18 @@ tasks.withType<JavaExec>().configureEach {
     doFirst {
         val patchedDir = patchedFfsampledspDir.get().asFile.absolutePath
         val runtimeDir = ffsampledspRuntimeDir.get().asFile.absolutePath
-        val existing = environment["LD_LIBRARY_PATH"]?.toString()
-        environment["LD_LIBRARY_PATH"] = listOfNotNull(patchedDir, runtimeDir, existing).joinToString(":")
+        val existingLd = environment["LD_LIBRARY_PATH"]?.toString()
+        environment["LD_LIBRARY_PATH"] = listOfNotNull(patchedDir, runtimeDir, existingLd).joinToString(File.pathSeparator)
+        if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
+            val existingPath = (environment["PATH"] ?: environment["Path"])?.toString()
+            environment["PATH"] = listOfNotNull(patchedDir, existingPath).joinToString(File.pathSeparator)
+        }
+        systemProperty("java.library.path", listOfNotNull(patchedDir, runtimeDir, System.getProperty("java.library.path")).joinToString(File.pathSeparator))
     }
 }
 
 dependencies {
+    implementation(project(":shared"))
     implementation("org.jetbrains.compose.foundation:foundation:1.10.3")
     implementation(compose.desktop.currentOs)
     implementation("org.jetbrains.compose.components:components-resources:1.10.3")
@@ -255,9 +261,11 @@ tasks.configureEach {
 compose.desktop {
     application {
         mainClass = "io.github.coderaulia.muzikplayer.MainKt"
-        jvmArgs += listOf("--add-opens=java.desktop/sun.awt.X11=ALL-UNNAMED")
+        if (org.gradle.internal.os.OperatingSystem.current().isLinux) {
+            jvmArgs += listOf("--add-opens=java.desktop/sun.awt.X11=ALL-UNNAMED")
+        }
         jvmArgs += listOf("--enable-native-access=ALL-UNNAMED")
-        // To find ffsampledsp.so
+        // To find ffsampledsp.so / ffsampledsp.dll
         jvmArgs += listOf($$"-Djava.library.path=$APPDIR")
         jvmArgs += listOf("-Dredhat.crypto-policies=false")
         // These options are set to optimize the memory usage
@@ -300,6 +308,11 @@ compose.desktop {
             linux {
                 targetFormats(TargetFormat.Deb, TargetFormat.Rpm)
                 iconFile.set(project.file("flatpak/icon.png"))
+            }
+            windows {
+                targetFormats(TargetFormat.Msi, TargetFormat.Exe)
+                menuGroup = "MuzikPlayer"
+                upgradeUuid = "8a47b7d2-6b7c-4f2d-9b30-7c4a55f2e911"
             }
         }
         buildTypes.release.proguard {

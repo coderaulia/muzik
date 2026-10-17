@@ -30,19 +30,22 @@ object Preferences {
 
     private val prefs: Preferences = Preferences.userRoot().node("/io/github/music-player")
 
+    private fun defaultMusicPath(): Path =
+        Path.of(System.getProperty("user.home"), "Music")
+
     val libraryFolders = PreferenceContainer(
         read = { prefs ->
             val raw = prefs.get("library_folders", null)
             if (raw.isNullOrBlank()) {
                 val single = prefs.get("library_folder", null)
-                val defaultPath = Path.of(single ?: (System.getProperty("user.home") + "/Music"))
+                val defaultPath = single?.let { Path.of(it) } ?: defaultMusicPath()
                 listOf(defaultPath)
             } else {
                 raw.split(java.io.File.pathSeparator)
                     .filter { it.isNotBlank() }
                     .map { Path.of(it) }
                     .distinct()
-                    .ifEmpty { listOf(Path.of(System.getProperty("user.home") + "/Music")) }
+                    .ifEmpty { listOf(defaultMusicPath()) }
             }
         },
         write = { prefs, values ->
@@ -55,7 +58,9 @@ object Preferences {
 
     val libraryFolder = PreferenceContainer(
         read = { prefs ->
-            libraryFolders.get().firstOrNull() ?: Path.of(prefs.get("library_folder", System.getProperty("user.home") + "/Music"))
+            libraryFolders.get().firstOrNull()
+                ?: prefs.get("library_folder", null)?.let { Path.of(it) }
+                ?: defaultMusicPath()
         },
         write = { prefs, value ->
             prefs.put("library_folder", value.pathString)
@@ -90,7 +95,7 @@ object Preferences {
         val current = libraryFolders.get().toMutableList()
         if (current.remove(path)) {
             if (current.isEmpty()) {
-                current.add(Path.of(System.getProperty("user.home") + "/Music"))
+                current.add(defaultMusicPath())
             }
             libraryFolders.set(current)
             libraryFolder.set(current.first())

@@ -3,8 +3,13 @@ build/
 .pi/
 src/.gradle/
 src/build/
+src/*/build/
+src/.kotlin/
 .kotlin/
 local.properties
+src/local.properties
 *.log
 *.tar.gz
 *.flatpak
+*.apk
+*.aab

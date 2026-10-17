@@ -8,6 +8,7 @@ pluginManagement {
 
     plugins {
         kotlin("jvm").version(extra["kotlin.version"] as String)
+        kotlin("multiplatform").version(extra["kotlin.version"] as String)
         id("org.jetbrains.compose").version(extra["compose.version"] as String)
         id("org.jetbrains.kotlin.plugin.compose").version(extra["kotlin.version"] as String)
     }
@@ -15,3 +16,13 @@ pluginManagement {
 
 rootProject.name = "MuzikPlayer"
 
+include(":shared")
+include(":desktopApp")
+
+val hasAndroidSdk = System.getenv("ANDROID_HOME") != null ||
+    System.getenv("ANDROID_SDK_ROOT") != null ||
+    file("local.properties").exists()
+
+if (hasAndroidSdk && providers.gradleProperty("enableAndroidApp").orNull == "true") {
+    include(":androidApp")
+}

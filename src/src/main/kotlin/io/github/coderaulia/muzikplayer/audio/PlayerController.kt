@@ -61,16 +61,21 @@ class PlayerController(
     private val commandChannel: Channel<PlayerCommand> = Channel(Channel.UNLIMITED)
     private val stateChannel = Channel<State>(Channel.CONFLATED)
     private val mprisPlayer = run {
-        try {
-            MPRISPlayerController(
-                coroutineScope,
-                this,
-                quit = quit,
-                raise = raise,
-            )
-        } catch (e: Exception) {
-            logger.error { "Error creating MPRIS: ${e.message}" }
+        val isLinux = System.getProperty("os.name").orEmpty().lowercase().contains("linux")
+        if (!isLinux) {
             null
+        } else {
+            try {
+                MPRISPlayerController(
+                    coroutineScope,
+                    this,
+                    quit = quit,
+                    raise = raise,
+                )
+            } catch (e: Exception) {
+                logger.error { "Error creating MPRIS: ${e.message}" }
+                null
+            }
         }
     }
 
