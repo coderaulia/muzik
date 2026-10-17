@@ -1,9 +1,8 @@
 plugins {
     kotlin("multiplatform")
+    id("com.android.library")
     id("org.jetbrains.compose")
     id("org.jetbrains.kotlin.plugin.compose")
-    // Enable Android target when Android SDK / AGP is configured:
-    // id("com.android.library")
 }
 
 group = "io.github.coderaulia.muzikplayer"
@@ -16,17 +15,39 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
+android {
+    namespace = "io.github.coderaulia.muzikplayer.shared"
+    compileSdk = 35
+
+    defaultConfig {
+        minSdk = 26
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
 kotlin {
     jvmToolchain(25)
     compilerOptions {
         optIn.add("kotlin.time.ExperimentalTime")
     }
 
-    // Desktop JVM target (Linux & Windows)
-    jvm("desktop")
+    // Android target for :androidApp
+    androidTarget {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
+    }
 
-    // Android target (uncomment when com.android.library plugin and Android SDK are active)
-    // androidTarget()
+    // Desktop JVM target (Linux & Windows)
+    jvm("desktop") {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -45,6 +66,7 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
+        val androidMain by getting
         val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)

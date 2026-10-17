@@ -9,6 +9,10 @@ import java.nio.file.Path
 
 plugins {
     kotlin("jvm") version "2.3.20"
+    kotlin("multiplatform") version "2.3.20" apply false
+    kotlin("android") version "2.3.20" apply false
+    id("com.android.application") apply false
+    id("com.android.library") apply false
     id("org.jetbrains.compose")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.github.ben-manes.versions") version "0.53.0"

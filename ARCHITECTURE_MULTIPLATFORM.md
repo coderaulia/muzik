@@ -39,9 +39,15 @@ cd src
 ```
 
 ### Android Mobile
-1. Ensure Android SDK is installed (`ANDROID_HOME` set or `src/local.properties` configured with `sdk.dir=...`).
-2. Build with `-PenableAndroidApp=true`:
+1. Android SDK is installed on this machine at `/home/asw/Android/Sdk` and configured in `src/local.properties` (`sdk.dir=/home/asw/Android/Sdk`).
+2. Build the installable Android APK:
 ```bash
 cd src
-./gradlew :androidApp:assembleDebug -PenableAndroidApp=true
+./gradlew :androidApp:assembleDebug
+# Output APK: src/androidApp/build/outputs/apk/debug/androidApp-debug.apk
 ```
+3. Install onto a connected Android phone or emulator via `adb`:
+```bash
+/home/asw/Android/Sdk/platform-tools/adb install -r src/androidApp/build/outputs/apk/debug/androidApp-debug.apk
+```
+

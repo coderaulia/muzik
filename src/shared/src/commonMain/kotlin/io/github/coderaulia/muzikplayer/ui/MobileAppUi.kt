@@ -15,8 +15,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -1024,7 +1026,7 @@ private fun MobileLibraryScreen(
                     controller.sortField = next
                 }
             ) {
-                Icon(Icons.Default.Sort, contentDescription = null, modifier = Modifier.size(16.dp))
+                Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(4.dp))
                 Text(controller.sortField.label)
             }
@@ -1038,7 +1040,7 @@ private fun MobileLibraryScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     IconButton(onClick = { selectedAlbum = null }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back to albums")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to albums")
                     }
                     Column(modifier = Modifier.weight(1f)) {
                         Text(album.name, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
@@ -1070,7 +1072,7 @@ private fun MobileLibraryScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     IconButton(onClick = { selectedArtist = null }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back to artists")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to artists")
                     }
                     Column(modifier = Modifier.weight(1f)) {
                         Text(artist.name, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
@@ -1379,7 +1381,7 @@ private fun MobilePlaylistsScreen(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             IconButton(onClick = { activePlaylistId = null }) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                             }
                             Column {
                                 Text(
