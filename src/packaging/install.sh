@@ -43,6 +43,8 @@ elif [ -f "$SCRIPT_DIR/bin/MuzikPlayer" ]; then
     SRC_APP_DIR="$SCRIPT_DIR"
 elif [ -d "$SCRIPT_DIR/../build/compose/binaries/main-release/app/MuzikPlayer" ]; then
     SRC_APP_DIR="$SCRIPT_DIR/../build/compose/binaries/main-release/app/MuzikPlayer"
+elif [ -d "$SCRIPT_DIR/../build-dir/files/MuzikPlayer" ]; then
+    SRC_APP_DIR="$SCRIPT_DIR/../build-dir/files/MuzikPlayer"
 else
     echo "Error: Could not locate MuzikPlayer application files." >&2
     exit 1
@@ -80,12 +82,16 @@ ln -sf "$INSTALL_DIR/bin/MuzikPlayer" "$BIN_DIR/muzikplayer"
 # Copy icons if available
 if [ -f "$SCRIPT_DIR/icon.svg" ]; then
     cp "$SCRIPT_DIR/icon.svg" "$ICON_SCALABLE_DIR/io.github.coderaulia.MuzikPlayer.svg"
+elif [ -f "$SCRIPT_DIR/../flatpak/icon.svg" ]; then
+    cp "$SCRIPT_DIR/../flatpak/icon.svg" "$ICON_SCALABLE_DIR/io.github.coderaulia.MuzikPlayer.svg"
 elif [ -f "$SRC_APP_DIR/../flatpak/icon.svg" ]; then
     cp "$SRC_APP_DIR/../flatpak/icon.svg" "$ICON_SCALABLE_DIR/io.github.coderaulia.MuzikPlayer.svg"
 fi
 
 if [ -f "$SCRIPT_DIR/icon.png" ]; then
     cp "$SCRIPT_DIR/icon.png" "$ICON_PNG_DIR/io.github.coderaulia.MuzikPlayer.png"
+elif [ -f "$SCRIPT_DIR/../flatpak/icon.png" ]; then
+    cp "$SCRIPT_DIR/../flatpak/icon.png" "$ICON_PNG_DIR/io.github.coderaulia.MuzikPlayer.png"
 elif [ -f "$SRC_APP_DIR/../flatpak/icon.png" ]; then
     cp "$SRC_APP_DIR/../flatpak/icon.png" "$ICON_PNG_DIR/io.github.coderaulia.MuzikPlayer.png"
 fi
