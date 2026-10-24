@@ -9,6 +9,7 @@ jobs:
   build:
     name: "Build (${{ matrix.arch }})"
     strategy:
+      fail-fast: false
       matrix:
         include:
           - arch: amd64
@@ -39,7 +40,7 @@ jobs:
 
       - name: Build & Package Release Distributables
         run: |
-          ./gradlew packageReleaseDeb packageReleaseRpm packagePortableDistributable
+          ./gradlew :packageReleaseDeb :packageReleaseRpm :packagePortableDistributable
 
       - name: Stage Release Artifacts
         run: |

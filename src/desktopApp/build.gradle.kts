@@ -36,16 +36,21 @@ kotlin {
 compose.desktop {
     application {
         mainClass = "io.github.coderaulia.muzikplayer.MainKt"
+        buildTypes.release.proguard {
+            isEnabled.set(false)
+        }
         nativeDistributions {
             packageName = "MuzikPlayer"
             packageVersion = version.toString()
-            linux {
+            if (org.gradle.internal.os.OperatingSystem.current().isLinux) {
                 targetFormats(TargetFormat.Deb, TargetFormat.Rpm)
             }
-            windows {
+            if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
                 targetFormats(TargetFormat.Msi, TargetFormat.Exe)
-                menuGroup = "MuzikPlayer"
-                upgradeUuid = "8a47b7d2-6b7c-4f2d-9b30-7c4a55f2e911"
+                windows {
+                    menuGroup = "MuzikPlayer"
+                    upgradeUuid = "8a47b7d2-6b7c-4f2d-9b30-7c4a55f2e911"
+                }
             }
         }
     }

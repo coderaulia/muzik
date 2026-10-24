@@ -309,14 +309,18 @@ compose.desktop {
             if (debugBuild) {
                 modules.add("jdk.jdwp.agent")
             }
-            linux {
+            if (org.gradle.internal.os.OperatingSystem.current().isLinux) {
                 targetFormats(TargetFormat.Deb, TargetFormat.Rpm)
-                iconFile.set(project.file("flatpak/icon.png"))
+                linux {
+                    iconFile.set(project.file("flatpak/icon.png"))
+                }
             }
-            windows {
+            if (org.gradle.internal.os.OperatingSystem.current().isWindows) {
                 targetFormats(TargetFormat.Msi, TargetFormat.Exe)
-                menuGroup = "MuzikPlayer"
-                upgradeUuid = "8a47b7d2-6b7c-4f2d-9b30-7c4a55f2e911"
+                windows {
+                    menuGroup = "MuzikPlayer"
+                    upgradeUuid = "8a47b7d2-6b7c-4f2d-9b30-7c4a55f2e911"
+                }
             }
         }
         buildTypes.release.proguard {
