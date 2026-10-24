@@ -47,23 +47,7 @@ data class SongQueue(
         return copy(position = (position + 1).mod(songs.size))
     }
 
-    fun move(oldIndex: Int, newIndex: Int): SongQueue {
-        val newSongs = songs.toMutableList().apply {
-            val s = removeAt(oldIndex)
-            this.add(if (newIndex <= oldIndex) newIndex else newIndex - 1, s)
-        }
-        val newPos = when {
-            position == oldIndex -> newIndex
-            position == newIndex -> oldIndex
-            oldIndex < position && newIndex > position -> position - 1
-            oldIndex > position && newIndex < position -> position + 1
-            else -> position
-        }
-        return copy(
-            position = newPos,
-            songs = newSongs,
-        )
-    }
+    fun move(oldIndex: Int, newIndex: Int): SongQueue = moveTo(oldIndex, newIndex)
 
     /** Moves the song at [from] so it ends up at index [to]; the playing song keeps playing. */
     fun moveTo(from: Int, to: Int): SongQueue {
@@ -79,12 +63,13 @@ data class SongQueue(
     }
 
     fun add(index: Int, song: Song): SongQueue {
+        val safeIndex = index.coerceIn(0, songs.size)
+        val (l1, l2) = songs.splitAt(safeIndex)
         return copy(
-            position = if (index <= position) position + 1 else position,
+            position = if (safeIndex <= position) position + 1 else position,
             originalSongs = originalSongs + song.uniqueKey,
-            songs = songs.toMutableList().apply {
-                this.add(index, song.uniqueKey)
-            },
+            songs = l1 + song.uniqueKey + l2,
+            songsByKey = songsByKey + (song.uniqueKey to song),
         )
     }
 
@@ -186,3 +171,6 @@ fun SongQueue?.addIfMissing(song: Song): SongQueue {
 fun SongQueue?.append(song: Song): SongQueue {
     return this?.add(originalSongs.size, song) ?: addIfMissing(song)
 }
+
+private fun <T> List<T>.splitAt(index: Int): Pair<List<T>, List<T>> = take(index) to drop(index)
+

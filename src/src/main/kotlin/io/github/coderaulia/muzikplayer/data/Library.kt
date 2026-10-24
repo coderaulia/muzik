@@ -1,5 +1,6 @@
 package io.github.coderaulia.muzikplayer.data
 
+import io.github.coderaulia.muzikplayer.utils.Preferences
 import io.github.coderaulia.muzikplayer.utils.mostCommonOrNull
 import io.github.coderaulia.muzikplayer.utils.orNoop
 import io.github.coderaulia.muzikplayer.utils.pathSimilarity
@@ -119,6 +120,29 @@ data class Song(
             }
         }
         val format: AudioFormat = audioStream.format
+        val targetBits = if (Preferences.bitPerfect.get() && format.sampleSizeInBits in setOf(24, 32)) {
+            format.sampleSizeInBits
+        } else {
+            16
+        }
+
+        if (targetBits != 16) {
+            val nativePcmFormat = AudioFormat(
+                AudioFormat.Encoding.PCM_SIGNED,
+                format.sampleRate,
+                targetBits,
+                format.channels,
+                (targetBits / 8) * format.channels,
+                format.sampleRate,
+                format.isBigEndian,
+            )
+            try {
+                return AudioSystem.getAudioInputStream(nativePcmFormat, audioStream)
+            } catch (iae: IllegalArgumentException) {
+                logger.warn(iae) { "AudioSystem conversion to $targetBits-bit PCM failed; falling back to 16-bit PCM" }
+            }
+        }
+
         val pcmFormat = AudioFormat(
             AudioFormat.Encoding.PCM_SIGNED,
             format.sampleRate,

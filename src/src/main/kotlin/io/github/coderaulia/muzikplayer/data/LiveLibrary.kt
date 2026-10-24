@@ -3,6 +3,7 @@
 
 package io.github.coderaulia.muzikplayer.data
 
+import io.github.coderaulia.muzikplayer.utils.Preferences
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -19,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.exists
 import kotlin.io.path.extension
 import kotlin.io.path.isDirectory
+import kotlin.io.path.pathString
 import kotlin.io.path.readText
 import kotlin.time.TimeSource
 
@@ -31,6 +33,7 @@ private val LYRICS_EXTENSIONS = setOf("lrc")
 class LiveLibrary(
     private val scope: CoroutineScope,
     private val roots: Set<Path>,
+    private val cache: PersistentLibraryCache = PersistentLibraryCache(),
 ) {
     private val creationTime = TimeSource.Monotonic.markNow()
     private val watchService: WatchService = FileSystems.getDefault().newWatchService()
@@ -69,8 +72,11 @@ class LiveLibrary(
                         watchService.take()
                     }
                     val dirPath = monitorKey.watchable() as Path
-                    monitorKey.pollEvents().forEach { event ->
-                        onFileEvent(dirPath, event, decoder = CoversDecoder(scope))
+                    val events = monitorKey.pollEvents()
+                    if (Preferences.watchFilesystem.get()) {
+                        events.forEach { event ->
+                            onFileEvent(dirPath, event, decoder = CoversDecoder(scope))
+                        }
                     }
                     if (!monitorKey.reset()) {
                         monitorKey.cancel()
@@ -94,6 +100,7 @@ class LiveLibrary(
                             rawPlaylists.onFileDeleted(event.fileOrFolder)
                             rawImages.onFileDeleted(event.fileOrFolder)
                             rawLyrics.onFileDeleted(event.fileOrFolder)
+                            cache.remove(event.fileOrFolder)
                         }
 
                         is InternalEvent.FolderProcessed -> {}
@@ -106,6 +113,13 @@ class LiveLibrary(
                         logger.info {
                             val diff = creationTime.elapsedNow()
                             "Processed ${rawMetadatas.size} songs, ${rawPlaylists.size} playlists, ${rawImages.size} images, ${rawLyrics.size} lyrics ($diff since beginning)"
+                        }
+                        if (cache.isDirty) {
+                            try {
+                                cache.save()
+                            } catch (e: Exception) {
+                                logger.error(e) { "Failed to save library cache" }
+                            }
                         }
                         flowCollector.emit(library)
                     }
@@ -178,7 +192,53 @@ class LiveLibrary(
 
     private suspend fun onNewSong(file: Path, decoder: CoversDecoder) {
         try {
-            val songInfo = RawMetadataSong.fromMusicFile(file, decoder, env, partialDateParserCache)
+            val lastModifiedMs = try {
+                Files.getLastModifiedTime(file).toMillis()
+            } catch (_: Exception) {
+                -1L
+            }
+            val fileSize = try {
+                Files.size(file)
+            } catch (_: Exception) {
+                -1L
+            }
+
+            val cachedEntry = if (lastModifiedMs >= 0 && fileSize >= 0) {
+                cache.get(file, lastModifiedMs, fileSize)
+            } else {
+                null
+            }
+
+            val songInfo = if (cachedEntry != null) {
+                val coverBytes = if (cachedEntry.hasArtwork) cache.getCover(cachedEntry.path) else null
+                RawMetadataSong.fromCachedEntry(file, cachedEntry, decoder, coverBytes, partialDateParserCache)
+            } else {
+                val parsed = RawMetadataSong.fromMusicFile(file, decoder, env, partialDateParserCache)
+                if (lastModifiedMs >= 0 && fileSize >= 0) {
+                    val rawArtwork = parsed.rawArtworkBytes
+                    val entry = CachedSongEntry(
+                        path = file.toAbsolutePath().normalize().pathString,
+                        lastModifiedMs = lastModifiedMs,
+                        fileSize = fileSize,
+                        disk = parsed.disk,
+                        track = parsed.track,
+                        lengthSeconds = parsed.length.inWholeMilliseconds / 1000.0,
+                        formattedLength = parsed.formattedLength,
+                        title = parsed.title,
+                        album = parsed.album,
+                        artist = parsed.artist,
+                        albumArtist = parsed.albumArtist,
+                        dateStr = parsed.rawDateStr,
+                        lyricsRaw = parsed.lyrics?.rawString,
+                        hasArtwork = rawArtwork != null,
+                    )
+                    if (rawArtwork != null) {
+                        cache.saveCover(entry.path, rawArtwork)
+                    }
+                    cache.put(entry)
+                }
+                parsed
+            }
             eventChannel.send(InternalEvent.NewSong(file, songInfo))
         } catch (e: Exception) {
             eventChannel.send(InternalEvent.FileIgnored)

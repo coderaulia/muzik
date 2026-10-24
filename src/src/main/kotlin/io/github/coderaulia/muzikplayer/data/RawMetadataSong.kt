@@ -25,6 +25,8 @@ data class RawMetadataSong(
     override val date: PartialDate?,
     val cover: Deferred<AlbumCover?>,
     val lyrics: Lyrics?,
+    val rawDateStr: String? = null,
+    val rawArtworkBytes: ByteArray? = null,
 ) : BaseSong {
     val nnTitle get() = title ?: file.nameWithoutExtension
     val nnAlbum get() = album ?: "Unknown"
@@ -43,8 +45,8 @@ data class RawMetadataSong(
             val tag = f.tag
             val header = f.audioHeader
 
-            val dateStr = tag.getFirst(FieldKey.YEAR)
-            val date = PartialDate.parse(dateStr, partialDateParserCache)?.let { date ->
+            val dateStr = tag?.getFirst(FieldKey.YEAR)
+            val date = dateStr?.let { PartialDate.parse(it, partialDateParserCache) }?.let { date ->
                 // Unfortunately, a lot of songs say 1st of January to mean the year.
                 if (date is PartialDate.Date && date.date.dayOfYear == 1) {
                     date.year
@@ -54,21 +56,63 @@ data class RawMetadataSong(
             }
 
             val length = header.preciseTrackLength.seconds
-            val cover = tag.firstArtwork?.binaryData?.let { decoder.decode(it) } ?: CompletableDeferred(value = null)
+            val artworkBytes = tag?.firstArtwork?.binaryData
+            val cover = artworkBytes?.let { decoder.decode(it) } ?: CompletableDeferred(value = null)
             val formattedLength = length.formatSuspend(env.await())
             return RawMetadataSong(
                 file = file,
-                disk = tag.getFirst(FieldKey.DISC_NO)?.toIntOrNull(),
-                track = tag.getFirst(FieldKey.TRACK)?.toIntOrNull(),
+                disk = tag?.getFirst(FieldKey.DISC_NO)?.toIntOrNull(),
+                track = tag?.getFirst(FieldKey.TRACK)?.toIntOrNull(),
                 length = length,
                 formattedLength = formattedLength,
-                title = tag.getFirst(FieldKey.TITLE)?.trimToNull(),
-                album = tag.getFirst(FieldKey.ALBUM)?.trimToNull(),
-                artist = tag.getFirst(FieldKey.ARTIST)?.trimToNull(),
-                albumArtist = tag.getFirst(FieldKey.ALBUM_ARTIST)?.trimToNull(),
+                title = tag?.getFirst(FieldKey.TITLE)?.trimToNull(),
+                album = tag?.getFirst(FieldKey.ALBUM)?.trimToNull(),
+                artist = tag?.getFirst(FieldKey.ARTIST)?.trimToNull(),
+                albumArtist = tag?.getFirst(FieldKey.ALBUM_ARTIST)?.trimToNull(),
                 date = date,
                 cover = cover,
-                lyrics = Lyrics.of(tag.getFirst(FieldKey.LYRICS)),
+                lyrics = Lyrics.of(tag?.getFirst(FieldKey.LYRICS)),
+                rawDateStr = dateStr,
+                rawArtworkBytes = artworkBytes,
+            )
+        }
+
+        suspend fun fromCachedEntry(
+            file: Path,
+            entry: CachedSongEntry,
+            decoder: CoversDecoder,
+            coverBytes: ByteArray?,
+            partialDateParserCache: PartialDateParserCache,
+        ): RawMetadataSong {
+            val date = entry.dateStr?.let { str ->
+                PartialDate.parse(str, partialDateParserCache)?.let { date ->
+                    if (date is PartialDate.Date && date.date.dayOfYear == 1) {
+                        date.year
+                    } else {
+                        date
+                    }
+                }
+            }
+            val cover: Deferred<AlbumCover?> = if (entry.hasArtwork && coverBytes != null) {
+                decoder.decode(coverBytes)
+            } else {
+                CompletableDeferred(null)
+            }
+            return RawMetadataSong(
+                file = file,
+                disk = entry.disk,
+                track = entry.track,
+                length = entry.lengthSeconds.seconds,
+                formattedLength = entry.formattedLength,
+                title = entry.title,
+                album = entry.album,
+                artist = entry.artist,
+                albumArtist = entry.albumArtist,
+                date = date,
+                cover = cover,
+                lyrics = Lyrics.of(entry.lyricsRaw),
+                rawDateStr = entry.dateStr,
+                rawArtworkBytes = coverBytes,
             )
         }
     }

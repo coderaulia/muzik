@@ -49,6 +49,30 @@ class SongQueueTest : FunSpec({
 
         queueOf(songs, 2).moveTo(0, 3).currentSongKey shouldBe keys[2]
     }
+
+    test("add updates songsByKey so navigating to added song and reading currentSong succeeds") {
+        val queue = queueOf(songs, 0)
+        val addedSong = song(99)
+        val updated = queue.add(2, addedSong)
+
+        updated.songs.size shouldBe 5
+        updated.songs[2] shouldBe addedSong.uniqueKey
+        updated.songsByKey.containsKey(addedSong.uniqueKey) shouldBe true
+
+        // Navigate to the added song at index 2
+        val atAdded = updated.next().next()
+        atAdded.currentSongKey shouldBe addedSong.uniqueKey
+        atAdded.currentSong shouldBe addedSong
+    }
+
+    test("move delegates to moveTo and maintains consistent position tracking") {
+        val keys = songs.map { it.uniqueKey }
+        val moved = queueOf(songs, 0).move(0, 2)
+        val movedTo = queueOf(songs, 0).moveTo(0, 2)
+        moved shouldBe movedTo
+        moved.songs shouldBe listOf(keys[1], keys[2], keys[0], keys[3])
+        moved.currentSongKey shouldBe keys[0]
+    }
 })
 
 private fun song(number: Int): Song {
