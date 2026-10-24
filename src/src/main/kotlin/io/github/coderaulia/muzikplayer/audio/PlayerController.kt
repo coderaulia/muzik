@@ -4,10 +4,13 @@ import io.github.coderaulia.muzikplayer.data.SongKey
 import androidx.compose.runtime.*
 import io.github.coderaulia.muzikplayer.audio.PlayerCommand.*
 import io.github.coderaulia.muzikplayer.audio.PlayerController.SongDecodingProcess
+import io.github.coderaulia.muzikplayer.audio.PlayerController.PreDecodedSong
+import io.github.coderaulia.muzikplayer.data.AudioMetadataResolver
 import io.github.coderaulia.muzikplayer.data.Library
 import io.github.coderaulia.muzikplayer.data.Song
 import io.github.coderaulia.muzikplayer.data.SongQueue
 import io.github.coderaulia.muzikplayer.mpris.MPRISPlayerController
+import io.github.coderaulia.muzikplayer.utils.Preferences
 import io.github.coderaulia.muzikplayer.utils.debugElapsed
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.*
@@ -27,7 +30,18 @@ private val logger = KotlinLogging.logger {}
 
 private val BUFFER = 10.seconds
 private val FIRST_READ_BUFFER = MAX_SILENCE_PADDING
-val LOW_LATENCY_BUFFER = 100.milliseconds
+
+fun currentLowLatencyBuffer(): Duration {
+    val latencyPref = try { Preferences.bufferLatency.get() } catch (_: Exception) { "" }
+    return when {
+        latencyPref.startsWith("512") -> 50.milliseconds
+        latencyPref.startsWith("1024") -> 100.milliseconds
+        latencyPref.startsWith("2048") -> 200.milliseconds
+        else -> 100.milliseconds
+    }
+}
+
+val LOW_LATENCY_BUFFER: Duration get() = currentLowLatencyBuffer()
 private val SONG_SWITCH_THRESHOLD = 100.milliseconds
 
 sealed interface Position {
@@ -92,6 +106,11 @@ class PlayerController(
         val decodedSongData: StateFlow<SongDecoder.DecodedSongData?>,
     )
 
+    data class PreDecodedSong(
+        val songKey: SongKey,
+        val process: SongDecodingProcess,
+    )
+
     data class PositionState(
         val position: Duration,
         val informationAge: Instant = Clock.System.now(),
@@ -104,6 +123,7 @@ class PlayerController(
         val seeking: Boolean,
         val lowLatencyMode: Boolean,
         val level: Float,
+        val preDecoded: PreDecodedSong? = null,
     ) {
 
         companion object {
@@ -114,6 +134,7 @@ class PlayerController(
                 seeking = false,
                 lowLatencyMode = false,
                 level = 1f,
+                preDecoded = null,
             )
         }
 
@@ -147,6 +168,10 @@ class PlayerController(
                     Long.MAX_VALUE
                 }
 
+                val effectiveScale = currentlyPlaying.player.replayGainScale
+                val targetEffectiveLevel = (level * effectiveScale * SleepTimerController.volumeMultiplier.value).coerceIn(0f, 1f)
+                currentlyPlaying.player.setLevel(targetEffectiveLevel)
+
                 val result = currentlyPlaying.player.playFrame(bufferingCap, limit)
                 if (
                     result == Player.PlayResult.Finished &&
@@ -160,6 +185,33 @@ class PlayerController(
                         keepBufferedContent = true,
                     ).change { copy(pause = this.pause || !keepPlaying) }
                 } else {
+                    var nextPreDecoded = preDecoded
+                    val currentPos = currentlyPlaying.player.position
+                    val remaining = currentlyPlaying.queue.currentSong.length - currentPos
+                    if (remaining < 8.seconds && !seeking) {
+                        val (nextQueue, keepPlaying) = currentlyPlaying.queue.nextInQueue()
+                        val nextSong = nextQueue?.currentSong
+                        if (keepPlaying && nextSong != null && nextSong.uniqueKey != currentlyPlaying.queue.currentSongKey) {
+                            if (nextPreDecoded?.songKey != nextSong.uniqueKey) {
+                                nextPreDecoded?.process?.player?.stop()
+                                nextPreDecoded?.process?.jobsScope?.cancel()
+                                val prepared = try {
+                                    prepareSong(
+                                        song = nextSong,
+                                        position = Position.Beginning,
+                                        oldPlayer = null,
+                                        level = level,
+                                        keepBufferedContent = true,
+                                    )
+                                } catch (e: Exception) {
+                                    logger.error(e) { "Error pre-decoding next song: ${nextSong.title}" }
+                                    null
+                                }
+                                nextPreDecoded = prepared?.let { PreDecodedSong(nextSong.uniqueKey, it) }
+                            }
+                        }
+                    }
+
                     val maxAllowedPause = when (result) {
                         is Player.PlayResult.Played -> ZERO
                         is Player.PlayResult.NotPlayed -> (bufferingCap ?: BUFFER) / 10
@@ -173,7 +225,10 @@ class PlayerController(
                         }
                     }
                     StateChangeResult(
-                        copy(position = PositionState(currentlyPlaying.player.position)),
+                        copy(
+                            position = PositionState(currentlyPlaying.player.position),
+                            preDecoded = nextPreDecoded,
+                        ),
                         maxAllowedPause = maxAllowedPause,
                     )
                 }
@@ -187,13 +242,18 @@ class PlayerController(
                 player.stop()
                 jobsScope.cancel()
             }
+            preDecoded?.apply {
+                process.player.stop()
+                process.jobsScope.cancel()
+            }
             return State(
                 currentlyPlaying = null,
                 position = PositionState(ZERO),
                 pause = true,
                 seeking = seeking,
                 lowLatencyMode = lowLatencyMode,
-                level = level
+                level = level,
+                preDecoded = null,
             )
         }
 
@@ -208,22 +268,32 @@ class PlayerController(
 
             val new = queue.currentSong
 
-            val newCp = if (currentlyPlaying?.queue?.currentSongKey != new.uniqueKey) {
+            val (newCp, remainingPreDecoded) = if (currentlyPlaying?.queue?.currentSongKey != new.uniqueKey) {
                 currentlyPlaying?.jobsScope?.cancel()
-                val preparations = logger.debugElapsed("Preparing song ${new.title}") {
-                    try {
-                        prepareSong(
-                            song = new,
-                            position = position,
-                            oldPlayer = currentlyPlaying?.player,
-                            level = level,
-                            keepBufferedContent = keepBufferedContent,
-                        )
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        logger.error(e) { "Cannot prepare ${new.title} for playback" }
-                        null
+                val canReuse = preDecoded != null && preDecoded.songKey == new.uniqueKey && position == Position.Beginning
+                val preparations = if (canReuse) {
+                    logger.debug { "Reusing pre-decoded process for ${new.title}" }
+                    preDecoded.process
+                } else {
+                    preDecoded?.apply {
+                        process.player.stop()
+                        process.jobsScope.cancel()
+                    }
+                    logger.debugElapsed("Preparing song ${new.title}") {
+                        try {
+                            prepareSong(
+                                song = new,
+                                position = position,
+                                oldPlayer = currentlyPlaying?.player,
+                                level = level,
+                                keepBufferedContent = keepBufferedContent,
+                            )
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            logger.error(e) { "Cannot prepare ${new.title} for playback" }
+                            null
+                        }
                     }
                 }
                 if (preparations == null) {
@@ -234,10 +304,10 @@ class PlayerController(
                         queue,
                         preparations.player,
                         preparations.decodedSongData,
-                    )
+                    ) to null
                 }
             } else {
-                currentlyPlaying.copy(queue = queue).apply {
+                val updated = currentlyPlaying.copy(queue = queue).apply {
                     when (position) {
                         Position.Beginning -> {
                             val decoded = currentlyPlaying.decodedSongData.value
@@ -249,15 +319,19 @@ class PlayerController(
                         Position.Current -> {}
                     }
                 }
+                updated to preDecoded
             }
             return copy(
                 currentlyPlaying = newCp,
                 position = PositionState(newCp.player.position),
+                preDecoded = remainingPreDecoded,
             )
         }
 
         suspend fun setLevel(level: Float): State {
-            currentlyPlaying?.player?.setLevel(level)
+            val scale = currentlyPlaying?.player?.replayGainScale ?: 1f
+            val effective = (level * scale * SleepTimerController.volumeMultiplier.value).coerceIn(0f, 1f)
+            currentlyPlaying?.player?.setLevel(effective)
             return copy(level = level)
         }
     }
@@ -517,7 +591,7 @@ private suspend fun prepareSong(
     val stream = logger.debugElapsed("Opening song ${song.title}") {
         try {
             song.audioStream()
-    } catch (e: IOException) {
+        } catch (e: IOException) {
             logger.error(e) { "Cannot open audio stream for ${song.title}" }
             return null
         } catch (e: Exception) {
@@ -543,15 +617,24 @@ private suspend fun prepareSong(
         Position.Current, Position.Beginning -> decoded.songSilenceStart()
         is Position.Specific -> position.time
     }
+    val audioInfo = try { AudioMetadataResolver.resolve(song.file) } catch (_: Exception) { null }
+    val replayGainScale = AudioMetadataResolver.computeReplayGainScale(
+        Preferences.replayGain.get(),
+        audioInfo,
+        Preferences.peakProtection.get(),
+    )
+    val effectiveLevel = (level * replayGainScale * SleepTimerController.volumeMultiplier.value).coerceIn(0f, 1f)
+
     val player = Player.create(
         format = stream.format,
         input = input.readers[0],
         older = oldPlayer,
         bufferSize = bufferSize,
-        level = level,
+        level = effectiveLevel,
         position = actualPosition,
         keepBufferedContent = keepBufferedContent,
     )
+    player.replayGainScale = replayGainScale
     return SongDecodingProcess(
         jobsScope = scope,
         player = player,

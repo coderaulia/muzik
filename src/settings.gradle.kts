@@ -14,7 +14,12 @@ pluginManagement {
         id("org.jetbrains.kotlin.plugin.compose").version(extra["kotlin.version"] as String)
         id("com.android.application").version("8.10.1")
         id("com.android.library").version("8.10.1")
+        id("org.gradle.toolchains.foojay-resolver-convention").version("1.0.0")
     }
+}
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention")
 }
 
 rootProject.name = "MuzikPlayer"

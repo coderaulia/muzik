@@ -1,10 +1,12 @@
 package io.github.coderaulia.muzikplayer.audio
 
+import io.github.coderaulia.muzikplayer.utils.Preferences
 import io.github.coderaulia.muzikplayer.utils.durationToFrames
 import io.github.coderaulia.muzikplayer.utils.framesToDuration
 import io.github.coderaulia.muzikplayer.utils.toIntOrMax
 import io.github.oshai.kotlinlogging.KotlinLogging
 import javax.sound.sampled.AudioFormat
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -18,6 +20,9 @@ class Player private constructor(
     input: AsyncAudioInputStream.Reader,
     private val output: SourceDataLineWrapper,
 ) {
+    var replayGainScale: Float = 1.0f
+    private var lastLevel: Float = -1f
+
     private val source = SeekableAudioInputStream(format, input)
     private val equalizer = Equalizer(format)
     /** Length of the audio the output line can buffer, i.e. the real output latency ceiling. */
@@ -122,9 +127,9 @@ class Player private constructor(
     }
 
     suspend fun setLevel(level: Float) {
-        output.setLevel(level)
-        if (needsFlushingForLowLatency()) {
-            seekTo(precisePositionInFrames(), false)
+        if (abs(lastLevel - level) >= 0.0005f) {
+            lastLevel = level
+            output.setLevel(level)
         }
     }
 
@@ -133,8 +138,18 @@ class Player private constructor(
         fun optimalBufferSize(format: AudioFormat, buffer: Duration): Int {
             val bps: Float = format.frameRate * format.frameSize
             val bufferSize = (bps * (buffer / 1.seconds)).roundToInt()
-            // Buffer, rounded so chunks contain a whole number of frames
-            val rounded = (bufferSize / format.frameSize).coerceAtLeast(1) * format.frameSize
+            val minFrames = try {
+                val latencyPref = Preferences.bufferLatency.get()
+                when {
+                    latencyPref.startsWith("512") -> 512
+                    latencyPref.startsWith("1024") -> 1024
+                    else -> 2048
+                }
+            } catch (_: Exception) {
+                512
+            }
+            // Buffer, rounded so chunks contain a whole number of frames with at least minFrames
+            val rounded = (bufferSize / format.frameSize).coerceAtLeast(minFrames) * format.frameSize
             return rounded
         }
 
@@ -158,6 +173,7 @@ class Player private constructor(
                 older.output.bufferSize == bufferSize
             ) {
                 Player(format, input, older.output).apply {
+                    this.setLevel(level)
                     this.seekTo(position, keepBufferedContent)
                 }
             } else {
@@ -165,7 +181,9 @@ class Player private constructor(
                 val line = SourceDataLineWrapper.create(format, bufferSize)
                 line.setLevel(level)
                 line.start()
-                val ret = Player(format, input, line)
+                val ret = Player(format, input, line).apply {
+                    this.setLevel(level)
+                }
                 ret.seekTo(position, keepBufferedContent)
                 if (keepBufferedContent) {
                     older?.drainOrFlush()
