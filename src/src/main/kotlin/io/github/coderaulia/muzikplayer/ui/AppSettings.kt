@@ -38,6 +38,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
 import io.github.coderaulia.muzikplayer.data.Library
 import io.github.coderaulia.muzikplayer.generated.resources.*
+import io.github.coderaulia.muzikplayer.utils.AppInfo
 import io.github.coderaulia.muzikplayer.utils.GLOBAL_CONNECTION
 import io.github.coderaulia.muzikplayer.utils.Preferences
 import io.github.mmarco94.klibportal.portals.openFile
@@ -107,7 +108,7 @@ enum class SettingsCategory(
     ABOUT(
         label = "About MuzikPlayer",
         icon = Icons.Default.Info,
-        subtitle = { "v1.5.3 (x86_64)" },
+        subtitle = { "v${AppInfo.VERSION} (x86_64)" },
     ),
 }
 
@@ -1313,7 +1314,7 @@ private fun AboutSettingsPane() {
             )
 
             Text(
-                "Version 1.5.3 (Stable Flatpak • Linux x86_64)",
+                "Version ${AppInfo.VERSION} (Linux x86_64)",
                 style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
                 color = SlateTextMuted,
             )

@@ -36,6 +36,7 @@ fi
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_GRADLE="$REPO_ROOT/src/build.gradle.kts"
 README="$REPO_ROOT/README.md"
+APP_INFO="$REPO_ROOT/src/src/main/kotlin/io/github/coderaulia/muzikplayer/utils/AppInfo.kt"
 
 OLD_VERSION="$(grep -oP '(?<=^version = ")[^"]+' "$BUILD_GRADLE")"
 if [ -z "$OLD_VERSION" ]; then
@@ -56,6 +57,10 @@ sed -i "s|^version = \"$OLD_VERSION\"|version = \"$NEW_VERSION\"|" "$BUILD_GRADL
 # number (avoids accidentally touching an unrelated string that merely
 # contains the old version as a substring).
 sed -i "s|$OLD_VERSION|$NEW_VERSION|g" "$README"
+if [ -f "$APP_INFO" ]; then
+    sed -i "s|VERSION = \"$OLD_VERSION\"|VERSION = \"$NEW_VERSION\"|" "$APP_INFO"
+    echo "Updated: $APP_INFO"
+fi
 
 echo "Updated: $BUILD_GRADLE"
 echo "Updated: $README"
