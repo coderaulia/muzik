@@ -29,7 +29,7 @@ enum class ClassSharingMode {
 }
 
 group = "io.github.coderaulia"
-version = "1.5.6"
+version = "1.5.7"
 val debugBuild = false
 val runMode = ClassSharingMode.None
 

@@ -38,22 +38,31 @@ A modern desktop music player for your local library, built with Compose Desktop
 
 ### For Daily Users (No Dependencies Required)
 
-Pre-built releases include a bundled Java runtime—**no Java, Gradle, or build tools need to be installed on your machine**. Download the latest release from the [Releases](https://github.com/coderaulia/muzik/releases) page.
+Pre-built releases include a bundled Java runtime—**no Java, Gradle, or build tools need to be installed on your machine**.
+
+📥 **[Download Latest Release (v1.5.7) from GitHub Releases](https://github.com/coderaulia/muzik/releases/tag/v1.5.7)**
+
+| Package Format | Distribution / OS | Download Link |
+|---|---|---|
+| **Portable `.tar.gz`** | Any Linux (AMD64) — No Root Required | [MuzikPlayer-1.5.7-linux-amd64.tar.gz](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7-linux-amd64.tar.gz) |
+| **Debian / Ubuntu `.deb`** | Ubuntu, Debian, Linux Mint, Pop!_OS | [MuzikPlayer-1.5.7.deb](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7.deb) |
+| **RPM Package `.rpm`** | Fedora, RHEL, openSUSE | [MuzikPlayer-1.5.7.rpm](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7.rpm) |
+| **Flatpak Bundle** | Any Flatpak-enabled Linux | [MuzikPlayer-1.5.7.flatpak](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7.flatpak) |
 
 #### Debian / Ubuntu / Linux Mint (`.deb`)
 ```bash
-sudo apt install ./MuzikPlayer-1.5.6.deb
+sudo apt install ./MuzikPlayer-1.5.7.deb
 ```
 
 #### Fedora / RHEL / openSUSE (`.rpm`)
 ```bash
-sudo dnf install ./MuzikPlayer-1.5.6.rpm
+sudo dnf install ./MuzikPlayer-1.5.7.rpm
 ```
 
 #### Portable Archive (Any Linux — No Root Required)
 Download and extract the portable archive, then run the installer to integrate MuzikPlayer into your application launcher:
 ```bash
-tar -xzf MuzikPlayer-1.5.6-linux-x86_64.tar.gz
+tar -xzf MuzikPlayer-1.5.7-linux-amd64.tar.gz
 cd MuzikPlayer
 ./install.sh
 ```
@@ -70,7 +79,7 @@ flatpak install flathub org.freedesktop.Platform//26.08 org.freedesktop.Sdk//26.
 ```
 Then install the downloaded `.flatpak` bundle or run:
 ```bash
-flatpak install --user MuzikPlayer-1.5.6.flatpak
+flatpak install --user MuzikPlayer-1.5.7.flatpak
 flatpak run io.github.coderaulia.MuzikPlayer
 ```
 
@@ -181,7 +190,7 @@ muzikplayer/
 
 - **App ID:** `io.github.coderaulia.MuzikPlayer`
 - **Package:** `io.github.coderaulia.muzikplayer`
-- **Version:** 1.5.6
+- **Version:** 1.5.7
 
 ## License
 

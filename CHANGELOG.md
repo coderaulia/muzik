@@ -2,6 +2,21 @@
 
 All notable changes to MuzikPlayer are documented in this file.
 
+## [1.5.7] — 2026-10-24
+
+### Added
+- **ReplayGain & Hi-Res DSP Scaling** — Automatic track & album gain normalization with peak protection anti-clipping and dynamic buffer latency tuning (512, 1024, 2048 frames).
+- **Gapless Lookahead Pre-Buffering** — Predictive decoding of consecutive queue tracks avoids decoder startup delays at track boundaries.
+- **Sleep Timer** — Sleep timer with a smooth 30-second linear volume fade-out.
+- **Fast Persistent Binary Library Cache** — Sub-second warm library launches with cached metadata entries and extracted cover art stored in `~/.cache/muzikplayer/`.
+- **24-Bit / 32-Bit High-Resolution PCM Passthrough** — Native high-bit-depth playback stream passthrough when Bit-Perfect mode is active.
+- **LRCLIB Online Lyrics & Enhanced LRC Engine** — Multi-timestamp line parsing (`[00:10.00][00:30.00]`), 3-digit millisecond precision, word-tag stripping, local `.lrc` companion files, and automatic offline caching from LRCLIB.
+- **ListenBrainz Scrobbler & Discord Rich Presence** — Native scrobbling adhering to the 50%/4-minute rule and Unix domain socket Discord RPC status.
+- **Desktop Notifications & MPRIS 2.2 Hardening** — Track-change desktop notifications with artwork, D-Bus `TrackId` object path compliance, and standard `MediaPlayer2Player.Seeked` signal emissions.
+
+### Fixed
+- **Queue Insertion Key Map** — Calling `SongQueue.add` properly maps song unique keys, preventing `NoSuchElementException` when navigating newly added queue tracks.
+
 ## [1.5.6] — 2026-10-02
 
 ### Added
