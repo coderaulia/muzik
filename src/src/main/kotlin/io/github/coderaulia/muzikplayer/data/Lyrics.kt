@@ -7,6 +7,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 private val logger = KotlinLogging.logger {}
+private val INLINE_TIMESTAMP_REGEX = Regex("""<\s*\d+:\d+(?:[.:]\d+)?\s*>""")
 
 sealed interface Lyrics {
     val rawString: String
@@ -68,18 +69,28 @@ data class LrcFile(
             return if (mm < 0 || content == null) {
                 null
             } else {
-                val ios = tagValue.indexOf('.')
+                val ios = tagValue.indexOfFirst { it == '.' || it == ':' }
                 val startMs = if (ios >= 0) {
                     val ss = tagValue.toPositiveIntOrMinusOne(end = ios).takeIfPositive { return null }
-                    val xx = tagValue.toPositiveIntOrMinusOne(start = ios + 1).takeIfPositive { 0 }
-                    mm * 60 * 1000 + ss * 1000 + (xx * 10) - offsetMs
+                    val fracStr = tagValue.substring(ios + 1)
+                    val fractionMs = when {
+                        fracStr.isEmpty() -> 0
+                        fracStr.all { it in '0'..'9' } -> when (fracStr.length) {
+                            1 -> (fracStr[0] - '0') * 100
+                            2 -> (fracStr[0] - '0') * 100 + (fracStr[1] - '0') * 10
+                            else -> (fracStr[0] - '0') * 100 + (fracStr[1] - '0') * 10 + (fracStr[2] - '0')
+                        }
+                        else -> 0
+                    }
+                    mm * 60 * 1000 + ss * 1000 + fractionMs - offsetMs
                 } else {
                     val ss = tagValue.toPositiveIntOrMinusOne().takeIfPositive { return null }
                     mm * 60 * 1000 + ss * 1000 - offsetMs
                 }
+                val cleanContent = INLINE_TIMESTAMP_REGEX.replace(content, "").trim()
                 Lyrics.Synchronized.Line(
                     startMs.milliseconds,
-                    content,
+                    cleanContent,
                 )
             }
         }
@@ -90,7 +101,9 @@ data class LrcFile(
             .filter { it.tagKey.equals("offset", ignoreCase = true) }
             .mapNotNull { it.tagValue.toIntOrNull() }
             .sum()
-        val lines = entries.mapNotNull { it.toSynchronizedLine(offsetMs) }
+        val lines = entries
+            .mapNotNull { it.toSynchronizedLine(offsetMs) }
+            .sortedBy { it.start }
         if (lines.isEmpty()) {
             throw ParseException("Empty lines in Lrc", 0)
         }
@@ -101,35 +114,68 @@ data class LrcFile(
 
         private const val BOM = '\uFEFF'
 
-        private fun parseEntry(lyrics: String, start: Int, end: Int): Entry? {
+        private fun parseEntries(lyrics: String, start: Int, end: Int, destination: MutableList<Entry>) {
             var tagStart = start
             while (tagStart < end && (lyrics[tagStart].isWhitespace() || lyrics[tagStart] == BOM)) {
                 tagStart++
             }
-            if (tagStart == end) return null
+            if (tagStart == end) return
 
             if (lyrics[tagStart] != '[') {
                 throw ParseException("Line '${lyrics.subSequence(start, end)}' doesn't match", 0)
             }
 
-            val colon = lyrics.indexOf(':', tagStart + 1)
-            val tagEnd = lyrics.indexOf(']', colon + 1)
+            data class Tag(val key: String, val value: String)
+            val tags = mutableListOf<Tag>()
+            var curr = tagStart
+            var lastTagEnd = tagStart
 
-            if (colon !in 0..<end || tagEnd !in 0..<end) {
+            while (curr < end && lyrics[curr] == '[') {
+                val nextBracket = lyrics.indexOf(']', curr + 1)
+                if (nextBracket !in (curr + 1)..<end) break
+                val colon = lyrics.indexOf(':', curr + 1)
+                if (colon !in (curr + 1)..<nextBracket) break
+
+                val tagKey = lyrics.substringTrimmed(curr + 1, colon)
+                val tagValue = lyrics.substringTrimmed(colon + 1, nextBracket)
+                tags.add(Tag(tagKey, tagValue))
+                lastTagEnd = nextBracket
+
+                var nextTagStart = nextBracket + 1
+                while (nextTagStart < end && (lyrics[nextTagStart] == ' ' || lyrics[nextTagStart] == '\t')) {
+                    nextTagStart++
+                }
+                if (nextTagStart < end && lyrics[nextTagStart] == '[') {
+                    val nb = lyrics.indexOf(']', nextTagStart + 1)
+                    val nc = lyrics.indexOf(':', nextTagStart + 1)
+                    if (nb in (nextTagStart + 1)..<end && nc in (nextTagStart + 1)..<nb) {
+                        curr = nextTagStart
+                        continue
+                    }
+                }
+                break
+            }
+
+            if (tags.isEmpty()) {
                 throw ParseException("Line '${lyrics.subSequence(start, end)}' doesn't match", 0)
             }
 
-            return Entry(
-                lyrics.substringTrimmed(start + 1, colon),
-                lyrics.substringTrimmed(colon + 1, tagEnd),
-                lyrics.substringTrimmed(tagEnd + 1, end).ifEmpty { null },
-            )
+            val content = lyrics.substringTrimmed(lastTagEnd + 1, end).ifEmpty { null }
+            for (tag in tags) {
+                destination.add(Entry(tag.key, tag.value, content))
+            }
+        }
+
+        private fun parseEntry(lyrics: String, start: Int, end: Int): Entry? {
+            val list = mutableListOf<Entry>()
+            parseEntries(lyrics, start, end, list)
+            return list.firstOrNull()
         }
 
         fun of(lyrics: String): LrcFile {
             val entries = ArrayList<Entry>(lyrics.countAllLines())
             lyrics.forAllLines { start, end ->
-                parseEntry(lyrics, start, end)?.let { entries += it }
+                parseEntries(lyrics, start, end, entries)
             }
             if (entries.isEmpty()) {
                 throw ParseException("Empty Lrc", 0)

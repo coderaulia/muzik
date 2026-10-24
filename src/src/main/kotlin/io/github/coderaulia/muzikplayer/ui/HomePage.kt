@@ -995,7 +995,13 @@ private fun FullLyricsView(
                     )
                 }
                 Box(Modifier.weight(0.66f).fillMaxHeight()) {
-                    when (val lyrics = song.lyrics) {
+                    var resolvedLyrics by remember(song.uniqueKey, song.lyrics) { mutableStateOf(song.lyrics) }
+                    LaunchedEffect(song.uniqueKey, song.lyrics) {
+                        if (resolvedLyrics == null) {
+                            resolvedLyrics = io.github.coderaulia.muzikplayer.data.LyricsRepository.resolveLyrics(song)
+                        }
+                    }
+                    when (val lyrics = resolvedLyrics) {
                         is Lyrics.Synchronized -> SyncedLyricsList(
                             lines = lyrics.lines,
                             position = position,
@@ -1060,7 +1066,13 @@ private fun LyricsDeckContent(
     position: Duration,
     onSeek: (Duration) -> Unit,
 ) {
-    when (val lyrics = song.lyrics) {
+    var resolvedLyrics by remember(song.uniqueKey, song.lyrics) { mutableStateOf(song.lyrics) }
+    LaunchedEffect(song.uniqueKey, song.lyrics) {
+        if (resolvedLyrics == null) {
+            resolvedLyrics = io.github.coderaulia.muzikplayer.data.LyricsRepository.resolveLyrics(song)
+        }
+    }
+    when (val lyrics = resolvedLyrics) {
         is io.github.coderaulia.muzikplayer.data.Lyrics.Synchronized -> {
             SyncedLyricsList(
                 lines = lyrics.lines,
