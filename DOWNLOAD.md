@@ -11,8 +11,11 @@ Direct downloads from GitHub Releases:
 | Package | Target System | Direct Download Link |
 |---|---|---|
 | **Portable Bundle (`.tar.gz`)** | Any modern Linux (x86_64 / amd64) | [MuzikPlayer-1.5.7-linux-amd64.tar.gz](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7-linux-amd64.tar.gz) |
-| **Debian / Ubuntu (`.deb`)** | Ubuntu 22.04+, Debian 12+, Linux Mint, Pop!_OS | [MuzikPlayer-1.5.7.deb](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7.deb) |
-| **RPM Package (`.rpm`)** | Fedora 39+, RHEL 9+, openSUSE Tumbleweed/Leap | [MuzikPlayer-1.5.7.rpm](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7.rpm) |
+| **Portable Bundle (`.tar.gz`)** | Any modern Linux (ARM64 / aarch64) | [MuzikPlayer-1.5.7-linux-aarch64.tar.gz](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7-linux-aarch64.tar.gz) |
+| **Debian / Ubuntu (`.deb`)** | Ubuntu 22.04+, Debian 12+, Linux Mint, Pop!_OS (x86_64) | [muzikplayer_1.5.7_amd64.deb](https://github.com/coderaulia/muzik/releases/download/v1.5.7/muzikplayer_1.5.7_amd64.deb) |
+| **Debian / Ubuntu (`.deb`)** | Ubuntu 22.04+, Debian 12+, Raspberry Pi OS (arm64) | [muzikplayer_1.5.7_arm64.deb](https://github.com/coderaulia/muzik/releases/download/v1.5.7/muzikplayer_1.5.7_arm64.deb) |
+| **RPM Package (`.rpm`)** | Fedora 39+, RHEL 9+, openSUSE (x86_64) | [muzikplayer-1.5.7-1.x86_64.rpm](https://github.com/coderaulia/muzik/releases/download/v1.5.7/muzikplayer-1.5.7-1.x86_64.rpm) |
+| **RPM Package (`.rpm`)** | Fedora 39+, RHEL 9+, openSUSE (aarch64) | [muzikplayer-1.5.7-1.aarch64.rpm](https://github.com/coderaulia/muzik/releases/download/v1.5.7/muzikplayer-1.5.7-1.aarch64.rpm) |
 | **Flatpak Bundle (`.flatpak`)** | Any distribution with Flatpak | [MuzikPlayer-1.5.7.flatpak](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7.flatpak) |
 
 All releases and source archives: [https://github.com/coderaulia/muzik/releases/tag/v1.5.7](https://github.com/coderaulia/muzik/releases/tag/v1.5.7)
@@ -41,14 +44,14 @@ cd MuzikPlayer && ./uninstall.sh
 
 ### 2. Debian / Ubuntu / Linux Mint (`.deb`)
 ```bash
-wget https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7.deb
-sudo apt install ./MuzikPlayer-1.5.7.deb
+wget https://github.com/coderaulia/muzik/releases/download/v1.5.7/muzikplayer_1.5.7_amd64.deb
+sudo apt install ./muzikplayer_1.5.7_amd64.deb
 ```
 
 ### 3. Fedora / RHEL / openSUSE (`.rpm`)
 ```bash
-wget https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7.rpm
-sudo dnf install ./MuzikPlayer-1.5.7.rpm
+wget https://github.com/coderaulia/muzik/releases/download/v1.5.7/muzikplayer-1.5.7-1.x86_64.rpm
+sudo dnf install ./muzikplayer-1.5.7-1.x86_64.rpm
 ```
 
 ### 4. Flatpak Bundle

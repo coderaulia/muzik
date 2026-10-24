@@ -45,18 +45,18 @@ Pre-built releases include a bundled Java runtime—**no Java, Gradle, or build 
 | Package Format | Distribution / OS | Download Link |
 |---|---|---|
 | **Portable `.tar.gz`** | Any Linux (AMD64) — No Root Required | [MuzikPlayer-1.5.7-linux-amd64.tar.gz](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7-linux-amd64.tar.gz) |
-| **Debian / Ubuntu `.deb`** | Ubuntu, Debian, Linux Mint, Pop!_OS | [MuzikPlayer-1.5.7.deb](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7.deb) |
-| **RPM Package `.rpm`** | Fedora, RHEL, openSUSE | [MuzikPlayer-1.5.7.rpm](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7.rpm) |
+| **Debian / Ubuntu `.deb`** | Ubuntu, Debian, Linux Mint, Pop!_OS | [muzikplayer_1.5.7_amd64.deb](https://github.com/coderaulia/muzik/releases/download/v1.5.7/muzikplayer_1.5.7_amd64.deb) |
+| **RPM Package `.rpm`** | Fedora, RHEL, openSUSE | [muzikplayer-1.5.7-1.x86_64.rpm](https://github.com/coderaulia/muzik/releases/download/v1.5.7/muzikplayer-1.5.7-1.x86_64.rpm) |
 | **Flatpak Bundle** | Any Flatpak-enabled Linux | [MuzikPlayer-1.5.7.flatpak](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7.flatpak) |
 
 #### Debian / Ubuntu / Linux Mint (`.deb`)
 ```bash
-sudo apt install ./MuzikPlayer-1.5.7.deb
+sudo apt install ./muzikplayer_1.5.7_amd64.deb
 ```
 
 #### Fedora / RHEL / openSUSE (`.rpm`)
 ```bash
-sudo dnf install ./MuzikPlayer-1.5.7.rpm
+sudo dnf install ./muzikplayer-1.5.7-1.x86_64.rpm
 ```
 
 #### Portable Archive (Any Linux — No Root Required)
