@@ -47,7 +47,10 @@ data class MPRISMetadata(
 }
 
 
-fun SongKey.mprisTrackId() = "/io/github/coderaulia/MuzikPlayer/" + this.file.hashCode().toString()
+fun TrackId(path: String): TrackId = path
+val TrackId.path: String get() = this
+
+fun SongKey.mprisTrackId(): TrackId = TrackId("/io/github/coderaulia/MuzikPlayer/track_${Integer.toUnsignedString(file.hashCode(), 16)}")
 fun Song.mprisMetadata(): MPRISMetadata {
     return MPRISMetadata(
         trackId = uniqueKey.mprisTrackId(),

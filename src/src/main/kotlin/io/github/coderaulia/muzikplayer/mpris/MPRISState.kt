@@ -81,11 +81,8 @@ data class MPRISPlayerState(
         "CanControl" to canControl.variant(),
     )
 
-    fun diff(old: MPRISPlayerState, skipPosition: Boolean): PropertiesChanged? {
-        var diffs = variants.diff(old.variants)
-        if (skipPosition) {
-            diffs = diffs.minus("Position")
-        }
+    fun diff(old: MPRISPlayerState, skipPosition: Boolean = true): PropertiesChanged? {
+        val diffs = variants.diff(old.variants).minus("Position")
         return if (diffs.isEmpty()) {
             null
         } else {

@@ -5,6 +5,7 @@ import io.github.coderaulia.muzikplayer.audio.Position
 import io.github.coderaulia.muzikplayer.data.RepeatMode.*
 import io.github.coderaulia.muzikplayer.data.SongKey
 import io.github.coderaulia.muzikplayer.utils.GLOBAL_CONNECTION
+import io.github.coderaulia.muzikplayer.utils.Preferences
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +38,7 @@ class MPRISPlayerController(
             canRaise = true,
             hasTrackList = false,
             identity = "MuzikPlayer",
-            desktopEntry = "io.github.coderaulia.muzikplayer",
+            desktopEntry = "io.github.coderaulia.MuzikPlayer",
             supportedUriSchemes = listOf("file"),
             supportedMimeTypes = listOf(
                 "audio/mpeg",
@@ -180,14 +181,43 @@ class MPRISPlayerController(
             } else false
         val old = properties.mprisPlayerState
         properties.mprisPlayerState = mprisPlayerState
-        val diff = mprisPlayerState.diff(old, skipPosition)
-        if (diff != null) {
-            try {
-                connection.sendMessage(diff)
-            } catch (e: Exception) {
-                logger.error { "Cannot send message to the DBus: ${e.message}" }
+
+        if (Preferences.mprisEnabled.get()) {
+            if (!skipPosition && lastPositionData != null && lastPositionData.songKey == state.currentlyPlaying?.queue?.currentSongKey) {
+                try {
+                    connection.sendMessage(
+                        MediaPlayer2Player.Seeked("/org/mpris/MediaPlayer2", position.inWholeMicroseconds)
+                    )
+                } catch (e: Exception) {
+                    logger.error { "Cannot send Seeked message to the DBus: ${e.message}" }
+                }
+            }
+            val diff = mprisPlayerState.diff(old, skipPosition)
+            if (diff != null) {
+                try {
+                    connection.sendMessage(diff)
+                } catch (e: Exception) {
+                    logger.error { "Cannot send message to the DBus: ${e.message}" }
+                }
             }
         }
+
+        try {
+            ListenBrainzScrobbler.onPlaybackStateChanged(state, position)
+        } catch (e: Exception) {
+            logger.error { "ListenBrainz error: ${e.message}" }
+        }
+        try {
+            DiscordRpcClient.onPlaybackStateChanged(state, position)
+        } catch (e: Exception) {
+            logger.error { "Discord RPC error: ${e.message}" }
+        }
+        try {
+            DesktopNotifier.onPlaybackStateChanged(state)
+        } catch (e: Exception) {
+            logger.error { "DesktopNotifier error: ${e.message}" }
+        }
+
         return if (skipPosition) {
             lastPositionData
         } else {
