@@ -2,6 +2,13 @@
 
 All notable changes to MuzikPlayer are documented in this file.
 
+## [1.5.8] — 2026-10-28
+
+### Fixed
+- **Library never finished loading** on launches after the first: one album cover that never finished decoding blocked the whole library. Cover decoding now times out after 3 seconds and the song loads without art.
+- **Crash in packaged builds** (`NoClassDefFoundError: java/net/http/HttpClient`): the bundled runtime now includes `java.net.http`, so LRCLIB lyrics and ListenBrainz scrobbling work.
+- Library scan errors are logged with stack traces and can no longer stall the scan.
+
 ## [1.5.7] — 2026-10-24
 
 ### Added

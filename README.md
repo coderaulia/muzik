@@ -40,29 +40,29 @@ A modern desktop music player for your local library, built with Compose Desktop
 
 Pre-built releases include a bundled Java runtime—**no Java, Gradle, or build tools need to be installed on your machine**.
 
-📥 **[Download Latest Release (v1.5.7) from GitHub Releases](https://github.com/coderaulia/muzik/releases/tag/v1.5.7)**
+📥 **[Download Latest Release (v1.5.8) from GitHub Releases](https://github.com/coderaulia/muzik/releases/tag/v1.5.8)**
 
 | Package Format | Distribution / OS | Download Link |
 |---|---|---|
-| **Portable `.tar.gz`** | Any Linux (AMD64) — No Root Required | [MuzikPlayer-1.5.7-linux-amd64.tar.gz](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7-linux-amd64.tar.gz) |
-| **Debian / Ubuntu `.deb`** | Ubuntu, Debian, Linux Mint, Pop!_OS | [muzikplayer_1.5.7_amd64.deb](https://github.com/coderaulia/muzik/releases/download/v1.5.7/muzikplayer_1.5.7_amd64.deb) |
-| **RPM Package `.rpm`** | Fedora, RHEL, openSUSE | [muzikplayer-1.5.7-1.x86_64.rpm](https://github.com/coderaulia/muzik/releases/download/v1.5.7/muzikplayer-1.5.7-1.x86_64.rpm) |
-| **Flatpak Bundle** | Any Flatpak-enabled Linux | [MuzikPlayer-1.5.7.flatpak](https://github.com/coderaulia/muzik/releases/download/v1.5.7/MuzikPlayer-1.5.7.flatpak) |
+| **Portable `.tar.gz`** | Any Linux (AMD64) — No Root Required | [MuzikPlayer-1.5.8-linux-amd64.tar.gz](https://github.com/coderaulia/muzik/releases/download/v1.5.8/MuzikPlayer-1.5.8-linux-amd64.tar.gz) |
+| **Debian / Ubuntu `.deb`** | Ubuntu, Debian, Linux Mint, Pop!_OS | [muzikplayer_1.5.8_amd64.deb](https://github.com/coderaulia/muzik/releases/download/v1.5.8/muzikplayer_1.5.8_amd64.deb) |
+| **RPM Package `.rpm`** | Fedora, RHEL, openSUSE | [muzikplayer-1.5.8-1.x86_64.rpm](https://github.com/coderaulia/muzik/releases/download/v1.5.8/muzikplayer-1.5.8-1.x86_64.rpm) |
+| **Flatpak Bundle** | Any Flatpak-enabled Linux | [MuzikPlayer-1.5.8.flatpak](https://github.com/coderaulia/muzik/releases/download/v1.5.8/MuzikPlayer-1.5.8.flatpak) |
 
 #### Debian / Ubuntu / Linux Mint (`.deb`)
 ```bash
-sudo apt install ./muzikplayer_1.5.7_amd64.deb
+sudo apt install ./muzikplayer_1.5.8_amd64.deb
 ```
 
 #### Fedora / RHEL / openSUSE (`.rpm`)
 ```bash
-sudo dnf install ./muzikplayer-1.5.7-1.x86_64.rpm
+sudo dnf install ./muzikplayer-1.5.8-1.x86_64.rpm
 ```
 
 #### Portable Archive (Any Linux — No Root Required)
 Download and extract the portable archive, then run the installer to integrate MuzikPlayer into your application launcher:
 ```bash
-tar -xzf MuzikPlayer-1.5.7-linux-amd64.tar.gz
+tar -xzf MuzikPlayer-1.5.8-linux-amd64.tar.gz
 cd MuzikPlayer
 ./install.sh
 ```
@@ -79,7 +79,7 @@ flatpak install flathub org.freedesktop.Platform//26.08 org.freedesktop.Sdk//26.
 ```
 Then install the downloaded `.flatpak` bundle or run:
 ```bash
-flatpak install --user MuzikPlayer-1.5.7.flatpak
+flatpak install --user MuzikPlayer-1.5.8.flatpak
 flatpak run io.github.coderaulia.MuzikPlayer
 ```
 
@@ -190,7 +190,7 @@ muzikplayer/
 
 - **App ID:** `io.github.coderaulia.MuzikPlayer`
 - **Package:** `io.github.coderaulia.muzikplayer`
-- **Version:** 1.5.7
+- **Version:** 1.5.8
 
 ## License
 
