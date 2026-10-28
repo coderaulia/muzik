@@ -305,7 +305,7 @@ compose.desktop {
             packageName = "MuzikPlayer"
             packageVersion = version.toString()
 
-            modules("java.naming", "java.management", "jdk.security.auth", "jdk.unsupported")
+            modules("java.instrument", "java.naming", "java.management", "java.net.http", "java.prefs", "jdk.security.auth", "jdk.unsupported")
             if (debugBuild) {
                 modules.add("jdk.jdwp.agent")
             }

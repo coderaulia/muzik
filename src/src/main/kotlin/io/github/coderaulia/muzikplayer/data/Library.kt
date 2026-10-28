@@ -1,5 +1,7 @@
 package io.github.coderaulia.muzikplayer.data
 
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.withTimeoutOrNull
 import io.github.coderaulia.muzikplayer.utils.Preferences
 import io.github.coderaulia.muzikplayer.utils.mostCommonOrNull
 import io.github.coderaulia.muzikplayer.utils.orNoop
@@ -331,11 +333,15 @@ data class Library(
             }
         }
 
+        private val COVER_DECODE_TIMEOUT = 3.seconds
+
         suspend fun findCover(
             song: RawMetadataSong,
             imagesByPath: Map<Path, List<Map.Entry<Path, Deferred<AlbumCover?>>>>
         ): AlbumCover? {
-            val songCover = song.cover.await()
+            // A cover that never finishes decoding must not block the whole library from loading
+            val songCover = withTimeoutOrNull(COVER_DECODE_TIMEOUT) { song.cover.await() }
+            if (!song.cover.isCompleted) logger.warn { "Cover decoding timed out for ${song.file}" }
             if (songCover != null) return songCover
 
             val candidateImages = imagesByPath[song.file.parent] ?: return null

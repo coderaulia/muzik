@@ -108,7 +108,12 @@ class LiveLibrary(
                     }
                     val remaining = pendingEvents.decrementAndGet()
                     if (remaining == 0) {
-                        val library = Library.from(rawMetadatas.data, rawPlaylists.data, rawImages.data, rawLyrics.data)
+                        val library = try {
+                            Library.from(rawMetadatas.data, rawPlaylists.data, rawImages.data, rawLyrics.data)
+                        } catch (e: Throwable) {
+                            logger.error(e) { "Failed to build library" }
+                            continue
+                        }
                         System.gc()
                         logger.info {
                             val diff = creationTime.elapsedNow()
@@ -240,9 +245,11 @@ class LiveLibrary(
                 parsed
             }
             eventChannel.send(InternalEvent.NewSong(file, songInfo))
-        } catch (e: Exception) {
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Throwable) {
             eventChannel.send(InternalEvent.FileIgnored)
-            logger.error { "Error while parsing music file $file: ${e.message}" }
+            logger.error(e) { "Error while parsing music file $file: ${e.message}" }
         }
     }
 
